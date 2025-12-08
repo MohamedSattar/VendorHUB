@@ -1,11 +1,26 @@
 import { useLocation } from "react-router-dom";
+import DashboardHeader from "@/components/DashboardHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export default function Placeholder() {
   const location = useLocation();
-  const pageName = location.pathname.split("/")[1] || "page";
-  const displayName = pageName.charAt(0).toUpperCase() + pageName.slice(1);
+  const pathSegment = location.pathname.split("/")[1] || "page";
+
+  const nameMap: Record<string, string> = {
+    contracts: "Contracts",
+    engagements: "Engagements",
+    resources: "Resources",
+    profile: "Profile",
+    about: "About",
+    faq: "FAQ",
+    manuals: "Manuals",
+    terms: "Terms of Use",
+    privacy: "Privacy Policy",
+  };
+
+  const displayName = nameMap[pathSegment] || pathSegment.charAt(0).toUpperCase() + pathSegment.slice(1);
+  const isDashboardPage = ["contracts", "engagements", "resources", "profile"].includes(pathSegment);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
