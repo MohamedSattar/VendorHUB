@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { UIWireframeMockup, DecorativeWaves } from "@/components/DecorativeElements";
@@ -7,13 +8,16 @@ export default function Index() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Add actual login logic here
+    // Simulate login request
     setTimeout(() => {
       setIsLoading(false);
+      // Redirect to dashboard after successful login
+      navigate("/dashboard");
     }, 1000);
   };
 
