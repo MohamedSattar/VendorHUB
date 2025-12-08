@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Resources from "./pages/Resources";
+import AddResource from "./pages/AddResource";
 import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/contracts" element={<Placeholder />} />
             <Route path="/engagements" element={<Placeholder />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/add-resource" element={<AddResource />} />
             <Route path="/profile" element={<Placeholder />} />
             <Route path="/about" element={<Placeholder />} />
             <Route path="/faq" element={<Placeholder />} />
