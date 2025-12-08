@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import EmployeeCard from "@/components/EmployeeCard";
@@ -153,6 +154,7 @@ const employeesData: Employee[] = [
 const ITEMS_PER_PAGE = 4;
 
 export default function Resources() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("name");
@@ -232,7 +234,10 @@ export default function Resources() {
               <h1 className="text-3xl font-bold text-navy">
                 External Employee Preview
               </h1>
-              <button className="flex items-center gap-2 text-teal-500 border border-teal-500 px-4 py-2 rounded-full hover:bg-teal-50 transition font-medium">
+              <button
+                onClick={() => navigate("/add-resource")}
+                className="flex items-center gap-2 text-teal-500 border border-teal-500 px-4 py-2 rounded-full hover:bg-teal-50 transition font-medium"
+              >
                 <Plus className="w-4 h-4" />
                 Add New Resource
               </button>
