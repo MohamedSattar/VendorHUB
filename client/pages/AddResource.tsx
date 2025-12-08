@@ -4,17 +4,27 @@ import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import AddResourceForm from "@/components/AddResourceForm";
 import DocumentUploadSection from "@/components/DocumentUploadSection";
+import ImportCVModal from "@/components/ImportCVModal";
 import { Plus } from "lucide-react";
 
 export default function AddResource() {
   const navigate = useNavigate();
   const [activeResource, setActiveResource] = useState(1);
   const [resources, setResources] = useState([1]);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const handleAddResource = () => {
     const newResourceNum = Math.max(...resources) + 1;
     setResources([...resources, newResourceNum]);
     setActiveResource(newResourceNum);
+  };
+
+  const handleCVImport = (file: File) => {
+    // Handle CV file import
+    // This would typically send the file to a backend API for processing
+    console.log("CV imported:", file.name);
+    // After processing, show a success message
+    alert(`CV "${file.name}" imported successfully! Form fields will be populated with extracted data.`);
   };
 
   return (
@@ -43,7 +53,10 @@ export default function AddResource() {
             </div>
 
             {/* Import from CV button */}
-            <button className="flex items-center gap-2 text-sm text-navy border border-navy px-4 py-2 rounded hover:bg-navy/5 transition">
+            <button
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex items-center gap-2 text-sm text-navy border border-navy px-4 py-2 rounded hover:bg-navy/5 transition"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -142,6 +155,13 @@ export default function AddResource() {
       </main>
 
       <Footer />
+
+      {/* Import CV Modal */}
+      <ImportCVModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onFileSelected={handleCVImport}
+      />
     </div>
   );
 }
