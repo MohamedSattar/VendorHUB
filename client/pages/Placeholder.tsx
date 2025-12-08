@@ -24,7 +24,7 @@ export default function Placeholder() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      <Header />
+      {isDashboardPage ? <DashboardHeader /> : <Header />}
 
       <main className="flex-grow flex items-center justify-center px-4">
         <div className="text-center max-w-md">
