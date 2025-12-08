@@ -195,8 +195,7 @@ function CollapsibleSection({
                     Date of Birth*
                   </label>
                   <input
-                    type="text"
-                    placeholder="dd/mm/yyyy"
+                    type="date"
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-navy/20"
                   />
                 </div>
@@ -305,8 +304,7 @@ function CollapsibleSection({
                     Date of Issue*
                   </label>
                   <input
-                    type="text"
-                    placeholder="dd/mm/yyyy"
+                    type="date"
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-navy/20"
                   />
                 </div>
@@ -315,8 +313,7 @@ function CollapsibleSection({
                     Date of Expiry*
                   </label>
                   <input
-                    type="text"
-                    placeholder="dd/mm/yyyy"
+                    type="date"
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-navy/20"
                   />
                 </div>
@@ -355,8 +352,7 @@ function CollapsibleSection({
                     Their DOB
                   </label>
                   <input
-                    type="text"
-                    placeholder="dd/mm/yyyy"
+                    type="date"
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-navy/20"
                   />
                 </div>
