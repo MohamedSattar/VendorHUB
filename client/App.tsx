@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Resources from "./pages/Resources";
 import AddResource from "./pages/AddResource";
+import Engagements from "./pages/Engagements";
 import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 
@@ -25,7 +26,7 @@ export default function App() {
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/contracts" element={<Placeholder />} />
-            <Route path="/engagements" element={<Placeholder />} />
+            <Route path="/engagements" element={<Engagements />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/add-resource" element={<AddResource />} />
             <Route path="/profile" element={<Placeholder />} />
