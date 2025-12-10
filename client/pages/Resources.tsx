@@ -229,10 +229,10 @@ export default function Resources() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
           {/* Breadcrumb and Header */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-2">Home / View Resources</p>
+            <p className="text-sm text-gray-600 mb-2">Pages / Resources Pool</p>
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-navy">
-                External Employee Preview
+                Resources Pool
               </h1>
               <button
                 onClick={() => navigate("/add-resource")}
@@ -248,7 +248,7 @@ export default function Resources() {
           <div className="bg-white rounded-lg p-4 mb-8 shadow-sm">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <p className="text-sm text-gray-700 font-medium">
-                List of External Employees {filteredEmployees.length}/{employeesData.length}
+                Resources {filteredEmployees.length}/{employeesData.length}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
