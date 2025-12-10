@@ -62,21 +62,19 @@ export default function Index() {
 
           {/* Right section - Login form and graphics */}
           <div className="bg-gradient-to-b from-warm-tan to-warm-tan px-6 sm:px-8 lg:px-12 py-12 lg:py-20 flex flex-col items-center justify-center relative overflow-hidden">
-            {/* Background graphic */}
-            <div className="absolute top-0 right-0 opacity-20 pointer-events-none">
-              <svg
-                className="w-96 h-96"
-                viewBox="0 0 400 400"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="200" cy="200" r="180" fill="#E8C4A0" opacity="0.3" />
-              </svg>
+            {/* Decorative illustration - Clipboard and hand */}
+            <div className="absolute top-1/2 right-8 transform -translate-y-1/2 w-72 h-80 pointer-events-none hidden lg:block">
+              <UIWireframeMockup />
+            </div>
+
+            {/* Wavy decorative elements */}
+            <div className="absolute left-0 bottom-0 w-full opacity-50 pointer-events-none">
+              <DecorativeWaves />
             </div>
 
             {/* Login Card */}
-            <div className="bg-navy rounded-lg p-8 w-full max-w-sm relative z-10 shadow-lg">
-              <form onSubmit={handleLogin} className="space-y-4">
+            <div className="bg-navy rounded-lg p-8 w-full max-w-sm relative z-20 shadow-xl">
+              <form onSubmit={handleLogin} className="space-y-5">
                 <div>
                   <input
                     type="email"
@@ -84,7 +82,7 @@ export default function Index() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded text-navy placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-light-cyan"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded text-navy placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-light-cyan focus:border-transparent transition"
                   />
                 </div>
 
@@ -95,34 +93,24 @@ export default function Index() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded text-navy placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-light-cyan"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded text-navy placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-light-cyan focus:border-transparent transition"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-4 py-3 bg-light-cyan text-navy font-semibold rounded hover:bg-light-cyan/90 transition disabled:opacity-50"
+                  className="w-full px-4 py-3 bg-light-cyan text-navy font-bold rounded hover:bg-light-cyan/85 transition disabled:opacity-50 disabled:cursor-not-allowed text-base"
                 >
                   {isLoading ? "LOGGING IN..." : "LOGIN"}
                 </button>
               </form>
 
               <div className="mt-6 text-center">
-                <button className="text-light-cyan text-sm font-semibold hover:text-light-cyan/80 transition">
+                <a href="#" className="text-light-cyan text-sm font-semibold hover:text-light-cyan/80 transition inline-block">
                   REGISTER NOW
-                </button>
+                </a>
               </div>
-            </div>
-
-            {/* Decorative illustration */}
-            <div className="absolute bottom-0 right-0 w-64 h-64 pointer-events-none">
-              <UIWireframeMockup />
-            </div>
-
-            {/* Wavy decorative elements */}
-            <div className="absolute left-0 bottom-20 w-full opacity-40 pointer-events-none">
-              <DecorativeWaves />
             </div>
           </div>
         </div>
