@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Eye, Edit2, Search, SortAsc } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
@@ -92,6 +93,7 @@ type SortType = "name" | "date" | "status";
 type StatusFilter = "all" | "In Progress" | "On-hold" | "Completed" | "Planned";
 
 export default function Engagements() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("date");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -268,7 +270,9 @@ export default function Engagements() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <button className="p-1 text-navy hover:bg-gray-100 rounded transition">
+                            <button
+                              onClick={() => navigate("/profile")}
+                              className="p-1 text-navy hover:bg-gray-100 rounded transition">
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button className="p-1 text-navy hover:bg-gray-100 rounded transition">
