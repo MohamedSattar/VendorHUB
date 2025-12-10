@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Resources from "./pages/Resources";
 import AddResource from "./pages/AddResource";
 import Engagements from "./pages/Engagements";
+import Contracts from "./pages/Contracts";
 import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 
@@ -25,7 +26,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/contracts" element={<Placeholder />} />
+            <Route path="/contracts" element={<Contracts />} />
             <Route path="/engagements" element={<Engagements />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/add-resource" element={<AddResource />} />
