@@ -1,120 +1,131 @@
 export function UIWireframeMockup() {
   return (
     <svg
-      className="w-full max-w-sm h-auto"
-      viewBox="0 0 400 500"
+      className="w-full h-auto"
+      viewBox="0 0 450 550"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Device frame */}
+      {/* Clipboard body */}
       <rect
-        x="50"
-        y="30"
-        width="300"
-        height="380"
-        rx="20"
-        stroke="#1A2E5C"
-        strokeWidth="8"
+        x="60"
+        y="40"
+        width="240"
+        height="320"
+        rx="8"
         fill="none"
+        stroke="#D97534"
+        strokeWidth="6"
       />
 
-      {/* Screen content */}
+      {/* Clipboard clip */}
+      <rect
+        x="140"
+        y="20"
+        width="80"
+        height="35"
+        rx="4"
+        fill="#1A2E5C"
+      />
+
+      {/* Paper/page content lines */}
+      <line x1="85" y1="80" x2="280" y2="80" stroke="#D97534" strokeWidth="3" opacity="0.6" />
+      <line x1="85" y1="110" x2="280" y2="110" stroke="#D97534" strokeWidth="3" opacity="0.6" />
+      <line x1="85" y1="140" x2="280" y2="140" stroke="#D97534" strokeWidth="3" opacity="0.6" />
+      <line x1="85" y1="170" x2="240" y2="170" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+      <line x1="85" y1="195" x2="260" y2="195" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+      <line x1="85" y1="220" x2="250" y2="220" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+      <line x1="85" y1="245" x2="240" y2="245" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+      <line x1="85" y1="270" x2="270" y2="270" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+      <line x1="85" y1="295" x2="260" y2="295" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+      <line x1="85" y1="320" x2="240" y2="320" stroke="#D97534" strokeWidth="2" opacity="0.5" />
+
+      {/* Decorative pattern on clipboard */}
+      <circle cx="310" cy="60" r="4" fill="#D97534" opacity="0.4" />
+      <circle cx="330" cy="80" r="3" fill="#D97534" opacity="0.4" />
+      <circle cx="320" cy="100" r="4" fill="#D97534" opacity="0.4" />
+      <circle cx="340" cy="120" r="3" fill="#D97534" opacity="0.4" />
+
+      {/* Hand holding pen/pencil */}
       <g>
-        {/* Header bar */}
-        <rect x="65" y="50" width="270" height="40" fill="#F5F5F5" rx="4" />
-        <circle cx="80" cy="67" r="3" fill="#1A2E5C" opacity="0.5" />
-        <circle cx="90" cy="67" r="3" fill="#1A2E5C" opacity="0.5" />
-        <circle cx="100" cy="67" r="3" fill="#1A2E5C" opacity="0.5" />
-
-        {/* Content lines */}
-        <rect x="65" y="110" width="200" height="8" fill="#E8C4A0" rx="4" />
-        <rect x="65" y="130" width="150" height="6" fill="#CCCCCC" rx="3" />
-
-        {/* Image placeholder */}
-        <rect x="75" y="160" width="250" height="120" fill="#E8C4A0" rx="8" />
-        <line
-          x1="75"
-          y1="160"
-          x2="325"
-          y2="280"
-          stroke="#1A2E5C"
+        {/* Hand palm */}
+        <path
+          d="M 350 280 Q 360 260 370 240 Q 380 220 385 200"
+          fill="#E8C4A0"
+          stroke="#D97534"
           strokeWidth="2"
-          opacity="0.3"
         />
-        <line
-          x1="325"
-          y1="160"
-          x2="75"
-          y2="280"
-          stroke="#1A2E5C"
-          strokeWidth="2"
-          opacity="0.3"
-        />
-
-        {/* Grid buttons */}
-        <g>
-          <rect x="75" y="300" width="55" height="55" fill="none" stroke="#1A2E5C" strokeWidth="1.5" rx="4" />
-          <line x1="85" y1="310" x2="110" y2="335" stroke="#1A2E5C" strokeWidth="1.5" />
-          <line x1="110" y1="310" x2="85" y2="335" stroke="#1A2E5C" strokeWidth="1.5" />
-
-          <rect x="145" y="300" width="55" height="55" fill="none" stroke="#1A2E5C" strokeWidth="1.5" rx="4" />
-          <circle cx="172.5" cy="327.5" r="12" fill="none" stroke="#1A2E5C" strokeWidth="1.5" />
-
-          <rect x="215" y="300" width="55" height="55" fill="none" stroke="#1A2E5C" strokeWidth="1.5" rx="4" />
-          <rect x="225" y="310" width="15" height="15" fill="#1A2E5C" />
-          <rect x="245" y="310" width="15" height="15" fill="#1A2E5C" />
-          <rect x="225" y="330" width="15" height="15" fill="#1A2E5C" />
-          <rect x="245" y="330" width="15" height="15" fill="#1A2E5C" />
-
-          <rect x="285" y="300" width="55" height="55" fill="none" stroke="#1A2E5C" strokeWidth="1.5" rx="4" />
-          <line x1="295" y1="325" x2="320" y2="325" stroke="#1A2E5C" strokeWidth="1.5" />
-        </g>
-
-        {/* Bottom lines */}
-        <rect x="65" y="370" width="270" height="3" fill="#CCCCCC" rx="1.5" />
-        <rect x="65" y="380" width="270" height="3" fill="#CCCCCC" rx="1.5" />
-      </g>
-
-      {/* Hand holding device */}
-      <g>
-        {/* Palm */}
-        <ellipse cx="320" cy="380" rx="50" ry="60" fill="#E8C4A0" stroke="none" />
+        <ellipse cx="370" cy="300" rx="35" ry="50" fill="#E8C4A0" stroke="#D97534" strokeWidth="2" />
 
         {/* Fingers */}
         <path
-          d="M 310 320 Q 300 280 295 250"
+          d="M 345 260 Q 330 240 320 210"
+          stroke="#E8C4A0"
+          strokeWidth="20"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M 360 250 Q 360 220 355 190"
           stroke="#E8C4A0"
           strokeWidth="18"
           fill="none"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
-          d="M 330 310 Q 335 260 340 220"
+          d="M 375 260 Q 385 230 390 200"
+          stroke="#E8C4A0"
+          strokeWidth="18"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M 390 280 Q 405 260 415 220"
           stroke="#E8C4A0"
           strokeWidth="16"
           fill="none"
           strokeLinecap="round"
-        />
-        <path
-          d="M 350 320 Q 360 270 365 220"
-          stroke="#E8C4A0"
-          strokeWidth="16"
-          fill="none"
-          strokeLinecap="round"
+          strokeLinejoin="round"
         />
 
-        {/* Pen/stylus */}
+        {/* Thumb */}
+        <path
+          d="M 330 310 Q 310 310 300 330"
+          stroke="#E8C4A0"
+          strokeWidth="18"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+
+      {/* Pen/pencil */}
+      <g>
         <line
-          x1="340"
-          y1="200"
-          x2="355"
-          y2="280"
+          x1="310"
+          y1="180"
+          x2="280"
+          y2="130"
           stroke="#1A2E5C"
-          strokeWidth="6"
+          strokeWidth="7"
           strokeLinecap="round"
         />
-        <circle cx="355" cy="280" r="5" fill="#1A2E5C" />
+        <circle cx="310" cy="180" r="4" fill="#1A2E5C" />
+        <polygon points="310,180 318,190 302,190" fill="#1A2E5C" />
       </g>
+
+      {/* Eraser on pencil */}
+      <rect
+        x="276"
+        y="126"
+        width="8"
+        height="12"
+        fill="#FF6B4A"
+        rx="2"
+      />
     </svg>
   );
 }
