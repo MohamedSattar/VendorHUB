@@ -133,34 +133,31 @@ export function UIWireframeMockup() {
 export function DecorativeWaves() {
   return (
     <svg
-      className="w-full h-24"
-      viewBox="0 0 800 100"
+      className="w-full h-32"
+      viewBox="0 0 1000 120"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Wave 1 */}
+      {/* Decorative line 1 */}
       <path
-        d="M0 50 Q 100 40, 200 50 T 400 50 T 600 50 T 800 50"
-        stroke="#A0A0A0"
-        strokeWidth="2"
+        d="M0 40 Q 150 35, 300 45 T 600 45 T 900 40 T 1000 45"
+        stroke="#D97534"
+        strokeWidth="2.5"
         fill="none"
+        opacity="0.4"
       />
 
-      {/* Wave 2 */}
+      {/* Decorative line 2 */}
       <path
-        d="M0 30 Q 100 20, 200 30 T 400 30 T 600 30 T 800 30"
-        stroke="#5A9FA5"
+        d="M0 70 Q 150 65, 300 75 T 600 75 T 900 70 T 1000 75"
+        stroke="#D97534"
         strokeWidth="2"
         fill="none"
+        opacity="0.3"
       />
 
-      {/* Wave 3 */}
-      <path
-        d="M0 70 Q 100 60, 200 70 T 400 70 T 600 70 T 800 70"
-        stroke="#5A9FA5"
-        strokeWidth="2"
-        fill="none"
-      />
+      {/* Additional subtle lines */}
+      <line x1="0" y1="100" x2="1000" y2="100" stroke="#D97534" strokeWidth="1.5" opacity="0.25" />
     </svg>
   );
 }
