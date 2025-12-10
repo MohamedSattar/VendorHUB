@@ -1,5 +1,5 @@
 import { Eye, Edit2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface Engagement {
   id: string;
@@ -46,6 +46,8 @@ const engagements: Engagement[] = [
 ];
 
 export default function EngagementsList() {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -103,7 +105,9 @@ export default function EngagementsList() {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <button className="p-1 text-navy hover:bg-gray-100 rounded transition">
+                    <button
+                      onClick={() => navigate("/profile")}
+                      className="p-1 text-navy hover:bg-gray-100 rounded transition">
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button className="p-1 text-navy hover:bg-gray-100 rounded transition">

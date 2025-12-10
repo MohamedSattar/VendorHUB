@@ -43,12 +43,6 @@ export default function DashboardHeader() {
             >
               Resources
             </Link>
-            <Link
-              to="/profile"
-              className="text-navy font-medium hover:text-primary transition"
-            >
-              Profile
-            </Link>
           </nav>
 
           {/* Right section - Icons and profile */}
