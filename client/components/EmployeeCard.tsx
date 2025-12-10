@@ -53,12 +53,12 @@ export default function EmployeeCard({
   }, []);
 
   const handleView = () => {
-    navigate(`/resources?view=${id}`);
+    navigate(`/add-resource?view=${id}`);
     setIsMenuOpen(false);
   };
 
   const handleEdit = () => {
-    navigate(`/resources?edit=${id}`);
+    navigate(`/add-resource?edit=${id}`);
     setIsMenuOpen(false);
   };
 
