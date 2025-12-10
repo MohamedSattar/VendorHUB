@@ -27,7 +27,7 @@ export default function Index() {
 
       {/* Main content */}
       <main className="flex-grow flex flex-col">
-        <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 relative">
+        <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 relative overflow-hidden">
           {/* Left section - Welcome */}
           <div className="bg-white px-8 sm:px-12 py-16 lg:py-24 flex flex-col justify-center relative z-10">
             <div className="max-w-md">
@@ -60,8 +60,48 @@ export default function Index() {
             </div>
           </div>
 
+          {/* Curved divider between sections */}
+          <svg
+            className="absolute left-0 top-0 h-full hidden lg:block"
+            style={{ width: "60px" }}
+            preserveAspectRatio="none"
+            viewBox="0 0 100 1000"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M 0 0 Q 30 500, 0 1000"
+              stroke="none"
+              fill="none"
+            />
+            <path
+              d="M 100 0 Q 40 500, 100 1000"
+              stroke="none"
+              fill="none"
+            />
+          </svg>
+
           {/* Right section - Login form and graphics */}
           <div className="bg-gradient-to-br from-orange-300 via-orange-200 to-orange-300 px-8 sm:px-12 py-16 lg:py-24 flex flex-col items-center justify-center relative overflow-hidden">
+            {/* Curved organic shape at top */}
+            <svg
+              className="absolute top-0 right-0 w-full h-40 pointer-events-none"
+              preserveAspectRatio="xMidYMid slice"
+              viewBox="0 0 1200 300"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M 0 100 Q 200 20, 400 80 T 800 60 T 1200 120 L 1200 0 L 0 0 Z"
+                fill="#D89F6F"
+                opacity="0.3"
+              />
+              <path
+                d="M 0 140 Q 300 60, 600 140 T 1200 100 L 1200 300 L 0 300 Z"
+                fill="none"
+              />
+            </svg>
+
             {/* Decorative clipboard illustration */}
             <div className="absolute top-12 right-12 w-96 h-96 pointer-events-none hidden lg:flex items-center justify-center">
               <Clipboard />
