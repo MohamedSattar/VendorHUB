@@ -155,11 +155,11 @@ export default function EngagementDetails() {
   };
 
   const handleAddTeamMember = () => {
-    navigate("/resources?action=add&engagement=" + id);
+    navigate("/add-resource?action=add&engagement=" + id);
   };
 
   const handleEditTeamMember = (member: TeamMember) => {
-    navigate(`/resources?edit=${member.id}&engagement=${id}`);
+    navigate(`/add-resource?edit=${member.id}&engagement=${id}`);
   };
 
   const handleDeleteTeamMember = (id: string) => {
