@@ -2,6 +2,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
+import TeamMemberCard from "@/components/TeamMemberCard";
+
+interface TeamMember {
+  id: string;
+  name: string;
+  resourceNumber: string;
+  profileImage?: string;
+}
 
 interface Engagement {
   id: string;
@@ -13,7 +21,7 @@ interface Engagement {
   statusColor: string;
   description?: string;
   budget?: number;
-  team?: string[];
+  team?: TeamMember[];
 }
 
 const engagements: Record<string, Engagement> = {
@@ -27,7 +35,11 @@ const engagements: Record<string, Engagement> = {
     statusColor: "bg-blue-100 text-blue-700",
     description: "This engagement involves migrating our infrastructure to a cloud-based environment, ensuring minimal downtime and optimal performance.",
     budget: 500000,
-    team: ["Ahmed Abdullah", "Mohammed Rashid", "Noor Ibrahim"],
+    team: [
+      { id: "1", name: "Ahmed Abdullah", resourceNumber: "Resource #1", profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" },
+      { id: "2", name: "Mohammed Rashid", resourceNumber: "Resource #2", profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop" },
+      { id: "3", name: "Noor Ibrahim", resourceNumber: "Resource #3", profileImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop" },
+    ],
   },
   "2": {
     id: "2",
@@ -39,7 +51,10 @@ const engagements: Record<string, Engagement> = {
     statusColor: "bg-blue-100 text-blue-700",
     description: "Upgrading the current ERP system to the latest version with enhanced features and improved performance.",
     budget: 350000,
-    team: ["Ali Khouri", "Fatima Al Mansouri"],
+    team: [
+      { id: "4", name: "Ali Khouri", resourceNumber: "Resource #4", profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" },
+      { id: "5", name: "Fatima Al Mansouri", resourceNumber: "Resource #5", profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop" },
+    ],
   },
   "3": {
     id: "3",
@@ -51,7 +66,9 @@ const engagements: Record<string, Engagement> = {
     statusColor: "bg-yellow-100 text-yellow-700",
     description: "Implementation of a comprehensive marketing campaign software solution to streamline marketing operations.",
     budget: 200000,
-    team: ["Eman Salama"],
+    team: [
+      { id: "6", name: "Eman Salama", resourceNumber: "Resource #6", profileImage: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop" },
+    ],
   },
 };
 
@@ -157,17 +174,16 @@ export default function EngagementDetails() {
             {engagement.team && engagement.team.length > 0 && (
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-navy mb-4">Team Members</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {engagement.team.map((member, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center">
-                        <span className="text-sm font-bold text-navy">{member.charAt(0)}</span>
-                      </div>
-                      <span className="text-gray-700">{member}</span>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {engagement.team.map((member) => (
+                    <TeamMemberCard
+                      key={member.id}
+                      id={member.id}
+                      name={member.name}
+                      resourceNumber={member.resourceNumber}
+                      profileImage={member.profileImage}
+                      status="Active"
+                    />
                   ))}
                 </div>
               </div>
