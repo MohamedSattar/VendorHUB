@@ -1,7 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Bell, Settings } from "lucide-react";
 
 export default function DashboardHeader() {
+  const navigate = useNavigate();
+
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,7 +53,9 @@ export default function DashboardHeader() {
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
-            <button className="p-2 text-navy hover:bg-gray-100 rounded-lg transition">
+            <button
+              onClick={() => navigate("/profile")}
+              className="p-2 text-navy hover:bg-gray-100 rounded-lg transition">
               <Settings className="w-5 h-5" />
             </button>
             <button className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-90 transition">
