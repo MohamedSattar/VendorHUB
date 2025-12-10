@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, X } from "lucide-react";
+import { ArrowLeft, Save, X, ChevronDown } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
@@ -117,6 +117,8 @@ export default function EngagementDetails() {
     startDate: engagement?.startDate,
     endDate: engagement?.endDate,
   });
+
+  const [isTeamMembersOpen, setIsTeamMembersOpen] = useState(true);
 
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
@@ -273,6 +275,45 @@ export default function EngagementDetails() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     />
                   </div>
+
+                  {/* Collapsible Team Members Section */}
+                  {engagement.team && engagement.team.length > 0 && (
+                    <div className="border border-gray-300 rounded-lg overflow-hidden">
+                      {/* Collapsible Header */}
+                      <button
+                        type="button"
+                        onClick={() => setIsTeamMembersOpen(!isTeamMembersOpen)}
+                        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition border-b border-gray-300"
+                      >
+                        <h3 className="font-semibold text-navy">
+                          Team Members ({engagement.team.length})
+                        </h3>
+                        <ChevronDown
+                          className={`w-5 h-5 text-navy transition-transform ${
+                            isTeamMembersOpen ? "transform rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {/* Collapsible Content */}
+                      {isTeamMembersOpen && (
+                        <div className="p-4 bg-white">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {engagement.team.map((member) => (
+                              <TeamMemberCard
+                                key={member.id}
+                                id={member.id}
+                                name={member.name}
+                                resourceNumber={member.resourceNumber}
+                                profileImage={member.profileImage}
+                                status="Active"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Action buttons */}
                   <div className="flex gap-4 mt-8 pt-8 border-t border-gray-200">
