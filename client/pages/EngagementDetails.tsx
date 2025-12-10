@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, Save, X, ChevronDown, Plus, Edit2, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
@@ -119,6 +119,14 @@ export default function EngagementDetails() {
   });
 
   const [isTeamMembersOpen, setIsTeamMembersOpen] = useState(true);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>(engagement?.team || []);
+  const [showTeamMemberForm, setShowTeamMemberForm] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [memberFormData, setMemberFormData] = useState({
+    name: "",
+    resourceNumber: "",
+    profileImage: "",
+  });
 
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
@@ -150,6 +158,98 @@ export default function EngagementDetails() {
       budget: engagement?.budget,
       startDate: engagement?.startDate,
       endDate: engagement?.endDate,
+    });
+  };
+
+  const handleOpenTeamMemberForm = (member?: TeamMember) => {
+    if (member) {
+      setEditingMember(member);
+      setMemberFormData({
+        name: member.name,
+        resourceNumber: member.resourceNumber,
+        profileImage: member.profileImage || "",
+      });
+    } else {
+      setEditingMember(null);
+      setMemberFormData({
+        name: "",
+        resourceNumber: "",
+        profileImage: "",
+      });
+    }
+    setShowTeamMemberForm(true);
+  };
+
+  const handleCloseMemberForm = () => {
+    setShowTeamMemberForm(false);
+    setEditingMember(null);
+    setMemberFormData({
+      name: "",
+      resourceNumber: "",
+      profileImage: "",
+    });
+  };
+
+  const handleSaveTeamMember = () => {
+    if (!memberFormData.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Team member name is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!memberFormData.resourceNumber.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Resource number is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (editingMember) {
+      // Edit existing member
+      setTeamMembers((prev) =>
+        prev.map((member) =>
+          member.id === editingMember.id
+            ? {
+                ...member,
+                name: memberFormData.name,
+                resourceNumber: memberFormData.resourceNumber,
+                profileImage: memberFormData.profileImage,
+              }
+            : member
+        )
+      );
+      toast({
+        title: "Success",
+        description: "Team member updated successfully.",
+      });
+    } else {
+      // Add new member
+      const newMember: TeamMember = {
+        id: `${Date.now()}`,
+        name: memberFormData.name,
+        resourceNumber: memberFormData.resourceNumber,
+        profileImage: memberFormData.profileImage,
+      };
+      setTeamMembers((prev) => [...prev, newMember]);
+      toast({
+        title: "Success",
+        description: "Team member added successfully.",
+      });
+    }
+
+    handleCloseMemberForm();
+  };
+
+  const handleDeleteTeamMember = (id: string) => {
+    setTeamMembers((prev) => prev.filter((member) => member.id !== id));
+    toast({
+      title: "Success",
+      description: "Team member removed successfully.",
     });
   };
 
@@ -298,18 +398,73 @@ export default function EngagementDetails() {
                       {/* Collapsible Content */}
                       {isTeamMembersOpen && (
                         <div className="p-4 bg-white">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {engagement.team.map((member) => (
-                              <TeamMemberCard
-                                key={member.id}
-                                id={member.id}
-                                name={member.name}
-                                resourceNumber={member.resourceNumber}
-                                profileImage={member.profileImage}
-                                status="Active"
-                              />
-                            ))}
+                          <div className="mb-4">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTeamMemberForm()}
+                              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Add Team Member
+                            </button>
                           </div>
+
+                          {teamMembers.length > 0 ? (
+                            <div className="space-y-3">
+                              {teamMembers.map((member) => (
+                                <div
+                                  key={member.id}
+                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                                >
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <div className="w-10 h-10 rounded-full bg-navy/20 flex items-center justify-center text-sm font-bold text-navy">
+                                      {member.name
+                                        .split(" ")
+                                        .map((word) => word.charAt(0))
+                                        .join("")
+                                        .toUpperCase()}
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-gray-900">{member.name}</p>
+                                      <p className="text-sm text-gray-600">
+                                        {member.resourceNumber}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenTeamMemberForm(member)}
+                                      className="p-2 text-navy hover:bg-white rounded transition"
+                                      title="Edit member"
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteTeamMember(member.id)}
+                                      className="p-2 text-red-600 hover:bg-white rounded transition"
+                                      title="Remove member"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <p className="text-gray-500 mb-4">No team members added yet</p>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenTeamMemberForm()}
+                                className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium mx-auto"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add First Member
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -417,6 +572,102 @@ export default function EngagementDetails() {
           </div>
         </div>
       </main>
+
+      {/* Team Member Modal */}
+      {showTeamMemberForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-navy">
+                {editingMember ? "Edit Team Member" : "Add Team Member"}
+              </h3>
+              <button
+                onClick={handleCloseMemberForm}
+                className="p-1 text-gray-400 hover:text-navy rounded transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form className="space-y-4">
+              {/* Member Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={memberFormData.name}
+                  onChange={(e) =>
+                    setMemberFormData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter team member name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              {/* Resource Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Resource Number *
+                </label>
+                <input
+                  type="text"
+                  value={memberFormData.resourceNumber}
+                  onChange={(e) =>
+                    setMemberFormData((prev) => ({
+                      ...prev,
+                      resourceNumber: e.target.value,
+                    }))
+                  }
+                  placeholder="e.g., Resource #1"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              {/* Profile Image URL */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Profile Image URL
+                </label>
+                <input
+                  type="text"
+                  value={memberFormData.profileImage}
+                  onChange={(e) =>
+                    setMemberFormData((prev) => ({
+                      ...prev,
+                      profileImage: e.target.value,
+                    }))
+                  }
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 mt-6 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={handleSaveTeamMember}
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+                >
+                  {editingMember ? "Update" : "Add"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseMemberForm}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
