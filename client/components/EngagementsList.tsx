@@ -106,11 +106,13 @@ export default function EngagementsList() {
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => navigate("/profile")}
+                      onClick={() => navigate(`/engagement/${engagement.id}`)}
                       className="p-1 text-navy hover:bg-gray-100 rounded transition">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button className="p-1 text-navy hover:bg-gray-100 rounded transition">
+                    <button
+                      onClick={() => navigate(`/engagement/${engagement.id}`)}
+                      className="p-1 text-navy hover:bg-gray-100 rounded transition">
                       <Eye className="w-4 h-4" />
                     </button>
                   </div>
