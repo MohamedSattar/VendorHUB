@@ -13,6 +13,9 @@ import Engagements from "./pages/Engagements";
 import EngagementDetails from "./pages/EngagementDetails";
 import Contracts from "./pages/Contracts";
 import Profile from "./pages/Profile";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
+import Manuals from "./pages/Manuals";
 import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 
@@ -34,9 +37,9 @@ export default function App() {
             <Route path="/resources" element={<Resources />} />
             <Route path="/add-resource" element={<AddResource />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/about" element={<Placeholder />} />
-            <Route path="/faq" element={<Placeholder />} />
-            <Route path="/manuals" element={<Placeholder />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/manuals" element={<Manuals />} />
             <Route path="/terms" element={<Placeholder />} />
             <Route path="/privacy" element={<Placeholder />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
