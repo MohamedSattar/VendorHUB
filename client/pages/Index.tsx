@@ -31,14 +31,14 @@ export default function Index() {
       <main className="flex-grow flex flex-col">
         <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 relative overflow-hidden">
           {/* Left section - Welcome */}
-          <div className="bg-white px-8 sm:px-12 py-16 lg:py-24 flex flex-col justify-center relative z-10">
+          <div className={`bg-white px-8 sm:px-12 py-16 lg:py-24 flex flex-col justify-center relative z-10 ${isArabic ? "text-right" : "text-left"}`}>
             <div className="max-w-md">
               <h1 className="text-5xl sm:text-6xl font-bold text-navy mb-6 leading-tight">
-                Welcome to<br />
-                ECA Vendor Hub
+                {t("index.welcome")}<br />
+                {t("index.vendorHub")}
               </h1>
               <p className="text-base text-gray-700 mb-16 leading-relaxed">
-                Please Login to access the requests
+                {t("index.subtitle")}
               </p>
 
               {/* Decorative curved element */}
