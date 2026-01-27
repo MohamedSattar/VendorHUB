@@ -148,9 +148,10 @@ export default function Index() {
                 </button>
               </form>
 
-              <div className="mt-8 text-center border-t border-navy/20 pt-6">
+              <div className={`mt-8 ${isArabic ? "text-right" : "text-center"} border-t border-navy/20 pt-6`}>
+                <p className="text-cyan-100 text-xs mb-3">{t("index.registerText")}</p>
                 <a href="#" className="text-cyan-300 text-sm font-semibold hover:text-cyan-200 transition duration-200 inline-block">
-                  REGISTER NOW
+                  {t("index.register")}
                 </a>
               </div>
             </div>
