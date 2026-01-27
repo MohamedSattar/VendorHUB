@@ -2,9 +2,11 @@ import { useLocation } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Placeholder() {
   const location = useLocation();
+  const { t, isArabic } = useLanguage();
   const pathSegment = location.pathname.split("/")[1] || "page";
 
   const nameMap: Record<string, string> = {
