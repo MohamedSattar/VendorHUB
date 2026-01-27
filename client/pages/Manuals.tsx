@@ -92,6 +92,7 @@ const categories = ["All", ...new Set(manuals.map((m) => m.category))];
 
 export default function Manuals() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const { t, isArabic } = useLanguage();
 
   const filteredManuals =
     selectedCategory === "All"
@@ -107,19 +108,19 @@ export default function Manuals() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white" dir={isArabic ? "rtl" : "ltr"}>
       <Header />
 
       <main className="flex-grow">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-navy mb-4">Documentation & Manuals</h1>
+        <div className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${isArabic ? "text-right" : "text-left"}`}>
+          <h1 className="text-4xl font-bold text-navy mb-4">{t("manuals.title")}</h1>
           <p className="text-lg text-gray-600 mb-12">
-            Access comprehensive guides and manuals to help you make the most of the ECA Vendor Hub platform.
+            {t("manuals.subtitle")}
           </p>
 
           {/* Category Filter */}
           <div className="mb-8">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4">Filter by Category</h2>
+            <h2 className="text-sm font-semibold text-gray-700 mb-4">{t("manuals.filterCategory")}</h2>
             <div className="flex flex-wrap gap-3">
               {categories.map((category) => (
                 <button
