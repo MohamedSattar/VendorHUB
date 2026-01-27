@@ -140,6 +140,7 @@ export default function Contracts() {
   const [sortBy, setSortBy] = useState<SortType>("number");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [contractTypeFilter, setContractTypeFilter] = useState<ContractTypeFilter>("all");
+  const { t, isArabic } = useLanguage();
 
   const filteredAndSortedContracts = useMemo(() => {
     let result = [...contracts];
