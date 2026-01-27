@@ -5,19 +5,22 @@ import PieChart from "@/components/PieChart";
 import LineChart from "@/components/LineChart";
 import EngagementsList from "@/components/EngagementsList";
 import { Clock, CheckCircle, Users, TrendingUp } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Dashboard() {
+  const { t, isArabic } = useLanguage();
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
       <DashboardHeader />
 
       {/* Main content */}
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isArabic ? "text-right" : "text-left"}`}>
           {/* Breadcrumb */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-2">Pages / Dashboard</p>
-            <h1 className="text-3xl font-bold text-navy">Main Dashboard</h1>
+            <p className="text-sm text-gray-600 mb-2">{t("dashboard.breadcrumb")}</p>
+            <h1 className="text-3xl font-bold text-navy">{t("dashboard.title")}</h1>
           </div>
 
           {/* Stats cards */}
