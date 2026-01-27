@@ -162,6 +162,7 @@ export default function Resources() {
   const [filterStatus, setFilterStatus] = useState<
     "All" | "Approved" | "On Hold" | "Rejected"
   >("All");
+  const { t, isArabic } = useLanguage();
 
   // Filter and search
   const filteredEmployees = useMemo(() => {
