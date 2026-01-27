@@ -145,15 +145,15 @@ export default function Engagements() {
   }, [searchTerm, sortBy, statusFilter]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
       <DashboardHeader />
 
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isArabic ? "text-right" : "text-left"}`}>
           {/* Breadcrumb */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-2">Pages / Engagements</p>
-            <h1 className="text-3xl font-bold text-navy">Engagements</h1>
+            <p className="text-sm text-gray-600 mb-2">{t("engagements.breadcrumb")}</p>
+            <h1 className="text-3xl font-bold text-navy">{t("engagements.title")}</h1>
           </div>
 
           {/* Controls section */}
