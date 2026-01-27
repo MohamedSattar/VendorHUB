@@ -232,13 +232,16 @@ const translations: Record<Language, Record<string, string>> = {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "en";
     const saved = localStorage.getItem("language") as Language | null;
     return saved || "en";
   });
 
   useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = language;
+      document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    }
   }, [language]);
 
   const handleSetLanguage = (lang: Language) => {
