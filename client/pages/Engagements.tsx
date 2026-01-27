@@ -98,6 +98,7 @@ export default function Engagements() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("date");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const { t, isArabic } = useLanguage();
 
   const filteredAndSortedEngagements = useMemo(() => {
     let result = [...engagements];
