@@ -29,25 +29,23 @@ export default function App() {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <LanguageProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/contracts" element={<Contracts />} />
-              <Route path="/engagements" element={<Engagements />} />
-              <Route path="/engagement/:id" element={<EngagementDetails />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/add-resource" element={<AddResource />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/manuals" element={<Manuals />} />
-              <Route path="/terms" element={<Placeholder />} />
-              <Route path="/privacy" element={<Placeholder />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </LanguageProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/contracts" element={<Contracts />} />
+            <Route path="/engagements" element={<Engagements />} />
+            <Route path="/engagement/:id" element={<EngagementDetails />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/add-resource" element={<AddResource />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/manuals" element={<Manuals />} />
+            <Route path="/terms" element={<Placeholder />} />
+            <Route path="/privacy" element={<Placeholder />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
