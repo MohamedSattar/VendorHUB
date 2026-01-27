@@ -63,20 +63,21 @@ const faqItems: FAQItem[] = [
 
 export default function FAQ() {
   const [openId, setOpenId] = useState<number | null>(null);
+  const { t, isArabic } = useLanguage();
 
   const toggleFAQ = (id: number) => {
     setOpenId(openId === id ? null : id);
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white" dir={isArabic ? "rtl" : "ltr"}>
       <Header />
 
       <main className="flex-grow">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-navy mb-4">Frequently Asked Questions</h1>
+        <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${isArabic ? "text-right" : "text-left"}`}>
+          <h1 className="text-4xl font-bold text-navy mb-4">{t("faq.title")}</h1>
           <p className="text-lg text-gray-600 mb-12">
-            Find answers to common questions about the ECA Vendor Hub platform.
+            {t("faq.subtitle")}
           </p>
 
           <div className="space-y-3">
