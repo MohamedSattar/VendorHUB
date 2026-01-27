@@ -175,21 +175,21 @@ export default function Manuals() {
 
           {filteredManuals.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No manuals found for this category.</p>
+              <p className="text-gray-500 text-lg">{t("manuals.noManuals")}</p>
             </div>
           )}
 
           {/* Support Section */}
-          <div className="mt-16 p-8 bg-gradient-to-r from-primary/10 to-orange-500/10 rounded-lg border border-primary/20">
-            <h2 className="text-2xl font-bold text-navy mb-4">Need Additional Help?</h2>
+          <div className={`mt-16 p-8 bg-gradient-to-r from-primary/10 to-orange-500/10 rounded-lg border border-primary/20 ${isArabic ? "text-right" : "text-left"}`}>
+            <h2 className="text-2xl font-bold text-navy mb-4">{t("manuals.needHelp")}</h2>
             <p className="text-gray-700 mb-6">
-              If you can't find what you're looking for in our documentation, our support team is here to help.
+              {t("manuals.needHelpText")}
             </p>
             <a
               href="mailto:support@eca.gov.ae"
               className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
             >
-              Contact Support
+              {t("manuals.contactSupport")}
             </a>
           </div>
         </div>
