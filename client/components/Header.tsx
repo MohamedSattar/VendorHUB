@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import ECALogo from "@/components/ECALogo";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Header() {
+  const { language, setLanguage, t } = useLanguage();
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,25 +20,28 @@ export default function Header() {
               to="/about"
               className="text-navy font-medium hover:text-primary transition"
             >
-              About
+              {t("nav.about")}
             </Link>
             <Link
               to="/faq"
               className="text-navy font-medium hover:text-primary transition"
             >
-              FAQ
+              {t("nav.faq")}
             </Link>
             <Link
               to="/manuals"
               className="text-navy font-medium hover:text-primary transition"
             >
-              Manuals
+              {t("nav.manuals")}
             </Link>
             <button className="bg-navy text-white px-4 py-2 rounded font-medium hover:bg-navy/90 transition">
-              LOGIN
+              {t("nav.login")}
             </button>
-            <button className="text-navy font-medium hover:text-primary transition">
-              العربية
+            <button
+              onClick={() => setLanguage(language === "en" ? "ar" : "en")}
+              className="text-navy font-medium hover:text-primary transition"
+            >
+              {t("nav.language")}
             </button>
           </nav>
 
