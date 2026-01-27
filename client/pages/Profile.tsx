@@ -2,6 +2,7 @@ import { useState } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ProfileFormData {
   firstName: string;
