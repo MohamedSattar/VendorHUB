@@ -197,15 +197,15 @@ export default function Contracts() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
       <DashboardHeader />
 
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isArabic ? "text-right" : "text-left"}`}>
           {/* Breadcrumb */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-2">Pages / Contracts</p>
-            <h1 className="text-3xl font-bold text-navy">Contracts</h1>
+            <p className="text-sm text-gray-600 mb-2">{t("contracts.breadcrumb")}</p>
+            <h1 className="text-3xl font-bold text-navy">{t("contracts.title")}</h1>
           </div>
 
           {/* Controls section */}
@@ -214,16 +214,16 @@ export default function Contracts() {
               {/* Search */}
               <div className="md:col-span-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search
+                  {t("contracts.search")}
                 </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <div className={`relative ${isArabic ? "" : ""}`}>
+                  <Search className={`absolute ${isArabic ? "right-3" : "left-3"} top-3 w-5 h-5 text-gray-400`} />
                   <input
                     type="text"
-                    placeholder="Search by contract number or manager..."
+                    placeholder={t("contracts.search")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className={`w-full ${isArabic ? "pr-10 pl-4" : "pl-10 pr-4"} py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent`}
                   />
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function Contracts() {
               {/* Sort */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sort By
+                  {t("contracts.sortBy")}
                 </label>
                 <select
                   value={sortBy}
