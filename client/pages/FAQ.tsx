@@ -108,9 +108,9 @@ export default function FAQ() {
           </div>
 
           <div className="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="text-lg font-semibold text-navy mb-2">Still have questions?</h3>
+            <h3 className="text-lg font-semibold text-navy mb-2">{t("faq.stillHave")}</h3>
             <p className="text-gray-700">
-              If you can't find the answer you're looking for, please contact our support team at{" "}
+              {t("faq.noAnswer")}{" "}
               <a href="mailto:support@eca.gov.ae" className="text-primary hover:underline">
                 support@eca.gov.ae
               </a>
