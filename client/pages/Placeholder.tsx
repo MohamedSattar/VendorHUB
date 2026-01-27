@@ -32,27 +32,26 @@ export default function Placeholder() {
   ].includes(pathSegment);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white" dir={isArabic ? "rtl" : "ltr"}>
       {isDashboardPage ? <DashboardHeader /> : <Header />}
 
       <main className="flex-grow">
         {isDashboardPage && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isArabic ? "text-right" : "text-left"}`}>
             <p className="text-sm text-gray-600 mb-2">Pages / {displayName}</p>
             <h1 className="text-3xl font-bold text-navy mb-12">{displayName}</h1>
           </div>
         )}
 
         <div className="flex items-center justify-center px-4 py-16">
-          <div className="text-center max-w-md">
+          <div className={`text-center max-w-md ${isArabic ? "text-right" : "text-left"}`}>
             {!isDashboardPage && (
               <h1 className="text-4xl font-bold text-navy mb-4">
                 {displayName}
               </h1>
             )}
             <p className="text-lg text-gray-600 mb-6">
-              This page is coming soon. Continue prompting to fill in this page
-              content if you'd like!
+              {t("placeholder.coming")}
             </p>
             <div className="inline-block p-8 bg-gradient-to-b from-warm-tan/20 to-warm-tan/10 rounded-lg">
               <svg
