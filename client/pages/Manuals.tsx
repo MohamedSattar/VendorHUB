@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Download, FileText } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Manual {
   id: number;
