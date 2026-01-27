@@ -118,22 +118,22 @@ export default function Index() {
                 <div>
                   <input
                     type="email"
-                    placeholder={t("index.email")}
+                    placeholder="Email Address"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${isArabic ? "text-right" : "text-left"}`}
+                    className="w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm"
                   />
                 </div>
 
                 <div>
                   <input
                     type="password"
-                    placeholder={t("index.password")}
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${isArabic ? "text-right" : "text-left"}`}
+                    className="w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm"
                   />
                 </div>
 
@@ -142,7 +142,7 @@ export default function Index() {
                   disabled={isLoading}
                   className="w-full px-5 py-3 bg-cyan-300 text-navy font-bold rounded-lg hover:bg-cyan-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base tracking-wide"
                 >
-                  {isLoading ? (isArabic ? "جاري الدخول..." : "LOGGING IN...") : t("index.loginBtn")}
+                  {isLoading ? "LOGGING IN..." : "LOGIN"}
                 </button>
               </form>
 
