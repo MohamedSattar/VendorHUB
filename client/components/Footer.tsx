@@ -1,23 +1,21 @@
 import { Link } from "react-router-dom";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const { t, isArabic } = useLanguage();
 
   return (
-    <footer className="bg-white border-t border-gray-200 py-6" dir={isArabic ? "rtl" : "ltr"}>
+    <footer className="bg-white border-t border-gray-200 py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex flex-col sm:flex-row justify-between items-center gap-4 ${isArabic ? "text-right" : "text-left"}`}>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-navy">
-            {t("footer.copyright").replace("{year}", currentYear.toString())}
+            Copyright © {currentYear} ECA. All Rights Reserved.
           </p>
-          <div className={`flex gap-6 ${isArabic ? "flex-row-reverse" : ""}`}>
+          <div className="flex gap-6">
             <Link to="/terms" className="text-sm text-navy hover:text-primary transition">
-              {t("footer.terms")}
+              Terms of Use
             </Link>
             <Link to="/privacy" className="text-sm text-navy hover:text-primary transition">
-              {t("footer.privacy")}
+              Privacy Policy
             </Link>
           </div>
         </div>
