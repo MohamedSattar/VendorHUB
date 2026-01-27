@@ -27,25 +27,25 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
               icon={<Clock className="w-8 h-8" />}
-              title="New Engagement"
+              title={t("dashboard.newEngagement")}
               value="3"
               backgroundColor="bg-orange-500"
             />
             <StatCard
               icon={<CheckCircle className="w-8 h-8" />}
-              title="Active Engagement"
+              title={t("dashboard.activeEngagement")}
               value="15"
               backgroundColor="bg-green-500"
             />
             <StatCard
               icon={<TrendingUp className="w-8 h-8" />}
-              title="Total Engagement"
+              title={t("dashboard.totalEngagement")}
               value="35"
               backgroundColor="bg-amber-700"
             />
             <StatCard
               icon={<Users className="w-8 h-8" />}
-              title="Total Employees"
+              title={t("dashboard.totalEmployees")}
               value="35"
               backgroundColor="bg-orange-400"
             />
