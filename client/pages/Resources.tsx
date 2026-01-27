@@ -4,6 +4,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import EmployeeCard from "@/components/EmployeeCard";
 import { Plus, Search, ChevronDown } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Employee {
   id: string;
