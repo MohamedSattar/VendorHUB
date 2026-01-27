@@ -1,14 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Settings } from "lucide-react";
 import ECALogo from "@/components/ECALogo";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
+  const { language, setLanguage, isArabic } = useLanguage();
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className={`flex justify-between items-center h-16 ${isArabic ? "flex-row-reverse" : ""}`}>
           {/* Logo and brand */}
           <Link to="/dashboard" className="flex items-center flex-shrink-0">
             <ECALogo />
