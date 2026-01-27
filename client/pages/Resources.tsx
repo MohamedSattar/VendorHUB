@@ -228,20 +228,20 @@ export default function Resources() {
           </svg>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 ${isArabic ? "text-right" : "text-left"}`}>
           {/* Breadcrumb and Header */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-2">Pages / Resources Pool</p>
-            <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600 mb-2">{t("resources.breadcrumb")}</p>
+            <div className={`flex ${isArabic ? "flex-row-reverse" : ""} justify-between items-center`}>
               <h1 className="text-3xl font-bold text-navy">
-                Resources Pool
+                {t("resources.title")}
               </h1>
               <button
                 onClick={() => navigate("/add-resource")}
-                className="flex items-center gap-2 text-teal-500 border border-teal-500 px-4 py-2 rounded-full hover:bg-teal-50 transition font-medium"
+                className={`flex ${isArabic ? "flex-row-reverse" : ""} items-center gap-2 text-teal-500 border border-teal-500 px-4 py-2 rounded-full hover:bg-teal-50 transition font-medium`}
               >
                 <Plus className="w-4 h-4" />
-                Add New Resource
+                {t("resources.addNew")}
               </button>
             </div>
           </div>
