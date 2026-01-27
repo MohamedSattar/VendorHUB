@@ -191,13 +191,13 @@ export default function Resources() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
       <DashboardHeader />
 
       {/* Main content */}
       <main className="flex-grow relative">
         {/* Decorative background elements */}
-        <div className="absolute left-0 top-20 opacity-10 pointer-events-none">
+        <div className={`absolute ${isArabic ? "right-0" : "left-0"} top-20 opacity-10 pointer-events-none`}>
           <svg
             className="w-96 h-96"
             viewBox="0 0 200 200"
