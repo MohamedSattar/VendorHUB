@@ -159,14 +159,14 @@ export default function Manuals() {
 
                 <p className="text-gray-700 text-sm mb-4 flex-grow">{manual.description}</p>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className={`flex items-center justify-between pt-4 border-t border-gray-200 ${isArabic ? "flex-row-reverse" : ""}`}>
                   <span className="text-xs text-gray-500">{manual.fileSize}</span>
                   <button
                     onClick={() => handleDownload(manual.title)}
                     className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium text-sm"
                   >
                     <Download className="w-4 h-4" />
-                    Download
+                    {t("manuals.download")}
                   </button>
                 </div>
               </div>
