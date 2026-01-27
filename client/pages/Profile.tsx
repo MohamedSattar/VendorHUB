@@ -14,6 +14,7 @@ interface ProfileFormData {
 
 export default function Profile() {
   const { toast } = useToast();
+  const { t, isArabic } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: "Ahmed",
