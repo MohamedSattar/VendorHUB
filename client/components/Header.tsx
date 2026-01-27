@@ -66,3 +66,5 @@ function HeaderContent() {
     </header>
   );
 }
+
+export default HeaderContent;
