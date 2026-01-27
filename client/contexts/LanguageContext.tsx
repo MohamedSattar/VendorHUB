@@ -236,11 +236,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return saved || "en";
   });
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  }, [language]);
+
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);
     localStorage.setItem("language", lang);
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   };
 
   const t = (key: string): string => {
