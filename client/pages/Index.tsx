@@ -3,14 +3,12 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Clipboard, DecorativeWaveLines } from "@/components/DecorativeElements";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Index() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { t, isArabic } = useLanguage();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
