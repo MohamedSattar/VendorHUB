@@ -1,14 +1,17 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function About() {
+  const { t, isArabic } = useLanguage();
+
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-white" dir={isArabic ? "rtl" : "ltr"}>
       <Header />
 
       <main className="flex-grow">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-4xl font-bold text-navy mb-8">About ECA Vendor Hub</h1>
+        <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${isArabic ? "text-right" : "text-left"}`}>
+          <h1 className="text-4xl font-bold text-navy mb-8">{t("about.title")}</h1>
 
           <div className="prose prose-lg max-w-none">
             <section className="mb-12">
