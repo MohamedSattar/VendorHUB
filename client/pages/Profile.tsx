@@ -79,20 +79,20 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
       <DashboardHeader />
 
       <main className="flex-grow">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${isArabic ? "text-right" : "text-left"}`}>
           {/* Breadcrumb */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-2">Pages / Profile</p>
-            <h1 className="text-3xl font-bold text-navy">Profile</h1>
+            <p className="text-sm text-gray-600 mb-2">{t("profile.breadcrumb")}</p>
+            <h1 className="text-3xl font-bold text-navy">{t("profile.title")}</h1>
           </div>
 
           {/* Profile Form Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
-            <h2 className="text-2xl font-semibold text-navy mb-8">Update Your Profile</h2>
+            <h2 className="text-2xl font-semibold text-navy mb-8">{t("profile.updateProfile")}</h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* First Name */}
