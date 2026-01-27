@@ -1,47 +1,41 @@
 import { Link } from "react-router-dom";
 import ECALogo from "@/components/ECALogo";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Header() {
-  const { language, setLanguage, t } = useLanguage();
-
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex justify-between items-center h-16 ${isArabic ? "flex-row-reverse" : ""}`}>
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center flex-shrink-0">
             <ECALogo />
           </Link>
 
           {/* Navigation */}
-          <nav className={`hidden md:flex items-center gap-6 ${isArabic ? "flex-row-reverse" : ""}`}>
+          <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/about"
               className="text-navy font-medium hover:text-primary transition"
             >
-              {t("nav.about")}
+              About
             </Link>
             <Link
               to="/faq"
               className="text-navy font-medium hover:text-primary transition"
             >
-              {t("nav.faq")}
+              FAQ
             </Link>
             <Link
               to="/manuals"
               className="text-navy font-medium hover:text-primary transition"
             >
-              {t("nav.manuals")}
+              Manuals
             </Link>
             <button className="bg-navy text-white px-4 py-2 rounded font-medium hover:bg-navy/90 transition">
-              {t("nav.login")}
+              LOGIN
             </button>
-            <button
-              onClick={() => setLanguage(language === "en" ? "ar" : "en")}
-              className="text-navy font-medium hover:text-primary transition"
-            >
-              {t("nav.language")}
+            <button className="text-navy font-medium hover:text-primary transition">
+              العربية
             </button>
           </nav>
 
