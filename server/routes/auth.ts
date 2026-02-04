@@ -150,3 +150,65 @@ export const handleRefreshToken: RequestHandler = async (req, res) => {
     });
   }
 };
+
+interface GetUserInfoRequest {
+  accessToken: string;
+}
+
+/**
+ * Fetch user information from Azure B2C using access token
+ */
+export const handleGetUserInfo: RequestHandler = async (req, res) => {
+  try {
+    const { accessToken } = req.body as GetUserInfoRequest;
+
+    if (!accessToken) {
+      res.status(400).json({ error: "Access token is required" });
+      return;
+    }
+
+    if (!OAUTH_CONFIG.tokenUrl) {
+      console.error("OAuth token URL is not configured");
+      res.status(500).json({ error: "OAuth service is not configured" });
+      return;
+    }
+
+    const userInfoUrl = getUserInfoEndpoint(OAUTH_CONFIG.tokenUrl);
+
+    // Fetch user information from Azure B2C
+    const userInfoResponse = await fetch(userInfoUrl, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!userInfoResponse.ok) {
+      const errorData = await userInfoResponse.json();
+      console.error("User info fetch error:", errorData);
+      res.status(userInfoResponse.status).json({
+        error: "Failed to fetch user information",
+        details: errorData,
+      });
+      return;
+    }
+
+    const userInfo = await userInfoResponse.json();
+
+    // Return user information
+    res.json({
+      id: userInfo.sub || userInfo.oid || "unknown",
+      email: userInfo.email || userInfo.emails?.[0] || "unknown",
+      name: userInfo.name || `${userInfo.given_name || ""} ${userInfo.family_name || ""}`.trim(),
+      givenName: userInfo.given_name,
+      familyName: userInfo.family_name,
+      raw: userInfo,
+    });
+  } catch (error) {
+    console.error("User info fetch error:", error);
+    res.status(500).json({
+      error: "Internal server error during user info fetch",
+    });
+  }
+};
