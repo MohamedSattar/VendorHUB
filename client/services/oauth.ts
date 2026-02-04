@@ -113,3 +113,34 @@ export function getAuthErrorFromUrl(): string | null {
   const params = new URLSearchParams(window.location.search);
   return params.get("error");
 }
+
+/**
+ * Fetch user information using access token
+ */
+export async function getUserInfo(accessToken: string): Promise<{
+  id: string;
+  email: string;
+  name?: string;
+  givenName?: string;
+  familyName?: string;
+  raw?: Record<string, unknown>;
+}> {
+  try {
+    const response = await fetch("/api/auth/user-info", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accessToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`User info fetch failed: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Get user info error:", error);
+    throw error;
+  }
+}
