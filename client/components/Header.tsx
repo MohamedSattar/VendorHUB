@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import ECALogo from "@/components/ECALogo";
+import AuthButtons from "@/components/AuthButtons";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 function HeaderContent() {
