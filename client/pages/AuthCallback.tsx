@@ -4,6 +4,7 @@ import {
   getAuthCodeFromUrl,
   getAuthErrorFromUrl,
   exchangeCodeForToken,
+  getUserInfo,
 } from "@/services/oauth";
 import { useAuth } from "@/contexts/AuthContext";
 
