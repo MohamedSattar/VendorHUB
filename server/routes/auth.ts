@@ -7,6 +7,12 @@ const OAUTH_CONFIG = {
   redirectUri: process.env.VITE_OAUTH_REDIRECT_URI,
 };
 
+// Azure B2C userinfo endpoint - derive from token URL
+// Example: https://ecab2cdev.b2clogin.com/20204571-3776-41c1-8358-b82ae0114e6e/b2c_1a_rg_dev_susi/oauth2/v2.0/userinfo
+const getUserInfoEndpoint = (tokenUrl: string): string => {
+  return tokenUrl.replace("/token", "/userinfo");
+};
+
 interface TokenResponse {
   access_token: string;
   refresh_token?: string;
