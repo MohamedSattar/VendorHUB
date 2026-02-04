@@ -34,12 +34,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        if (typeof window === "undefined") {
+          setIsLoading(false);
+          return;
+        }
+
         const storedToken = localStorage.getItem("accessToken");
         const storedUser = localStorage.getItem("user");
 
         if (storedToken && storedUser) {
           setAccessToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          try {
+            setUser(JSON.parse(storedUser));
+          } catch (parseErr) {
+            console.error("Failed to parse stored user:", parseErr);
+            setUser(null);
+          }
         }
       } catch (err) {
         console.error("Failed to initialize auth:", err);
