@@ -44,13 +44,25 @@ export default function AuthCallback() {
         }
         localStorage.setItem("tokenExpiresAt", (Date.now() + expiresIn * 1000).toString());
 
-        // Here you would typically fetch user info from Azure B2C
-        // For now, we'll store a basic user object
-        const user = {
+        // Fetch user information from Azure B2C
+        let user = {
           id: "user-" + Math.random().toString(36).substr(2, 9),
           email: "user@example.com",
           name: "User",
         };
+
+        try {
+          const userInfo = await getUserInfo(accessToken);
+          user = {
+            id: userInfo.id,
+            email: userInfo.email,
+            name: userInfo.name || `${userInfo.givenName || ""} ${userInfo.familyName || ""}`.trim() || "User",
+          };
+        } catch (err) {
+          console.warn("Failed to fetch user info, using defaults:", err);
+          // Continue with default user object if fetch fails
+        }
+
         localStorage.setItem("user", JSON.stringify(user));
 
         // Redirect to dashboard
