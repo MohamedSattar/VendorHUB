@@ -23,6 +23,7 @@ export function createServer() {
   // OAuth routes
   app.post("/api/auth/exchange-token", handleExchangeToken);
   app.post("/api/auth/refresh-token", handleRefreshToken);
+  app.post("/api/auth/user-info", handleGetUserInfo);
 
   return app;
 }
