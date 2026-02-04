@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { AuthenticatedRequest } from "@/middleware/auth";
+import { AuthenticatedRequest } from "../middleware/auth";
 
 /**
  * Get user profile (example authenticated endpoint)
