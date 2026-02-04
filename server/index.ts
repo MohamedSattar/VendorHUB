@@ -20,5 +20,9 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // OAuth routes
+  app.post("/api/auth/exchange-token", handleExchangeToken);
+  app.post("/api/auth/refresh-token", handleRefreshToken);
+
   return app;
 }
