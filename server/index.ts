@@ -32,5 +32,11 @@ export function createServer() {
   app.post("/api/auth/refresh-token", handleRefreshToken);
   app.post("/api/auth/user-info", handleGetUserInfo);
 
+  // Protected user routes (require authentication)
+  app.get("/api/user/profile", requireAuth, handleGetProfile);
+  app.put("/api/user/profile", requireAuth, handleUpdateProfile);
+  app.get("/api/user/resources", requireAuth, handleGetUserResources);
+  app.delete("/api/user/resources/:resourceId", requireAuth, handleDeleteResource);
+
   return app;
 }
