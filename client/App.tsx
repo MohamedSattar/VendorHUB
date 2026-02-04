@@ -35,20 +35,73 @@ export default function App() {
               <Toaster />
               <Sonner />
               <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/contracts" element={<Contracts />} />
-              <Route path="/engagements" element={<Engagements />} />
-              <Route path="/engagement/:id" element={<EngagementDetails />} />
-              <Route path="/resources" element={<Resources />} />
-              <Route path="/add-resource" element={<AddResource />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/manuals" element={<Manuals />} />
-              <Route path="/terms" element={<Placeholder />} />
-              <Route path="/privacy" element={<Placeholder />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/manuals" element={<Manuals />} />
+                <Route path="/terms" element={<Placeholder />} />
+                <Route path="/privacy" element={<Placeholder />} />
+
+                {/* Protected Routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/contracts"
+                  element={
+                    <ProtectedRoute>
+                      <Contracts />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/engagements"
+                  element={
+                    <ProtectedRoute>
+                      <Engagements />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/engagement/:id"
+                  element={
+                    <ProtectedRoute>
+                      <EngagementDetails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/resources"
+                  element={
+                    <ProtectedRoute>
+                      <Resources />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/add-resource"
+                  element={
+                    <ProtectedRoute>
+                      <AddResource />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
