@@ -3,6 +3,13 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleExchangeToken, handleRefreshToken, handleGetUserInfo } from "./routes/auth";
+import { requireAuth } from "@/middleware/auth";
+import {
+  handleGetProfile,
+  handleUpdateProfile,
+  handleGetUserResources,
+  handleDeleteResource,
+} from "./routes/user";
 
 export function createServer() {
   const app = express();
