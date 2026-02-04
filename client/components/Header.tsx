@@ -35,15 +35,15 @@ function HeaderContent() {
             >
               {t("nav.manuals")}
             </Link>
-            <button className="bg-navy text-white px-4 py-2 rounded font-medium hover:bg-navy/90 transition">
-              {t("nav.login")}
-            </button>
-            <button
-              onClick={() => setLanguage(language === "en" ? "ar" : "en")}
-              className="text-navy font-medium hover:text-primary transition"
-            >
-              {t("nav.language")}
-            </button>
+            <div className="flex items-center gap-4 border-l border-gray-200 pl-4">
+              <AuthButtons />
+              <button
+                onClick={() => setLanguage(language === "en" ? "ar" : "en")}
+                className="text-navy font-medium hover:text-primary transition"
+              >
+                {t("nav.language")}
+              </button>
+            </div>
           </nav>
 
           {/* Mobile menu button */}
