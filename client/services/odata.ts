@@ -59,6 +59,15 @@ export interface EngagementItem {
   modifiedOn: string;
 }
 
+export interface OpenRole {
+  id: string;
+  name: string;
+  expectedStartDate: string;
+  status: string;
+  createdOn: string;
+  modifiedOn: string;
+}
+
 interface ODataResponse {
   value: ODataFAQItem[];
 }
