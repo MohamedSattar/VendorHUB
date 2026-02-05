@@ -104,6 +104,13 @@ export default function OpenRoleDetails() {
     }));
   };
 
+  const handleCandidateEditChange = (field: string, value: any) => {
+    setEditCandidateData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   const handleSave = () => {
     if (!editData.name?.trim()) {
       toast({
@@ -121,6 +128,14 @@ export default function OpenRoleDetails() {
     setIsEditMode(false);
   };
 
+  const handleCandidateSave = () => {
+    toast({
+      title: "Success",
+      description: "Candidate details have been saved successfully.",
+    });
+    setShowCandidateForm(false);
+  };
+
   const handleCancel = () => {
     if (openRole) {
       setEditData({
@@ -131,7 +146,18 @@ export default function OpenRoleDetails() {
         readyForSubmission: openRole.readyForSubmission,
       });
     }
+    if (candidateDetails) {
+      setEditCandidateData({
+        firstName: candidateDetails.firstName,
+        lastName: candidateDetails.lastName,
+        email: candidateDetails.email,
+        phone: candidateDetails.phone,
+        title: candidateDetails.title,
+        organization: candidateDetails.organization,
+      });
+    }
     setIsEditMode(false);
+    setShowCandidateForm(false);
   };
 
   if (!openRole && !isLoading) {
