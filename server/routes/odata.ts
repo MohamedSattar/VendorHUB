@@ -212,6 +212,53 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Get single Open Role by ID
+ * GET /api/odata/open-role/:id
+ */
+export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Open Role ID is required" });
+    }
+
+    const url =
+      `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})?` +
+      `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_enddate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,_prmtk_engagement_value,prmtk_name,createdon,modifiedon,statuscode`;
+
+    console.log("[OData Proxy] Fetching Open Role by ID:", id);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Add cache headers for performance
+    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    res.json(data);
+  } catch (error) {
+    console.error("[OData Proxy] Open Role by ID Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch Open Role",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Get Open Roles for an Engagement
  * GET /api/odata/open-roles/:engagementId
  */
