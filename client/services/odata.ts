@@ -677,13 +677,13 @@ export async function fetchOpenRoles(
 
     const data: { value: ODataOpenRole[] } = await response.json();
 
-    console.log("[OData] Raw API Response for Open Roles:", data.value);
+    console.log("[OData] Raw API Response for Open Roles:", JSON.stringify(data.value, null, 2));
 
     // Transform OData response to our OpenRole format
     const openRoles: OpenRole[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
-        console.log("[OData] Processing item:", item);
+        console.log("[OData] Processing item with fields:", Object.keys(item));
         return {
           id: item.prmtk_candidateengagementnameid,
           name: item.prmtk_rolename,
