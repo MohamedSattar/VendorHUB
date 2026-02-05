@@ -586,16 +586,14 @@ export async function fetchOpenRoleById(
       status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
       readyForSubmission: item.prmtk_readyforsubmission,
       candidateContactId: item._prmtk_engagementcontact_value,
-      designation: item.prmtk_designation || undefined,
-      designationArabic: item.prmtk_designationarabic || undefined,
-      currentSalary: item.prmtk_currentsalary || undefined,
-      proposedSalary: item.prmtk_proposedsalary || undefined,
+      designation: item.prmtk_currenttitle || undefined,
+      designationArabic: item.prmtk_proposedtitle || undefined,
+      currentSalary: item.prmtk_currentsalaryaed || undefined,
+      proposedSalary: item.prmtk_proposedsalaryaed || undefined,
       createdOn: item.createdon,
       modifiedOn: item.modifiedon,
     };
 
-    // Log available fields for debugging
-    console.log("[OData] Available fields:", Object.keys(item).filter(k => k.includes('designation') || k.includes('salary')));
     console.log("[OData] Fetched Open Role with candidateContactId:", openRole.candidateContactId);
 
     return openRole;
