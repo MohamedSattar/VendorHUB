@@ -369,7 +369,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
 
     const url =
       `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})?` +
-      `$select=prmtk_engagementcontactid,prmtk_firstname,prmtk_lastname,prmtk_email,prmtk_phone,prmtk_title,prmtk_organization,createdon,modifiedon,statuscode`;
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Candidate Contact by ID:", id);
 
