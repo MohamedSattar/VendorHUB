@@ -388,13 +388,15 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
     // Transform OData response to our Engagement format
     const engagementItems: EngagementItem[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
-      .map((item) => ({
+      .map((item: any) => ({
         id: item.prmtk_engagementid,
         name: item.prmtk_engagementname,
         startDate: item.prmtk_startdate,
         endDate: item.prmtk_enddate,
-        status: item.prmtk_status || "In Progress",
-        ecaEngagementManager: item._prmtk_ecaengagementmanager_value || "Not assigned",
+        // Use formatted status value from API
+        status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Pending",
+        // Use formatted manager name from API
+        ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
       }));
