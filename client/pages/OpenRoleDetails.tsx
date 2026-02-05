@@ -98,6 +98,7 @@ export default function OpenRoleDetails() {
         email: candidateDetails.email,
         phoneNumber: candidateDetails.phoneNumber,
         status: candidateDetails.status,
+        uaeResident: candidateDetails.uaeResident,
       });
     }
   }, [candidateDetails]);
