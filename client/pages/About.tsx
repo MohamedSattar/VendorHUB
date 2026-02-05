@@ -84,6 +84,41 @@ export default function About() {
               </section>
 
               <ContactSection email={content.email} hours={content.hours} />
+
+              {/* Become a Supplier Section */}
+              <section className="mt-16 bg-gradient-to-r from-navy to-navy/80 rounded-lg p-8 text-white">
+                <div className={isArabic ? "text-right" : "text-left"}>
+                  <h2 className="text-3xl font-bold mb-4">Ready to Partner with ECA?</h2>
+                  <p className="text-lg text-gray-100 mb-6 leading-relaxed">
+                    We're actively looking for qualified suppliers and service providers to support our mission.
+                    If your company meets our procurement standards and is interested in becoming a partner with
+                    the Abu Dhabi Early Childhood Authority, we'd love to hear from you.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                      <h3 className="font-semibold mb-2">Expert Review</h3>
+                      <p className="text-sm text-gray-100">Our team carefully evaluates each application</p>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                      <h3 className="font-semibold mb-2">Fair Process</h3>
+                      <p className="text-sm text-gray-100">Transparent evaluation criteria and timelines</p>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                      <h3 className="font-semibold mb-2">Growth Opportunity</h3>
+                      <p className="text-sm text-gray-100">Long-term partnership potential with ECA</p>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/supplier-application"
+                    className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3 rounded-lg transition transform hover:scale-105"
+                  >
+                    Start Your Application
+                    <ArrowRight size={20} />
+                  </Link>
+                </div>
+              </section>
             </div>
           )}
         </div>
