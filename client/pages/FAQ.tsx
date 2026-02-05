@@ -6,7 +6,7 @@ import { useFAQContent } from "@/hooks/useFAQContent";
 
 export default function FAQ() {
   const { t, language } = useLanguage();
-  const { refetch } = useFAQContent();
+  useFAQContent();
 
   return (
     <div
