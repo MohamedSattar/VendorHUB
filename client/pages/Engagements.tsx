@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Edit2, Search, RefreshCw } from "lucide-react";
+import { Edit2, Search, RefreshCw } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
