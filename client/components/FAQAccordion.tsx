@@ -35,12 +35,22 @@ export default function FAQAccordion() {
             ? error.message
             : "An error occurred while fetching FAQ content"}
         </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-        >
-          Retry
-        </button>
+        <div className="mt-4 flex gap-3">
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
+          >
+            <RefreshCw size={18} className={isFetching ? "animate-spin" : ""} />
+            {isFetching ? "Refreshing..." : "Retry"}
+          </button>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+          >
+            Reload Page
+          </button>
+        </div>
       </div>
     );
   }
