@@ -78,6 +78,7 @@ export interface OpenRole {
   expectedStartDate: string;
   status: string;
   readyForSubmission?: boolean | null;
+  candidateContactId?: string;
   candidateDetails?: CandidateDetail;
   createdOn: string;
   modifiedOn: string;
