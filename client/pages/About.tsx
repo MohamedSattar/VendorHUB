@@ -5,7 +5,8 @@ import { useAboutPageContent } from "@/hooks/useAboutPageContent";
 import MissionSection from "@/components/MissionSection";
 import WhatWeDoSection from "@/components/WhatWeDoSection";
 import ContactSection from "@/components/ContactSection";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function About() {
   const { t, isArabic } = useLanguage();
