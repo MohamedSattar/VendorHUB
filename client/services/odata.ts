@@ -82,8 +82,10 @@ interface ODataEngagementItem {
   prmtk_engagementname: string;
   prmtk_startdate: string;
   prmtk_enddate: string;
-  prmtk_status?: string;
+  prmtk_status?: number;
+  "prmtk_status@OData.Community.Display.V1.FormattedValue"?: string;
   _prmtk_ecaengagementmanager_value?: string;
+  "_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"?: string;
   createdon: string;
   modifiedon: string;
   statuscode: number;
