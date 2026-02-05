@@ -64,7 +64,7 @@ export async function fetchFAQContent(): Promise<FAQItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`
+        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -116,7 +116,7 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`
+        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -149,7 +149,7 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
  * Useful for fetching other sections like Manuals, etc.
  */
 export async function fetchWebsiteContent(
-  sectionFilter?: number
+  sectionFilter?: number,
 ): Promise<ODataFAQItem[]> {
   try {
     let url = `${ODATA_BASE_URL}/prmtk_websitecontents`;

@@ -28,9 +28,7 @@ export default function FAQAccordion() {
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-red-800 font-semibold mb-2">
-          Failed to Load FAQ
-        </h3>
+        <h3 className="text-red-800 font-semibold mb-2">Failed to Load FAQ</h3>
         <p className="text-red-600 text-sm">
           {error instanceof Error
             ? error.message
