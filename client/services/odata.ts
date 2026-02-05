@@ -144,15 +144,22 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
     // Transform OData response to our Manuals format
     const manualItems: ManualItem[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
-      .map((item) => ({
-        id: item.prmtk_websitecontentid,
-        title: item.prmtk_header,
-        description: item.prmtk_description,
-        category: item.prmtk_category || "General", // Default category if not set
-        createdOn: item.createdon,
-        modifiedOn: item.modifiedon,
-        section: item.prmtk_section,
-      }));
+      .map((item: any) => {
+        // Try to get formatted category value, fallback to raw value or default
+        const formattedValue = item["prmtk_category@OData.Community.Display.V1.FormattedValue"];
+        const categoryValue = formattedValue || item.prmtk_category || "General";
+
+        return {
+          id: item.prmtk_websitecontentid,
+          title: item.prmtk_header,
+          description: item.prmtk_description,
+          category: categoryValue,
+          categoryFormatted: formattedValue,
+          createdOn: item.createdon,
+          modifiedOn: item.modifiedon,
+          section: item.prmtk_section,
+        };
+      });
 
     console.log("[OData] Fetched Manual items:", manualItems.length);
 
