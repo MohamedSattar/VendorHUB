@@ -43,5 +43,10 @@ export function createServer() {
   app.get("/api/user/resources", requireAuth, handleGetUserResources);
   app.delete("/api/user/resources/:resourceId", requireAuth, handleDeleteResource);
 
+  // OData proxy routes (to avoid CORS issues)
+  app.get("/api/odata/websitecontents", handleGetWebsiteContents);
+  app.get("/api/odata/faq", handleGetFAQ);
+  app.get("/api/odata/manuals", handleGetManuals);
+
   return app;
 }
