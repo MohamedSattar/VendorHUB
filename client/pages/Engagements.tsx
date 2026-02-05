@@ -57,7 +57,7 @@ const formatDate = (dateString: string): string => {
 const getStatusColor = (status: string): string => {
   const statusLower = status?.toLowerCase() || "";
   if (statusLower.includes("progress") || statusLower.includes("pending")) {
-    return "bg-blue-100 text-blue-700";
+    return "bg-orange-100 text-orange-700";
   }
   if (statusLower.includes("completed") || statusLower.includes("done")) {
     return "bg-green-100 text-green-700";
