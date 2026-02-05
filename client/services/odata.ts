@@ -138,17 +138,17 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 }
 
 /**
- * Fetch all website content (not just FAQ)
- * Useful for fetching other sections like Manuals, etc.
+ * Fetch all website content via backend proxy
+ * Useful for fetching any section from Power Apps OData API
  */
 export async function fetchWebsiteContent(
   sectionFilter?: number
 ): Promise<ODataFAQItem[]> {
   try {
-    let url = `${ODATA_BASE_URL}/prmtk_websitecontents`;
+    let url = `${ODATA_PROXY_URL}/websitecontents`;
 
     if (sectionFilter !== undefined) {
-      url += `?$filter=prmtk_section eq ${sectionFilter}`;
+      url += `?filter=prmtk_section eq ${sectionFilter}`;
     }
 
     const response = await fetch(url, {
