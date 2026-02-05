@@ -147,6 +147,70 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 }
 
 /**
+ * Fetch website content by header name
+ * Filters by prmtk_header to find specific content records
+ * Returns the first matching active record
+ */
+export async function fetchContentByHeaderName(
+  headerName: string
+): Promise<WebsiteContentItem | null> {
+  try {
+    const url = new URL(`${window.location.origin}${ODATA_PROXY_URL}/websitecontents`);
+    url.searchParams.append(
+      "filter",
+      `prmtk_header eq '${headerName.replace(/'/g, "''")}'`
+    );
+    url.searchParams.append(
+      "select",
+      "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode"
+    );
+    url.searchParams.append("top", "1");
+
+    console.log("[OData] Fetching content by header name:", headerName);
+
+    const response = await fetch(url.pathname + url.search, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch content: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: ODataResponse = await response.json();
+
+    if (data.value.length === 0) {
+      console.log("[OData] No content found with header:", headerName);
+      return null;
+    }
+
+    const item = data.value[0];
+
+    // Only return active items
+    if (item.statuscode !== 1) {
+      return null;
+    }
+
+    return {
+      id: item.prmtk_websitecontentid,
+      header: item.prmtk_header,
+      description: item.prmtk_description,
+      section: item.prmtk_section.toString(),
+      createdOn: item.createdon,
+      modifiedOn: item.modifiedon,
+    };
+  } catch (error) {
+    console.error("[OData] Error fetching content by header name:", error);
+    throw error;
+  }
+}
+
+/**
  * Fetch all website content via backend proxy
  * Useful for fetching any section from Power Apps OData API
  */
