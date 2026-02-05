@@ -153,6 +153,10 @@ interface ODataOpenRole {
   _prmtk_candidate_value?: string;
   "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"?: string;
   _prmtk_engagementcontact_value?: string;
+  prmtk_designation?: string;
+  prmtk_designationarabic?: string;
+  prmtk_currentsalary?: number;
+  prmtk_proposedsalary?: number;
   prmtk_name?: string;
   createdon: string;
   modifiedon: string;
