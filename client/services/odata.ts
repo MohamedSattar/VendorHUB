@@ -26,6 +26,15 @@ export interface ManualItem {
   section: number;
 }
 
+export interface WebsiteContentItem {
+  id: string;
+  header: string;
+  description: string;
+  section: string;
+  createdOn: string;
+  modifiedOn: string;
+}
+
 interface ODataResponse {
   value: ODataFAQItem[];
 }
