@@ -24,11 +24,19 @@ export default function ManualsGrid() {
           return displayCategory === selectedCategory;
         }) || [];
 
-  const handleDownload = (title: string) => {
-    // Simulating download functionality
-    console.log(`Downloading: ${title}`);
-    // In a real application, you would fetch the actual file URL from the API
-    // and trigger a download
+  const handleDownload = (manualId: string, title: string) => {
+    // Construct the direct download link using the Power Apps OData format
+    const downloadUrl = `https://ecavendorhubspa.powerappsportals.com/_api/prmtk_websitecontents(${manualId})/prmtk_files/$value`;
+
+    console.log(`[Download] Starting download for: ${title}`);
+
+    // Create a temporary anchor element to trigger the download
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = `${title}.pdf`; // Suggest a filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isLoading) {
