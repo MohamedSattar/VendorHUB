@@ -212,7 +212,7 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
 };
 
 /**
- * Get single Open Role by ID with expanded Candidate details
+ * Get single Open Role by ID
  * GET /api/odata/open-role/:id
  */
 export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
@@ -225,8 +225,7 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
 
     const url =
       `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})?` +
-      `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_enddate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,_prmtk_engagement_value,prmtk_name,createdon,modifiedon,statuscode&` +
-      `$expand=prmtk_engagementcontact($select=prmtk_engagementcontactid,prmtk_firstname,prmtk_lastname,prmtk_email,prmtk_phone,prmtk_title,prmtk_organization,createdon,modifiedon,statuscode)`;
+      `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_enddate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,_prmtk_engagement_value,prmtk_name,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Open Role by ID:", id);
 
