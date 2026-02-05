@@ -48,6 +48,7 @@ export function createServer() {
   app.get("/api/odata/websitecontents", handleGetWebsiteContents);
   app.get("/api/odata/faq", handleGetFAQ);
   app.get("/api/odata/manuals", handleGetManuals);
+  app.get("/api/odata/engagements", handleGetEngagements);
 
   return app;
 }
