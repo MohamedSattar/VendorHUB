@@ -1,9 +1,15 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import ContactEmailSection from "@/components/ContactEmailSection";
 import ContactHoursSection from "@/components/ContactHoursSection";
+import { WebsiteContentItem } from "@/services/odata";
 
-export default function ContactSection() {
-  const { t, isArabic } = useLanguage();
+interface ContactSectionProps {
+  email: WebsiteContentItem | null;
+  hours: WebsiteContentItem | null;
+}
+
+export default function ContactSection({ email, hours }: ContactSectionProps) {
+  const { t } = useLanguage();
 
   return (
     <section className="mb-12">
@@ -12,8 +18,8 @@ export default function ContactSection() {
         {t("about.contactText")}
       </p>
       <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-        <ContactEmailSection />
-        <ContactHoursSection />
+        <ContactEmailSection email={email} />
+        <ContactHoursSection hours={hours} />
       </div>
     </section>
   );
