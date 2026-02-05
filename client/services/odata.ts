@@ -543,6 +543,7 @@ export async function fetchOpenRoles(
       .map((item) => ({
         id: item.prmtk_candidateengagementnameid,
         name: item.prmtk_rolename,
+        candidateName: item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"],
         expectedStartDate: item.prmtk_startdate,
         status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
         readyForSubmission: item.prmtk_readyforsubmission,
