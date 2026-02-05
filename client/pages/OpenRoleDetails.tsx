@@ -411,28 +411,15 @@ export default function OpenRoleDetails() {
                     <div className="pt-8 border-t border-gray-200">
                       <h3 className="text-lg font-semibold text-navy mb-4">Candidate Details</h3>
 
-                      {/* First Name */}
+                      {/* Name */}
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          First Name
+                          Name
                         </label>
                         <input
                           type="text"
-                          value={editCandidateData.firstName || ""}
-                          onChange={(e) => handleCandidateEditChange("firstName", e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      {/* Last Name */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          value={editCandidateData.lastName || ""}
-                          onChange={(e) => handleCandidateEditChange("lastName", e.target.value)}
+                          value={editCandidateData.name || ""}
+                          onChange={(e) => handleCandidateEditChange("name", e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
@@ -450,41 +437,28 @@ export default function OpenRoleDetails() {
                         />
                       </div>
 
-                      {/* Phone */}
+                      {/* Phone Number */}
                       <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone
+                          Phone Number
                         </label>
                         <input
                           type="tel"
-                          value={editCandidateData.phone || ""}
-                          onChange={(e) => handleCandidateEditChange("phone", e.target.value)}
+                          value={editCandidateData.phoneNumber || ""}
+                          onChange={(e) => handleCandidateEditChange("phoneNumber", e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
 
-                      {/* Title */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Title
-                        </label>
-                        <input
-                          type="text"
-                          value={editCandidateData.title || ""}
-                          onChange={(e) => handleCandidateEditChange("title", e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      {/* Organization */}
+                      {/* Status */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Organization
+                          Status
                         </label>
                         <input
                           type="text"
-                          value={editCandidateData.organization || ""}
-                          onChange={(e) => handleCandidateEditChange("organization", e.target.value)}
+                          value={editCandidateData.status || ""}
+                          onChange={(e) => handleCandidateEditChange("status", e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
