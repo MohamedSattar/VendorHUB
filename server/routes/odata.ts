@@ -224,7 +224,8 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
     }
 
     const url =
-      `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
+      `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})?` +
+      `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_enddate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,_prmtk_engagement_value,prmtk_currenttitle,prmtk_proposedtitle,prmtk_currentsalaryaed,prmtk_proposedsalaryaed,prmtk_name,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Open Role by ID:", id);
     console.log("[OData Proxy] Full URL:", url);
