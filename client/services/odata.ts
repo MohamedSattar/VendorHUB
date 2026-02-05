@@ -59,6 +59,18 @@ export interface EngagementItem {
   modifiedOn: string;
 }
 
+export interface CandidateDetail {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  title?: string;
+  organization?: string;
+  createdOn: string;
+  modifiedOn: string;
+}
+
 export interface OpenRole {
   id: string;
   name: string;
@@ -66,6 +78,7 @@ export interface OpenRole {
   expectedStartDate: string;
   status: string;
   readyForSubmission?: boolean | null;
+  candidateDetails?: CandidateDetail;
   createdOn: string;
   modifiedOn: string;
 }
