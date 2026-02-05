@@ -126,15 +126,30 @@ interface ODataEngagementItem {
   statuscode: number;
 }
 
+interface ODataCandidateDetail {
+  prmtk_engagementcontactid: string;
+  prmtk_firstname?: string;
+  prmtk_lastname?: string;
+  prmtk_email?: string;
+  prmtk_phone?: string;
+  prmtk_title?: string;
+  prmtk_organization?: string;
+  createdon: string;
+  modifiedon: string;
+  statuscode: number;
+}
+
 interface ODataOpenRole {
   prmtk_candidateengagementnameid: string;
   prmtk_rolename: string;
   prmtk_startdate: string;
+  prmtk_enddate?: string;
   prmtk_status?: number;
   "prmtk_status@OData.Community.Display.V1.FormattedValue"?: string;
   prmtk_readyforsubmission?: boolean | null;
   _prmtk_candidate_value?: string;
   "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"?: string;
+  prmtk_engagementcontact?: ODataCandidateDetail;
   createdon: string;
   modifiedon: string;
   statuscode: number;
