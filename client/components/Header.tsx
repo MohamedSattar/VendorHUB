@@ -29,6 +29,12 @@ function HeaderContent() {
             >
               {t("nav.manuals")}
             </Link>
+            <Link
+              to="/supplier-application"
+              className="text-navy font-medium hover:text-primary transition"
+            >
+              Become a Supplier
+            </Link>
             <div className="flex items-center gap-4 border-l border-gray-200 pl-4">
               <AuthButtons />
             </div>
