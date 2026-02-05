@@ -46,7 +46,16 @@ const mockEngagements: Record<string, EngagementDetailsData> = {
     createdOn: "2025-01-01",
     modifiedOn: "2025-01-15",
     description: "This engagement involves migrating our infrastructure to a cloud-based environment, ensuring minimal downtime and optimal performance.",
+    vendorName: "Tech Solutions LLC",
+    contractNumber: "CTR-2025-001",
+    contractDescription: "Cloud infrastructure migration and implementation services",
+    typeOfEngagement: "Services",
     budget: 500000,
+    openRoles: [
+      { id: "r1", title: "Cloud Architect", count: 2, description: "Design and oversee cloud migration strategy" },
+      { id: "r2", title: "DevOps Engineer", count: 3, description: "Infrastructure automation and deployment" },
+      { id: "r3", title: "System Administrator", count: 1, description: "System configuration and maintenance" },
+    ],
   },
   "2": {
     id: "2",
@@ -58,7 +67,15 @@ const mockEngagements: Record<string, EngagementDetailsData> = {
     createdOn: "2025-01-01",
     modifiedOn: "2025-01-15",
     description: "Upgrading the current ERP system to the latest version with enhanced features and improved performance.",
+    vendorName: "Enterprise Systems Inc",
+    contractNumber: "CTR-2025-002",
+    contractDescription: "ERP system upgrade and implementation",
+    typeOfEngagement: "Software License",
     budget: 350000,
+    openRoles: [
+      { id: "r4", title: "ERP Consultant", count: 2, description: "ERP system configuration and customization" },
+      { id: "r5", title: "Training Specialist", count: 1, description: "User training and documentation" },
+    ],
   },
 };
 
