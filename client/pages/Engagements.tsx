@@ -1,10 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Edit2, Search, RefreshCw } from "lucide-react";
+import { Eye, Edit2, Search, SortAsc } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useEngagementsContent } from "@/hooks/useEngagementsContent";
 
 interface Engagement {
   id: string;
@@ -12,59 +11,94 @@ interface Engagement {
   requestedBy: string;
   startDate: string;
   endDate?: string;
-  status: string;
+  status: "In Progress" | "On-hold" | "Completed" | "Planned";
   statusColor: string;
 }
 
-// Helper function to get status color
-const getStatusColor = (status: string): string => {
-  const statusLower = status?.toLowerCase() || "";
-  if (statusLower.includes("progress")) return "bg-blue-100 text-blue-700";
-  if (statusLower.includes("completed")) return "bg-green-100 text-green-700";
-  if (statusLower.includes("hold")) return "bg-yellow-100 text-yellow-700";
-  if (statusLower.includes("planned")) return "bg-gray-100 text-gray-700";
-  return "bg-gray-100 text-gray-700";
-};
-
-// Helper function to format date
-const formatDate = (dateString: string): string => {
-  if (!dateString) return "N/A";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
-};
+const engagements: Engagement[] = [
+  {
+    id: "1",
+    title: "Cloud Migration Project Phase 1",
+    requestedBy: "Ahmed Abdullah",
+    startDate: "Oct 10, 2025",
+    endDate: "Dec 15, 2025",
+    status: "In Progress",
+    statusColor: "bg-blue-100 text-blue-700",
+  },
+  {
+    id: "2",
+    title: "ERP System Upgrade",
+    requestedBy: "Ali Khouri",
+    startDate: "Oct 01, 2025",
+    endDate: "Nov 30, 2025",
+    status: "In Progress",
+    statusColor: "bg-blue-100 text-blue-700",
+  },
+  {
+    id: "3",
+    title: "Marketing Campaign Software",
+    requestedBy: "Eman Salama",
+    startDate: "Sep 14, 2025",
+    endDate: "Oct 31, 2025",
+    status: "On-hold",
+    statusColor: "bg-yellow-100 text-yellow-700",
+  },
+  {
+    id: "4",
+    title: "Network Infrastructure Build-out",
+    requestedBy: "Eman Salama",
+    startDate: "Oct 01, 2025",
+    endDate: "Sep 30, 2024",
+    status: "Completed",
+    statusColor: "bg-green-100 text-green-700",
+  },
+  {
+    id: "5",
+    title: "Security Audit and Assessment",
+    requestedBy: "Fatima Al Mansouri",
+    startDate: "Nov 01, 2025",
+    endDate: "Dec 31, 2025",
+    status: "Planned",
+    statusColor: "bg-gray-100 text-gray-700",
+  },
+  {
+    id: "6",
+    title: "Data Center Optimization",
+    requestedBy: "Ahmed Abdullah",
+    startDate: "Sep 20, 2025",
+    endDate: "Oct 20, 2024",
+    status: "Completed",
+    statusColor: "bg-green-100 text-green-700",
+  },
+  {
+    id: "7",
+    title: "Mobile App Development Platform",
+    requestedBy: "Khalid Saeed",
+    startDate: "Oct 15, 2025",
+    endDate: "Jan 15, 2026",
+    status: "In Progress",
+    statusColor: "bg-blue-100 text-blue-700",
+  },
+  {
+    id: "8",
+    title: "Customer Portal Enhancement",
+    requestedBy: "Layla Hassan",
+    startDate: "Sep 01, 2025",
+    endDate: "Sep 30, 2025",
+    status: "Completed",
+    statusColor: "bg-green-100 text-green-700",
+  },
+];
 
 type SortType = "name" | "date" | "status";
+type StatusFilter = "all" | "In Progress" | "On-hold" | "Completed" | "Planned";
 
 export default function Engagements() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("date");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { t, isArabic } = useLanguage();
-  const { data: apiEngagements = [], isLoading, error, refetch, isFetching } = useEngagementsContent();
-
-  // Transform API data to Engagement format
-  const engagements: Engagement[] = apiEngagements.map((eng) => ({
-    id: eng.id,
-    title: eng.name,
-    requestedBy: eng.ecaEngagementManager,
-    startDate: formatDate(eng.startDate),
-    endDate: formatDate(eng.endDate),
-    status: eng.status,
-    statusColor: getStatusColor(eng.status),
-  }));
-
-  // Get unique statuses for filter
-  const uniqueStatuses = ["all", ...new Set(engagements.map((e) => e.status))];
-  const statusOptions = uniqueStatuses.filter(Boolean);
 
   const filteredAndSortedEngagements = useMemo(() => {
     let result = [...engagements];
