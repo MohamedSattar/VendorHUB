@@ -61,12 +61,10 @@ export interface EngagementItem {
 
 export interface CandidateDetail {
   id: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
   email?: string;
-  phone?: string;
-  title?: string;
-  organization?: string;
+  phoneNumber?: string;
+  status?: string;
   createdOn: string;
   modifiedOn: string;
 }
