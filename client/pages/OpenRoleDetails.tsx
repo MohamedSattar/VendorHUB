@@ -506,10 +506,10 @@ export default function OpenRoleDetails() {
                     </div>
                   </div>
 
-                  {/* Candidate Details Section */}
+                  {/* Assigned Candidate Section */}
                   {candidateDetails && (
                     <div className="pt-8 border-t border-gray-200">
-                      <h3 className="text-lg font-semibold text-navy mb-4">Candidate Details</h3>
+                      <h3 className="text-lg font-semibold text-navy mb-4">Assigned Candidate</h3>
 
                       {/* Name */}
                       <div className="mb-4">
