@@ -14,6 +14,7 @@ import Resources from "./pages/Resources";
 import AddResource from "./pages/AddResource";
 import Engagements from "./pages/Engagements";
 import EngagementDetails from "./pages/EngagementDetails";
+import OpenRoleDetails from "./pages/OpenRoleDetails";
 import Contracts from "./pages/Contracts";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
