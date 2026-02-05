@@ -43,6 +43,17 @@ export interface AboutPageContent {
   hours: WebsiteContentItem | null;
 }
 
+export interface EngagementItem {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  ecaEngagementManager: string;
+  createdOn: string;
+  modifiedOn: string;
+}
+
 interface ODataResponse {
   value: ODataFAQItem[];
 }
