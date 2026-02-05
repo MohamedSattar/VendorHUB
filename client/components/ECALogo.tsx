@@ -12,8 +12,8 @@ export default function ECALogo() {
 
       {/* Text branding */}
       <div className="flex flex-col leading-tight">
-        <span className="text-xs font-bold text-navy">Al Marsa</span>
-        <span className="text-xs font-bold text-orange-500">VENDOR HUB</span>
+        <span className="text-base font-bold text-navy">Al Marsa</span>
+        <span className="text-sm font-bold text-orange-500">VENDOR HUB</span>
       </div>
     </div>
   );
