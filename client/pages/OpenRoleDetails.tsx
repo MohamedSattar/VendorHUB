@@ -46,12 +46,21 @@ export default function OpenRoleDetails() {
   } = useOpenRoleDetails(id);
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showCandidateForm, setShowCandidateForm] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
     expectedStartDate: openRole?.expectedStartDate,
     status: openRole?.status,
     readyForSubmission: openRole?.readyForSubmission,
+  });
+  const [editCandidateData, setEditCandidateData] = useState<Partial<EditCandidateData>>({
+    firstName: openRole?.candidateDetails?.firstName,
+    lastName: openRole?.candidateDetails?.lastName,
+    email: openRole?.candidateDetails?.email,
+    phone: openRole?.candidateDetails?.phone,
+    title: openRole?.candidateDetails?.title,
+    organization: openRole?.candidateDetails?.organization,
   });
 
   // Update edit data when open role data changes
@@ -63,6 +72,14 @@ export default function OpenRoleDetails() {
         expectedStartDate: openRole.expectedStartDate,
         status: openRole.status,
         readyForSubmission: openRole.readyForSubmission,
+      });
+      setEditCandidateData({
+        firstName: openRole.candidateDetails?.firstName,
+        lastName: openRole.candidateDetails?.lastName,
+        email: openRole.candidateDetails?.email,
+        phone: openRole.candidateDetails?.phone,
+        title: openRole.candidateDetails?.title,
+        organization: openRole.candidateDetails?.organization,
       });
     }
   }, [openRole]);
