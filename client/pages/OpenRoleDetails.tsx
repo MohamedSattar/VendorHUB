@@ -52,6 +52,17 @@ export default function OpenRoleDetails() {
     isLoading: isCandidateLoading,
   } = useCandidateDetails(openRole?.candidateId);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("[OpenRoleDetails] Open Role Data:", {
+      id: openRole?.id,
+      name: openRole?.name,
+      candidateId: openRole?.candidateId,
+      hasCandidateDetails: !!candidateDetails,
+      candidateDetailsKeys: candidateDetails ? Object.keys(candidateDetails) : [],
+    });
+  }, [openRole, candidateDetails]);
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCandidateForm, setShowCandidateForm] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
