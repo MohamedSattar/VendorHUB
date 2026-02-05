@@ -148,6 +148,16 @@ interface ODataCandidateDetail {
   prmtk_phone?: string;
   prmtk_title?: string;
   prmtk_organization?: string;
+  prmtk_personalphoto?: string;
+  prmtk_uaeresident?: boolean | null;
+  prmtk_cvfile?: string;
+  prmtk_introductiondocument?: string;
+  prmtk_educationalcertificate?: string;
+  prmtk_eid?: string;
+  prmtk_salarycertificate?: string;
+  prmtk_passport?: string;
+  prmtk_experienceletter?: string;
+  prmtk_policeclearance?: string;
   createdon: string;
   modifiedon: string;
   statuscode: number;
