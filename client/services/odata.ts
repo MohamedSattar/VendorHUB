@@ -56,6 +56,15 @@ interface ODataFAQItem {
   statuscode: number;
 }
 
+interface ODataManualItem extends ODataFAQItem {
+  prmtk_category?: string;
+  prmtk_category_expanded?: {
+    prmtk_categoryid: string;
+    prmtk_name: string;
+  };
+  ["prmtk_category@OData.Community.Display.V1.FormattedValue"]?: string;
+}
+
 /**
  * Fetch FAQ content from Power Apps OData API via backend proxy
  * Filters by prmtk_section = 2 (FAQ section)
