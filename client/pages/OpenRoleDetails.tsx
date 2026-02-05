@@ -453,10 +453,10 @@ export default function OpenRoleDetails() {
                   <div className="pt-8 border-t border-gray-200">
                     <h3 className="text-lg font-semibold text-navy mb-4">Role Assignment Details</h3>
 
-                    {/* Designation */}
+                    {/* Current Designation */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Designation
+                        Current Designation
                       </label>
                       <input
                         type="text"
@@ -466,10 +466,10 @@ export default function OpenRoleDetails() {
                       />
                     </div>
 
-                    {/* Designation in Arabic */}
+                    {/* Proposed Designation */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Designation in Arabic
+                        Proposed Designation
                       </label>
                       <input
                         type="text"
@@ -479,10 +479,10 @@ export default function OpenRoleDetails() {
                       />
                     </div>
 
-                    {/* Current Salary */}
+                    {/* Current Salary AED */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Current Salary
+                        Current Salary (AED)
                       </label>
                       <input
                         type="number"
@@ -492,10 +492,10 @@ export default function OpenRoleDetails() {
                       />
                     </div>
 
-                    {/* Proposed Salary */}
+                    {/* Proposed Salary AED */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Proposed Salary
+                        Proposed Salary (AED)
                       </label>
                       <input
                         type="number"
