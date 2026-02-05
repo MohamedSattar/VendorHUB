@@ -375,7 +375,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
 
     const url =
       `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})?` +
-      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,createdon,modifiedon,statuscode`;
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_personalphoto,prmtk_uaeresident,prmtk_cvfile_name,prmtk_introductiondocument_name,prmtk_educationalcertificate_name,prmtk_eid_name,prmtk_salarycertificate_name,prmtk_passport_name,prmtk_experienceletter_name,prmtk_policeclearance_name,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Candidate Contact by ID:", id);
 
