@@ -358,9 +358,9 @@ export default function OpenRoleDetails() {
                         )}
 
                         {/* Documents Section */}
-                        {(candidateDetails.cvFile || candidateDetails.introductionDocument || candidateDetails.educationalCertificate || candidateDetails.eid || candidateDetails.salaryCertificate || candidateDetails.passport || candidateDetails.experienceLetter || candidateDetails.policeClearance) && (
-                          <div className="mt-6 pt-6 border-t border-gray-200">
-                            <h4 className="text-md font-semibold text-navy mb-3">Documents</h4>
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <h4 className="text-md font-semibold text-navy mb-3">Documents</h4>
+                          {(candidateDetails.cvFile || candidateDetails.introductionDocument || candidateDetails.educationalCertificate || candidateDetails.eid || candidateDetails.salaryCertificate || candidateDetails.passport || candidateDetails.experienceLetter || candidateDetails.policeClearance) ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {candidateDetails.cvFile && (
                                 <p className="text-sm text-gray-700"><span className="font-medium">CV:</span> {candidateDetails.cvFile}</p>
@@ -387,8 +387,10 @@ export default function OpenRoleDetails() {
                                 <p className="text-sm text-gray-700"><span className="font-medium">Police Clearance:</span> {candidateDetails.policeClearance}</p>
                               )}
                             </div>
-                          </div>
-                        )}
+                          ) : (
+                            <p className="text-sm text-gray-600 italic">No documents uploaded</p>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <p className="text-gray-600">No candidate details available for this open role.</p>
