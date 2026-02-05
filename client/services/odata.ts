@@ -586,6 +586,7 @@ export async function fetchOpenRoleById(
       expectedStartDate: item.prmtk_startdate,
       status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
       readyForSubmission: item.prmtk_readyforsubmission,
+      candidateId: item._prmtk_candidate_value,
       candidateContactId: item._prmtk_engagementcontact_value,
       designation: item.prmtk_currenttitle || undefined,
       designationArabic: item.prmtk_proposedtitle || undefined,
@@ -595,7 +596,7 @@ export async function fetchOpenRoleById(
       modifiedOn: item.modifiedon,
     };
 
-    console.log("[OData] Fetched Open Role with candidateContactId:", openRole.candidateContactId);
+    console.log("[OData] Fetched Open Role with candidateId:", openRole.candidateId);
 
     return openRole;
   } catch (error) {
