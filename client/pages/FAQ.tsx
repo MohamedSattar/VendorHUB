@@ -1,65 +1,7 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FAQAccordion from "@/components/FAQAccordion";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-interface FAQItem {
-  id: number;
-  question: string;
-  answer: string;
-}
-
-const faqItems: FAQItem[] = [
-  {
-    id: 1,
-    question: "How do I access the ECA Vendor Hub?",
-    answer:
-      "You can access the ECA Vendor Hub by navigating to the portal and logging in with your vendor credentials. If you don't have an account, please contact the ECA support team for registration.",
-  },
-  {
-    id: 2,
-    question: "How can I view my active engagements?",
-    answer:
-      "After logging in, navigate to the Engagements section from the main dashboard. You'll see a comprehensive list of all your active, planned, on-hold, and completed engagements with their status and details.",
-  },
-  {
-    id: 3,
-    question: "What information is included in contract details?",
-    answer:
-      "Contract details include the contract number, awarded amount in AED, start and end dates, current status, assigned ECA project manager, and contract type (such as Service Agreement, Work Order, Sponsorship, or Collaboration Agreement).",
-  },
-  {
-    id: 4,
-    question: "How do I manage my resource pool?",
-    answer:
-      "Visit the Resources Pool page to view and manage your external employees. You can add new resources, edit existing ones, and track their status and linked engagements.",
-  },
-  {
-    id: 5,
-    question: "Can I add team members to an engagement?",
-    answer:
-      "Yes, when editing an engagement that is in Draft or More Information Needed status, you can add or remove team members from your resource pool. Navigate to the Team Members section and click 'Add Team Member' to assign resources.",
-  },
-  {
-    id: 6,
-    question: "What does engagement status mean?",
-    answer:
-      "Engagement statuses include: In Progress (currently active), Planned (scheduled to start), On-hold (temporarily paused), Completed (finished), Draft (being prepared), and More Information Needed (awaiting additional details).",
-  },
-  {
-    id: 7,
-    question: "How do I update my profile information?",
-    answer:
-      "Click the Settings icon in the header to access your profile page. You can update your first name, last name, email, mobile number, and preferred contact method.",
-  },
-  {
-    id: 8,
-    question: "Can I filter and search my engagements?",
-    answer:
-      "Yes, the Engagements page provides multiple filtering and sorting options. You can search by title or requester name, sort by date, name, or status, and filter by status type.",
-  },
-];
 
 export default function FAQ() {
   const [openId, setOpenId] = useState<number | null>(null);
