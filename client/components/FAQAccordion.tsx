@@ -1,3 +1,4 @@
+import { RefreshCw } from "lucide-react";
 import { useFAQContent } from "@/hooks/useFAQContent";
 import {
   Accordion,
@@ -8,7 +9,7 @@ import {
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function FAQAccordion() {
-  const { data: faqItems, isLoading, error } = useFAQContent();
+  const { data: faqItems, isLoading, error, refetch, isFetching } = useFAQContent();
   const { language } = useLanguage();
 
   if (isLoading) {
