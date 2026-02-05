@@ -537,19 +537,24 @@ export async function fetchOpenRoles(
 
     const data: { value: ODataOpenRole[] } = await response.json();
 
+    console.log("[OData] Raw API Response for Open Roles:", data.value);
+
     // Transform OData response to our OpenRole format
     const openRoles: OpenRole[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
-      .map((item) => ({
-        id: item.prmtk_candidateengagementnameid,
-        name: item.prmtk_rolename,
-        candidateName: item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"],
-        expectedStartDate: item.prmtk_startdate,
-        status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
-        readyForSubmission: item.prmtk_readyforsubmission,
-        createdOn: item.createdon,
-        modifiedOn: item.modifiedon,
-      }));
+      .map((item: any) => {
+        console.log("[OData] Processing item:", item);
+        return {
+          id: item.prmtk_candidateengagementnameid,
+          name: item.prmtk_rolename,
+          candidateName: item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"] || item.prmtk_name,
+          expectedStartDate: item.prmtk_startdate,
+          status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
+          readyForSubmission: item.prmtk_readyforsubmission,
+          createdOn: item.createdon,
+          modifiedOn: item.modifiedon,
+        };
+      });
 
     console.log("[OData] Fetched Open Roles:", openRoles.length);
 
