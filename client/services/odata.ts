@@ -64,6 +64,7 @@ export interface OpenRole {
   name: string;
   expectedStartDate: string;
   status: string;
+  readyForSubmission?: boolean | null;
   createdOn: string;
   modifiedOn: string;
 }
