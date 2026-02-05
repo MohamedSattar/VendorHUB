@@ -148,6 +148,10 @@ export default function OpenRoleDetails() {
         expectedStartDate: openRole.expectedStartDate,
         status: openRole.status,
         readyForSubmission: openRole.readyForSubmission,
+        designation: openRole.designation,
+        designationArabic: openRole.designationArabic,
+        currentSalary: openRole.currentSalary,
+        proposedSalary: openRole.proposedSalary,
       });
     }
     if (candidateDetails) {
