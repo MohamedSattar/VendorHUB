@@ -95,8 +95,8 @@ interface ODataEngagementItem {
   _prmtk_vendor_value?: string;
   "_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"?: string;
   prmtk_uniqueid?: string;
-  prmtk_typeofengagement?: string;
-  "prmtk_typeofengagement@OData.Community.Display.V1.FormattedValue"?: string;
+  prmtk_type?: string;
+  "prmtk_type@OData.Community.Display.V1.FormattedValue"?: string;
   createdon: string;
   modifiedon: string;
   statuscode: number;
