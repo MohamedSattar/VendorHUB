@@ -226,7 +226,7 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
     const url =
       `${ODATA_BASE_URL}/prmtk_candidateengagementnames?` +
       `$filter=_prmtk_engagement_value%20eq%20${engagementId}&` +
-      `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_status,prmtk_readyforsubmission,createdon,modifiedon,statuscode&` +
+      `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_startdate%20asc`;
 
     console.log("[OData Proxy] Fetching Open Roles for Engagement:", engagementId);
