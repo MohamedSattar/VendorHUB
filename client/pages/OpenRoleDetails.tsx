@@ -294,13 +294,13 @@ export default function OpenRoleDetails() {
                 </div>
               </div>
 
-              {/* Candidate Details Section */}
+              {/* Assigned Candidate Section */}
               <div className="mb-8">
                 <button
                   onClick={() => setShowCandidateForm(!showCandidateForm)}
                   className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
                 >
-                  <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
+                  <h3 className="text-lg font-semibold text-navy">Assigned Candidate</h3>
                   {showCandidateForm ? (
                     <ChevronUp className="w-5 h-5 text-navy" />
                   ) : (
