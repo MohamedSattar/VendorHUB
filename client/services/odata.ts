@@ -92,7 +92,8 @@ interface ODataEngagementItem {
   "prmtk_status@OData.Community.Display.V1.FormattedValue"?: string;
   _prmtk_ecaengagementmanager_value?: string;
   "_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"?: string;
-  prmtk_vendorname?: string;
+  _prmtk_vendor_value?: string;
+  "_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"?: string;
   prmtk_contractnumber?: string;
   prmtk_contractdescription?: string;
   prmtk_typeofengagement?: string;
