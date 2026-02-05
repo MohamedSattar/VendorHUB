@@ -366,8 +366,7 @@ export default function EngagementDetails() {
                         className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-md transition"
                       >
                         <div className="mb-3">
-                          <h4 className="font-semibold text-gray-900 text-base mb-1">{role.name}</h4>
-                          <p className="text-xs text-gray-600">Position ID: {role.id}</p>
+                          <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
                         </div>
 
                         <div className="space-y-2 mb-3">
