@@ -42,14 +42,29 @@ const formatDate = (dateString: string): string => {
 };
 
 type SortType = "name" | "date" | "status";
-type StatusFilter = "all" | "In Progress" | "On-hold" | "Completed" | "Planned";
 
 export default function Engagements() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("date");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { t, isArabic } = useLanguage();
+  const { data: apiEngagements = [], isLoading, error, refetch, isFetching } = useEngagementsContent();
+
+  // Transform API data to Engagement format
+  const engagements: Engagement[] = apiEngagements.map((eng) => ({
+    id: eng.id,
+    title: eng.name,
+    requestedBy: eng.ecaEngagementManager,
+    startDate: formatDate(eng.startDate),
+    endDate: formatDate(eng.endDate),
+    status: eng.status,
+    statusColor: getStatusColor(eng.status),
+  }));
+
+  // Get unique statuses for filter
+  const uniqueStatuses = ["all", ...new Set(engagements.map((e) => e.status))];
+  const statusOptions = uniqueStatuses.filter(Boolean);
 
   const filteredAndSortedEngagements = useMemo(() => {
     let result = [...engagements];
