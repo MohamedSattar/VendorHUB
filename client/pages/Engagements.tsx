@@ -51,6 +51,9 @@ export default function Engagements() {
   const { t, isArabic } = useLanguage();
   const { data: apiEngagements = [], isLoading, error, refetch, isFetching } = useEngagementsContent();
 
+  // Debug logging
+  console.log("Engagements state:", { isLoading, error, hasData: apiEngagements.length > 0, dataLength: apiEngagements.length });
+
   // Transform API data to Engagement format
   const engagements: Engagement[] = apiEngagements.map((eng) => ({
     id: eng.id,
