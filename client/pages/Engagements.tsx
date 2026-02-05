@@ -115,7 +115,7 @@ export default function Engagements() {
           </div>
 
           {/* Controls section */}
-          {!isLoading && !error && (
+          {(!isLoading || engagements.length > 0) && !error && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 {/* Search */}
