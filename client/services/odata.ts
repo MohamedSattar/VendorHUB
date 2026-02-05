@@ -630,12 +630,10 @@ export async function fetchCandidateContactById(
     // Transform OData response to our CandidateDetail format
     const candidateDetail: CandidateDetail = {
       id: item.prmtk_engagementcontactid,
-      firstName: item.prmtk_firstname,
-      lastName: item.prmtk_lastname,
+      name: item.prmtk_id,
       email: item.prmtk_email,
-      phone: item.prmtk_phone,
-      title: item.prmtk_title,
-      organization: item.prmtk_organization,
+      phoneNumber: item.prmtk_phonenumber,
+      status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Unknown",
       createdOn: item.createdon,
       modifiedOn: item.modifiedon,
     };
