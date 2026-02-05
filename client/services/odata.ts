@@ -470,7 +470,7 @@ export async function fetchEngagementById(
       vendorName: item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
       contractNumber: item.prmtk_uniqueid,
       contractDescription: item.prmtk_description,
-      typeOfEngagement: item["prmtk_typeofengagement@OData.Community.Display.V1.FormattedValue"] || item.prmtk_typeofengagement,
+      typeOfEngagement: item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
       createdOn: item.createdon,
       modifiedOn: item.modifiedon,
     };
