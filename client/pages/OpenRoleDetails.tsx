@@ -269,25 +269,25 @@ export default function OpenRoleDetails() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {openRole.designation && (
                     <div>
-                      <p className="text-sm text-gray-600">Designation</p>
+                      <p className="text-sm text-gray-600">Current Designation</p>
                       <p className="text-gray-900 font-medium">{openRole.designation}</p>
                     </div>
                   )}
                   {openRole.designationArabic && (
                     <div>
-                      <p className="text-sm text-gray-600">Designation in Arabic</p>
+                      <p className="text-sm text-gray-600">Proposed Designation</p>
                       <p className="text-gray-900 font-medium">{openRole.designationArabic}</p>
                     </div>
                   )}
                   {openRole.currentSalary && (
                     <div>
-                      <p className="text-sm text-gray-600">Current Salary</p>
+                      <p className="text-sm text-gray-600">Current Salary (AED)</p>
                       <p className="text-gray-900 font-medium">{openRole.currentSalary.toLocaleString()}</p>
                     </div>
                   )}
                   {openRole.proposedSalary && (
                     <div>
-                      <p className="text-sm text-gray-600">Proposed Salary</p>
+                      <p className="text-sm text-gray-600">Proposed Salary (AED)</p>
                       <p className="text-gray-900 font-medium">{openRole.proposedSalary.toLocaleString()}</p>
                     </div>
                   )}
