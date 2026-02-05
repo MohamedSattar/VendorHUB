@@ -44,11 +44,6 @@ const mockEngagements: Record<string, EngagementDetailsData> = {
     contractDescription: "Cloud infrastructure migration and implementation services",
     typeOfEngagement: "Services",
     budget: 500000,
-    openRoles: [
-      { id: "r1", title: "Cloud Architect", count: 2, description: "Design and oversee cloud migration strategy" },
-      { id: "r2", title: "DevOps Engineer", count: 3, description: "Infrastructure automation and deployment" },
-      { id: "r3", title: "System Administrator", count: 1, description: "System configuration and maintenance" },
-    ],
   },
   "2": {
     id: "2",
@@ -65,10 +60,6 @@ const mockEngagements: Record<string, EngagementDetailsData> = {
     contractDescription: "ERP system upgrade and implementation",
     typeOfEngagement: "Software License",
     budget: 350000,
-    openRoles: [
-      { id: "r4", title: "ERP Consultant", count: 2, description: "ERP system configuration and customization" },
-      { id: "r5", title: "Training Specialist", count: 1, description: "User training and documentation" },
-    ],
   },
 };
 
