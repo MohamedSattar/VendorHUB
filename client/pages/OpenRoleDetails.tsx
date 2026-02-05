@@ -46,13 +46,28 @@ export default function OpenRoleDetails() {
     refetch,
   } = useOpenRoleDetails(id);
 
+  // Fetch candidate details from API
+  const {
+    data: candidateDetails,
+    isLoading: isCandidateLoading,
+  } = useCandidateDetails(openRole?.candidateContactId);
+
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showCandidateForm, setShowCandidateForm] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
     expectedStartDate: openRole?.expectedStartDate,
     status: openRole?.status,
     readyForSubmission: openRole?.readyForSubmission,
+  });
+  const [editCandidateData, setEditCandidateData] = useState<Partial<EditCandidateData>>({
+    firstName: candidateDetails?.firstName,
+    lastName: candidateDetails?.lastName,
+    email: candidateDetails?.email,
+    phone: candidateDetails?.phone,
+    title: candidateDetails?.title,
+    organization: candidateDetails?.organization,
   });
 
   // Update edit data when open role data changes
@@ -67,6 +82,20 @@ export default function OpenRoleDetails() {
       });
     }
   }, [openRole]);
+
+  // Update candidate edit data when candidate details change
+  useEffect(() => {
+    if (candidateDetails) {
+      setEditCandidateData({
+        firstName: candidateDetails.firstName,
+        lastName: candidateDetails.lastName,
+        email: candidateDetails.email,
+        phone: candidateDetails.phone,
+        title: candidateDetails.title,
+        organization: candidateDetails.organization,
+      });
+    }
+  }, [candidateDetails]);
 
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
