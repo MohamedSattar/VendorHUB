@@ -62,12 +62,10 @@ export default function OpenRoleDetails() {
     readyForSubmission: openRole?.readyForSubmission,
   });
   const [editCandidateData, setEditCandidateData] = useState<Partial<EditCandidateData>>({
-    firstName: candidateDetails?.firstName,
-    lastName: candidateDetails?.lastName,
+    name: candidateDetails?.name,
     email: candidateDetails?.email,
-    phone: candidateDetails?.phone,
-    title: candidateDetails?.title,
-    organization: candidateDetails?.organization,
+    phoneNumber: candidateDetails?.phoneNumber,
+    status: candidateDetails?.status,
   });
 
   // Update edit data when open role data changes
