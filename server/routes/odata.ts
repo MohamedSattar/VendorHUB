@@ -227,6 +227,7 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
       `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
     console.log("[OData Proxy] Fetching Open Role by ID:", id);
+    console.log("[OData Proxy] Full URL:", url);
 
     const response = await fetch(url, {
       method: "GET",
@@ -236,13 +237,19 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
       },
     });
 
+    console.log("[OData Proxy] Response Status:", response.status, response.statusText);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.log("[OData Proxy] Response Error Body:", errorText);
       throw new Error(
         `OData API returned ${response.status}: ${response.statusText}`
       );
     }
 
     const data = await response.json();
+
+    console.log("[OData Proxy] Successfully fetched Open Role, available fields:", Object.keys(data));
 
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
