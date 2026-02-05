@@ -9,8 +9,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { EngagementItem, fetchEngagementById } from "@/services/odata";
 
 interface EngagementDetailsData extends EngagementItem {
-  description?: string;
   budget?: number;
+  openRoles?: OpenRole[];
+}
+
+interface OpenRole {
+  id: string;
+  title: string;
+  count: number;
+  description?: string;
 }
 
 const formatDate = (dateString: string): string => {
