@@ -131,11 +131,31 @@ export default function Engagements() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortType>("date");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const { t, isArabic } = useLanguage();
 
+  // Fetch engagements from API
+  const { data: apiEngagements = [], isLoading, error, refetch, isFetching } = useEngagementsContent();
+
+  // Transform API data to Engagement format
+  const transformedEngagements: Engagement[] = apiEngagements.map((eng) => ({
+    id: eng.id,
+    title: eng.name,
+    requestedBy: eng.ecaEngagementManager,
+    startDate: formatDate(eng.startDate),
+    endDate: formatDate(eng.endDate),
+    status: eng.status,
+    statusColor: getStatusColor(eng.status),
+  }));
+
+  // Use API data if available, otherwise fall back to mock data
+  const engagementsList = transformedEngagements.length > 0 ? transformedEngagements : engagements;
+
+  // Get unique statuses for filter dropdown
+  const uniqueStatuses = ["all", ...new Set(engagementsList.map((e) => e.status))];
+
   const filteredAndSortedEngagements = useMemo(() => {
-    let result = [...engagements];
+    let result = [...engagementsList];
 
     // Filter by status
     if (statusFilter !== "all") {
