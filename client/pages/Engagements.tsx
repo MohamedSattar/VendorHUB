@@ -203,7 +203,7 @@ export default function Engagements() {
           )}
 
           {/* Engagements Table */}
-          {!isLoading && !error && (
+          {(engagements.length > 0 || (!isLoading && !error)) && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-navy">
