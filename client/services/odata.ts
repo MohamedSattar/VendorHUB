@@ -411,7 +411,7 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
         // Use formatted manager name from API
         ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
         vendorName: item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
-        contractNumber: item.prmtk_contractnumber,
+        contractNumber: item.prmtk_uniqueid,
         contractDescription: item.prmtk_contractdescription,
         typeOfEngagement: item["prmtk_typeofengagement@OData.Community.Display.V1.FormattedValue"] || item.prmtk_typeofengagement,
         createdOn: item.createdon,
