@@ -169,7 +169,7 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
   try {
     const url =
       `${ODATA_BASE_URL}/prmtk_engagements?` +
-      `$select=prmtk_engagementid,prmtk_engagementname,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,createdon,modifiedon,statuscode&` +
+      `$select=prmtk_engagementid,prmtk_engagementname,prmtk_description,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,_prmtk_vendor_value,prmtk_contractnumber,prmtk_contractdescription,prmtk_typeofengagement,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_startdate%20desc`;
 
     // Note: Formatted values are automatically included in OData responses
