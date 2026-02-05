@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MissionSection from "@/components/MissionSection";
 import WhatWeDoSection from "@/components/WhatWeDoSection";
+import ContactSection from "@/components/ContactSection";
 
 export default function About() {
   const { t, isArabic } = useLanguage();
