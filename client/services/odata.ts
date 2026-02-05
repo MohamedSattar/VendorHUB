@@ -1,0 +1,115 @@
+/**
+ * OData Service for Power Apps Portal API
+ * Handles fetching website content from the Power Apps portal
+ */
+
+const ODATA_BASE_URL = "https://ecavendorhubspa.powerappsportals.com/_api";
+
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  createdOn: string;
+  modifiedOn: string;
+  section: number;
+}
+
+interface ODataResponse {
+  value: ODataFAQItem[];
+}
+
+interface ODataFAQItem {
+  prmtk_websitecontentid: string;
+  prmtk_header: string;
+  prmtk_description: string;
+  prmtk_section: number;
+  createdon: string;
+  modifiedon: string;
+  statuscode: number;
+}
+
+/**
+ * Fetch FAQ content from Power Apps OData API
+ * Filters by prmtk_section = 2 (FAQ section)
+ */
+export async function fetchFAQContent(): Promise<FAQItem[]> {
+  try {
+    // OData query to get FAQ content (prmtk_section eq 2)
+    const filter = "$filter=prmtk_section eq 2";
+    const select =
+      "$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode";
+    const orderBy = "$orderby=importsequencenumber asc";
+
+    const url = `${ODATA_BASE_URL}/prmtk_websitecontents?${filter}&${select}&${orderBy}`;
+
+    console.log("[OData] Fetching FAQ content from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: ODataResponse = await response.json();
+
+    // Transform OData response to our FAQ format
+    const faqItems: FAQItem[] = data.value
+      .filter((item) => item.statuscode === 1) // Only active items
+      .map((item) => ({
+        id: item.prmtk_websitecontentid,
+        question: item.prmtk_header,
+        answer: item.prmtk_description,
+        createdOn: item.createdon,
+        modifiedOn: item.modifiedon,
+        section: item.prmtk_section,
+      }));
+
+    console.log("[OData] Fetched FAQ items:", faqItems.length);
+
+    return faqItems;
+  } catch (error) {
+    console.error("[OData] Error fetching FAQ:", error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch all website content (not just FAQ)
+ * Useful for fetching other sections like Manuals, etc.
+ */
+export async function fetchWebsiteContent(
+  sectionFilter?: number
+): Promise<ODataFAQItem[]> {
+  try {
+    let url = `${ODATA_BASE_URL}/prmtk_websitecontents`;
+
+    if (sectionFilter !== undefined) {
+      url += `?$filter=prmtk_section eq ${sectionFilter}`;
+    }
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch content: ${response.status}`);
+    }
+
+    const data: ODataResponse = await response.json();
+    return data.value.filter((item) => item.statuscode === 1); // Only active items
+  } catch (error) {
+    console.error("[OData] Error fetching content:", error);
+    throw error;
+  }
+}
