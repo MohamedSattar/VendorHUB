@@ -402,12 +402,17 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
       .map((item: any) => ({
         id: item.prmtk_engagementid,
         name: item.prmtk_engagementname,
+        description: item.prmtk_description,
         startDate: item.prmtk_startdate,
         endDate: item.prmtk_enddate,
         // Use formatted status value from API
         status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Pending",
         // Use formatted manager name from API
         ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
+        vendorName: item.prmtk_vendorname,
+        contractNumber: item.prmtk_contractnumber,
+        contractDescription: item.prmtk_contractdescription,
+        typeOfEngagement: item["prmtk_typeofengagement@OData.Community.Display.V1.FormattedValue"] || item.prmtk_typeofengagement,
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
       }));
