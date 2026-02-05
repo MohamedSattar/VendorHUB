@@ -7,6 +7,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { EngagementItem, fetchEngagementById } from "@/services/odata";
+import { useOpenRoles } from "@/hooks/useOpenRoles";
 
 interface EngagementDetailsData extends EngagementItem {
   budget?: number;
