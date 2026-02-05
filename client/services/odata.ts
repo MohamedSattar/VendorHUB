@@ -356,3 +356,52 @@ export async function fetchWebsiteContent(
     throw error;
   }
 }
+
+/**
+ * Fetch Engagements content from Power Apps OData API via backend proxy
+ * Returns engagement basic details: name, dates, status, manager
+ */
+export async function fetchEngagements(): Promise<EngagementItem[]> {
+  try {
+    const url = `${ODATA_PROXY_URL}/engagements`;
+
+    console.log("[OData] Fetching Engagements content via proxy from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch Engagements content: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: { value: ODataEngagementItem[] } = await response.json();
+
+    // Transform OData response to our Engagement format
+    const engagementItems: EngagementItem[] = data.value
+      .filter((item) => item.statuscode === 1) // Only active items
+      .map((item) => ({
+        id: item.prmtk_engagementid,
+        name: item.prmtk_engagementname,
+        startDate: item.prmtk_startdate,
+        endDate: item.prmtk_enddate,
+        status: item.prmtk_status || "In Progress",
+        ecaEngagementManager: item._prmtk_ecaengagementmanager_value || "Not assigned",
+        createdOn: item.createdon,
+        modifiedOn: item.modifiedon,
+      }));
+
+    console.log("[OData] Fetched Engagement items:", engagementItems.length);
+
+    return engagementItems;
+  } catch (error) {
+    console.error("[OData] Error fetching Engagements:", error);
+    throw error;
+  }
+}
