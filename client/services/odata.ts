@@ -78,6 +78,10 @@ export interface OpenRole {
   readyForSubmission?: boolean | null;
   candidateContactId?: string;
   candidateDetails?: CandidateDetail;
+  designation?: string;
+  designationArabic?: string;
+  currentSalary?: number;
+  proposedSalary?: number;
   createdOn: string;
   modifiedOn: string;
 }
