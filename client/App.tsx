@@ -53,6 +53,7 @@ export default function App() {
                 <Route path="/contracts" element={<Contracts />} />
                 <Route path="/engagements" element={<Engagements />} />
                 <Route path="/engagement/:id" element={<EngagementDetails />} />
+                <Route path="/open-role/:id" element={<OpenRoleDetails />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/add-resource" element={<AddResource />} />
                 <Route path="/profile" element={<Profile />} />
