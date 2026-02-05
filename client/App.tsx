@@ -41,6 +41,7 @@ export default function App() {
                 <Route path="/index" element={<Index />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/manuals" element={<Manuals />} />
+                <Route path="/supplier-application" element={<SupplierApplication />} />
                 <Route path="/terms" element={<Placeholder />} />
                 <Route path="/privacy" element={<Placeholder />} />
 
