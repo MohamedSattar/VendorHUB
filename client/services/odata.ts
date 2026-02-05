@@ -21,6 +21,7 @@ export interface ManualItem {
   title: string;
   description: string;
   category: string;
+  categoryFormatted?: string;
   createdOn: string;
   modifiedOn: string;
   section: number;
