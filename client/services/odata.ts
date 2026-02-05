@@ -111,6 +111,17 @@ interface ODataEngagementItem {
   statuscode: number;
 }
 
+interface ODataOpenRole {
+  prmtk_candidateengagementnameid: string;
+  prmtk_candidaterequiredname: string;
+  prmtk_expstartdate: string;
+  prmtk_status?: string;
+  "prmtk_status@OData.Community.Display.V1.FormattedValue"?: string;
+  createdon: string;
+  modifiedon: string;
+  statuscode: number;
+}
+
 /**
  * Fetch FAQ content from Power Apps OData API via backend proxy
  * Filters by prmtk_section = 2 (FAQ section)
