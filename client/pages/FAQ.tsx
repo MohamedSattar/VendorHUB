@@ -1,10 +1,13 @@
+import { RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FAQAccordion from "@/components/FAQAccordion";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFAQContent } from "@/hooks/useFAQContent";
 
 export default function FAQ() {
   const { t, language } = useLanguage();
+  const { refetch, isFetching } = useFAQContent();
 
   return (
     <div
