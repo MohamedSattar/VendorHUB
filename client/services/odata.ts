@@ -696,6 +696,7 @@ export async function fetchOpenRoles(
           expectedStartDate: item.prmtk_startdate,
           status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
           readyForSubmission: item.prmtk_readyforsubmission,
+          candidateId: item._prmtk_candidate_value,
           candidateContactId: item._prmtk_engagementcontact_value,
           designation: item.prmtk_currenttitle,
           designationArabic: item.prmtk_proposedtitle,
