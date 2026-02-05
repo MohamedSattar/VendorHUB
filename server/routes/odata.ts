@@ -190,6 +190,12 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
 
     const data = await response.json();
 
+    console.log("[OData Proxy] Engagements API Response:", {
+      status: response.status,
+      hasValue: !!data.value,
+      itemCount: data.value ? data.value.length : 0,
+    });
+
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
     res.json(data);
