@@ -217,9 +217,25 @@ export default function EngagementDetails() {
           )}
 
           {/* Error state */}
-          {error && (
+          {error && engagement && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+              <p className="text-yellow-800 mb-4">
+                Unable to fetch from API. Showing cached or sample data.
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
+              >
+                <RefreshCw size={18} />
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* Not found error */}
+          {error && !engagement && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-              <p className="text-red-800">{error}</p>
+              <p className="text-red-800">Unable to load engagement details.</p>
             </div>
           )}
 
