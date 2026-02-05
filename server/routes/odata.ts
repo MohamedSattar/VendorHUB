@@ -353,3 +353,50 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get Candidate Contact by ID
+ * GET /api/odata/candidate-contact/:id
+ */
+export const handleGetCandidateContact: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Candidate Contact ID is required" });
+    }
+
+    const url =
+      `${ODATA_BASE_URL}/prmtk_engagementcontact(${id})?` +
+      `$select=prmtk_engagementcontactid,prmtk_firstname,prmtk_lastname,prmtk_email,prmtk_phone,prmtk_title,prmtk_organization,createdon,modifiedon,statuscode`;
+
+    console.log("[OData Proxy] Fetching Candidate Contact by ID:", id);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Add cache headers for performance
+    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    res.json(data);
+  } catch (error) {
+    console.error("[OData Proxy] Candidate Contact by ID Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch Candidate Contact",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
