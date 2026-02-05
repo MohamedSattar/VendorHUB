@@ -171,7 +171,9 @@ export default function ManualsGrid() {
                 language === "ar" ? "flex-row-reverse" : ""
               }`}
             >
-              <span className="text-xs text-gray-500">PDF Document</span>
+              <span className="text-xs text-gray-500 font-medium">
+                {manual.categoryFormatted || manual.category}
+              </span>
               <button
                 onClick={() => handleDownload(manual.id, manual.title)}
                 className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium text-sm"
