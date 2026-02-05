@@ -20,6 +20,7 @@ import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import Manuals from "./pages/Manuals";
 import SupplierApplication from "./pages/SupplierApplication";
+import DebugAPI from "./pages/DebugAPI";
 import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 
