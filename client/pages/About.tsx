@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MissionSection from "@/components/MissionSection";
+import WhatWeDoSection from "@/components/WhatWeDoSection";
 
 export default function About() {
   const { t, isArabic } = useLanguage();
@@ -17,20 +18,7 @@ export default function About() {
           <div className="prose prose-lg max-w-none">
             <MissionSection />
 
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-navy mb-4">{t("about.whatWeDo")}</h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {t("about.whatWeDoText")}
-              </p>
-              <ul className={`space-y-2 text-gray-700 ${isArabic ? "pr-6" : "pl-6"}`}>
-                <li>View and manage active engagements</li>
-                <li>Track contracts and their status</li>
-                <li>Access resources and documentation</li>
-                <li>Manage team members and resources</li>
-                <li>Monitor engagement progress and timelines</li>
-                <li>Collaborate with ECA project managers</li>
-              </ul>
-            </section>
+            <WhatWeDoSection />
 
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-navy mb-4">{t("about.features")}</h2>
