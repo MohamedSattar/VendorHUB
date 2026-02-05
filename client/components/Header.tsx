@@ -18,12 +18,6 @@ function HeaderContent() {
           {/* Navigation */}
           <nav className={`hidden md:flex items-center gap-6 ${language === "ar" ? "flex-row-reverse" : ""}`}>
             <Link
-              to="/about"
-              className="text-navy font-medium hover:text-primary transition"
-            >
-              {t("nav.about")}
-            </Link>
-            <Link
               to="/faq"
               className="text-navy font-medium hover:text-primary transition"
             >
