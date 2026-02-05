@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import MissionSection from "@/components/MissionSection";
 
 export default function About() {
   const { t, isArabic } = useLanguage();
@@ -14,12 +15,7 @@ export default function About() {
           <h1 className="text-4xl font-bold text-navy mb-8">{t("about.title")}</h1>
 
           <div className="prose prose-lg max-w-none">
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-navy mb-4">{t("about.mission")}</h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {t("about.missionText")}
-              </p>
-            </section>
+            <MissionSection />
 
             <section className="mb-12">
               <h2 className="text-2xl font-bold text-navy mb-4">{t("about.whatWeDo")}</h2>
