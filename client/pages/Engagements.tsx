@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Edit2, Search, SortAsc } from "lucide-react";
+import { Eye, Edit2, Search, RefreshCw } from "lucide-react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEngagementsContent } from "@/hooks/useEngagementsContent";
 
 interface Engagement {
   id: string;
@@ -11,11 +12,37 @@ interface Engagement {
   requestedBy: string;
   startDate: string;
   endDate?: string;
-  status: "In Progress" | "On-hold" | "Completed" | "Planned";
+  status: string;
   statusColor: string;
 }
 
-const engagements: Engagement[] = [
+// Helper function to get status color
+const getStatusColor = (status: string): string => {
+  const statusLower = status?.toLowerCase() || "";
+  if (statusLower.includes("progress")) return "bg-blue-100 text-blue-700";
+  if (statusLower.includes("completed")) return "bg-green-100 text-green-700";
+  if (statusLower.includes("hold")) return "bg-yellow-100 text-yellow-700";
+  if (statusLower.includes("planned")) return "bg-gray-100 text-gray-700";
+  return "bg-gray-100 text-gray-700";
+};
+
+// Helper function to format date
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+// Mock data as fallback
+const mockEngagements: Engagement[] = [
   {
     id: "1",
     title: "Cloud Migration Project Phase 1",
