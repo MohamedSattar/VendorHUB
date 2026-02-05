@@ -571,6 +571,8 @@ export async function fetchOpenRoleById(
 
     const item: any = await response.json();
 
+    console.log("[OData] Raw Open Role API Response:", JSON.stringify(item, null, 2));
+
     // Transform OData response to our OpenRole format
     const openRole: OpenRole = {
       id: item.prmtk_candidateengagementnameid,
