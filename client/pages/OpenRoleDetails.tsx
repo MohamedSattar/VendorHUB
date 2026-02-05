@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, X, RefreshCw } from "lucide-react";
+import { ArrowLeft, Save, X, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOpenRoleDetails } from "@/hooks/useOpenRoleDetails";
-import { OpenRole } from "@/services/odata";
+import { OpenRole, CandidateDetail } from "@/services/odata";
 
 interface OpenRoleDetailsData extends OpenRole {}
+
+interface EditCandidateData extends CandidateDetail {}
 
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
