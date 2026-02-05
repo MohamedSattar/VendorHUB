@@ -337,6 +337,44 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">Status:</span> {candidateDetails.status}
                           </p>
                         )}
+                        {candidateDetails.uaeResident !== null && candidateDetails.uaeResident !== undefined && (
+                          <p className="text-gray-700">
+                            <span className="font-medium">UAE Resident:</span> {candidateDetails.uaeResident ? "Yes" : "No"}
+                          </p>
+                        )}
+
+                        {/* Documents Section */}
+                        {(candidateDetails.cvFile || candidateDetails.introductionDocument || candidateDetails.educationalCertificate || candidateDetails.eid || candidateDetails.salaryCertificate || candidateDetails.passport || candidateDetails.experienceLetter || candidateDetails.policeClearance) && (
+                          <div className="mt-6 pt-6 border-t border-gray-200">
+                            <h4 className="text-md font-semibold text-navy mb-3">Documents</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {candidateDetails.cvFile && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">CV:</span> {candidateDetails.cvFile}</p>
+                              )}
+                              {candidateDetails.introductionDocument && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">Introduction Document:</span> {candidateDetails.introductionDocument}</p>
+                              )}
+                              {candidateDetails.educationalCertificate && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">Educational Certificate:</span> {candidateDetails.educationalCertificate}</p>
+                              )}
+                              {candidateDetails.eid && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">EID:</span> {candidateDetails.eid}</p>
+                              )}
+                              {candidateDetails.salaryCertificate && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">Salary Certificate:</span> {candidateDetails.salaryCertificate}</p>
+                              )}
+                              {candidateDetails.passport && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">Passport:</span> {candidateDetails.passport}</p>
+                              )}
+                              {candidateDetails.experienceLetter && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">Experience Letter:</span> {candidateDetails.experienceLetter}</p>
+                              )}
+                              {candidateDetails.policeClearance && (
+                                <p className="text-sm text-gray-700"><span className="font-medium">Police Clearance:</span> {candidateDetails.policeClearance}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <p className="text-gray-600">No candidate details available for this open role.</p>
