@@ -41,20 +41,15 @@ interface ODataFAQItem {
 }
 
 /**
- * Fetch FAQ content from Power Apps OData API
+ * Fetch FAQ content from Power Apps OData API via backend proxy
  * Filters by prmtk_section = 2 (FAQ section)
+ * Uses /api/odata/faq endpoint to avoid CORS issues
  */
 export async function fetchFAQContent(): Promise<FAQItem[]> {
   try {
-    // OData query to get FAQ content (prmtk_section eq 2)
-    const filter = "$filter=prmtk_section eq 2";
-    const select =
-      "$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode";
-    const orderBy = "$orderby=importsequencenumber asc";
+    const url = `${ODATA_PROXY_URL}/faq`;
 
-    const url = `${ODATA_BASE_URL}/prmtk_websitecontents?${filter}&${select}&${orderBy}`;
-
-    console.log("[OData] Fetching FAQ content from:", url);
+    console.log("[OData] Fetching FAQ content via proxy from:", url);
 
     const response = await fetch(url, {
       method: "GET",
