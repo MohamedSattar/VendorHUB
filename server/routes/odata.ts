@@ -244,6 +244,8 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
 
     const data = await response.json();
 
+    console.log("[OData Proxy] Open Role by ID Response Fields:", Object.keys(data).filter(k => k.includes('contact') || k.includes('engagement')));
+
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
     res.json(data);
