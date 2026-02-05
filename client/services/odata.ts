@@ -46,10 +46,15 @@ export interface AboutPageContent {
 export interface EngagementItem {
   id: string;
   name: string;
+  description?: string;
   startDate: string;
   endDate: string;
   status: string;
   ecaEngagementManager: string;
+  vendorName?: string;
+  contractNumber?: string;
+  contractDescription?: string;
+  typeOfEngagement?: string;
   createdOn: string;
   modifiedOn: string;
 }
