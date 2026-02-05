@@ -77,6 +77,18 @@ interface ODataManualItem extends ODataFAQItem {
   ["prmtk_category@OData.Community.Display.V1.FormattedValue"]?: string;
 }
 
+interface ODataEngagementItem {
+  prmtk_engagementid: string;
+  prmtk_engagementname: string;
+  prmtk_startdate: string;
+  prmtk_enddate: string;
+  prmtk_status?: string;
+  _prmtk_ecaengagementmanager_value?: string;
+  createdon: string;
+  modifiedon: string;
+  statuscode: number;
+}
+
 /**
  * Fetch FAQ content from Power Apps OData API via backend proxy
  * Filters by prmtk_section = 2 (FAQ section)
