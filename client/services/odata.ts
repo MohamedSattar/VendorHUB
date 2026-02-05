@@ -89,19 +89,15 @@ export async function fetchFAQContent(): Promise<FAQItem[]> {
 }
 
 /**
- * Fetch Manuals content from Power Apps OData API
+ * Fetch Manuals content from Power Apps OData API via backend proxy
  * Filters by prmtk_section = 3 (Manuals section)
+ * Uses /api/odata/manuals endpoint to avoid CORS issues
  */
 export async function fetchManualsContent(): Promise<ManualItem[]> {
   try {
-    const filter = "$filter=prmtk_section eq 3";
-    const select =
-      "$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_category,prmtk_section,createdon,modifiedon,statuscode";
-    const orderBy = "$orderby=importsequencenumber asc";
+    const url = `${ODATA_PROXY_URL}/manuals`;
 
-    const url = `${ODATA_BASE_URL}/prmtk_websitecontents?${filter}&${select}&${orderBy}`;
-
-    console.log("[OData] Fetching Manuals content from:", url);
+    console.log("[OData] Fetching Manuals content via proxy from:", url);
 
     const response = await fetch(url, {
       method: "GET",
