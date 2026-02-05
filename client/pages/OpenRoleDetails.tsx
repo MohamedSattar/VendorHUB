@@ -46,11 +46,11 @@ export default function OpenRoleDetails() {
     refetch,
   } = useOpenRoleDetails(id);
 
-  // Fetch candidate details from API
+  // Fetch candidate details from API using candidateId
   const {
     data: candidateDetails,
     isLoading: isCandidateLoading,
-  } = useCandidateDetails(openRole?.candidateContactId);
+  } = useCandidateDetails(openRole?.candidateId);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [showCandidateForm, setShowCandidateForm] = useState(false);
