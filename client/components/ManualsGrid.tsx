@@ -15,11 +15,14 @@ export default function ManualsGrid() {
       ? ["All", ...new Set(manuals.map((m) => m.categoryFormatted || m.category))]
       : ["All"];
 
-  // Filter manuals by selected category
+  // Filter manuals by selected category (compare formatted value if available)
   const filteredManuals =
     selectedCategory === "All"
       ? manuals
-      : manuals?.filter((manual) => manual.category === selectedCategory) || [];
+      : manuals?.filter((manual) => {
+          const displayCategory = manual.categoryFormatted || manual.category;
+          return displayCategory === selectedCategory;
+        }) || [];
 
   const handleDownload = (title: string) => {
     // Simulating download functionality
