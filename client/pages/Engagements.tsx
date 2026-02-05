@@ -12,9 +12,42 @@ interface Engagement {
   requestedBy: string;
   startDate: string;
   endDate?: string;
-  status: "In Progress" | "On-hold" | "Completed" | "Planned";
+  status: string;
   statusColor: string;
 }
+
+// Helper to format dates
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+// Helper to get status color based on status string
+const getStatusColor = (status: string): string => {
+  const statusLower = status?.toLowerCase() || "";
+  if (statusLower.includes("progress") || statusLower.includes("pending")) {
+    return "bg-blue-100 text-blue-700";
+  }
+  if (statusLower.includes("completed") || statusLower.includes("done")) {
+    return "bg-green-100 text-green-700";
+  }
+  if (statusLower.includes("hold") || statusLower.includes("suspended")) {
+    return "bg-yellow-100 text-yellow-700";
+  }
+  if (statusLower.includes("planned") || statusLower.includes("scheduled")) {
+    return "bg-purple-100 text-purple-700";
+  }
+  return "bg-gray-100 text-gray-700";
+};
 
 const engagements: Engagement[] = [
   {
