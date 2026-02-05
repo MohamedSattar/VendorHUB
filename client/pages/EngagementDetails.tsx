@@ -11,14 +11,6 @@ import { useOpenRoles } from "@/hooks/useOpenRoles";
 
 interface EngagementDetailsData extends EngagementItem {
   budget?: number;
-  openRoles?: OpenRole[];
-}
-
-interface OpenRole {
-  id: string;
-  title: string;
-  count: number;
-  description?: string;
 }
 
 const formatDate = (dateString: string): string => {
