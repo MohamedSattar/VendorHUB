@@ -182,21 +182,11 @@ export default function Engagements() {
         return dateB.getTime() - dateA.getTime();
       });
     } else if (sortBy === "status") {
-      const statusOrder = {
-        "In Progress": 1,
-        "Planned": 2,
-        "On-hold": 3,
-        "Completed": 4,
-      };
-      result.sort(
-        (a, b) =>
-          (statusOrder[a.status as keyof typeof statusOrder] || 0) -
-          (statusOrder[b.status as keyof typeof statusOrder] || 0)
-      );
+      result.sort((a, b) => a.status.localeCompare(b.status));
     }
 
     return result;
-  }, [searchTerm, sortBy, statusFilter]);
+  }, [searchTerm, sortBy, statusFilter, engagementsList]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
