@@ -117,6 +117,7 @@ interface ODataOpenRole {
   prmtk_startdate: string;
   prmtk_status?: number;
   "prmtk_status@OData.Community.Display.V1.FormattedValue"?: string;
+  prmtk_readyforsubmission?: boolean | null;
   createdon: string;
   modifiedon: string;
   statuscode: number;
