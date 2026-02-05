@@ -210,3 +210,50 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get single Engagement by ID
+ * GET /api/odata/engagements/:id
+ */
+export const handleGetEngagementById: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Engagement ID is required" });
+    }
+
+    const url =
+      `${ODATA_BASE_URL}/prmtk_engagements(${id})?` +
+      `$select=prmtk_engagementid,prmtk_engagementname,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,createdon,modifiedon,statuscode`;
+
+    console.log("[OData Proxy] Fetching Engagement by ID:", id);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Add cache headers for performance
+    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    res.json(data);
+  } catch (error) {
+    console.error("[OData Proxy] Engagement by ID Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch Engagement",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
