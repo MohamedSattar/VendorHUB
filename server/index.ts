@@ -10,6 +10,11 @@ import {
   handleGetUserResources,
   handleDeleteResource,
 } from "./routes/user";
+import {
+  handleGetWebsiteContents,
+  handleGetFAQ,
+  handleGetManuals,
+} from "./routes/odata";
 
 export function createServer() {
   const app = express();
