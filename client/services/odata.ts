@@ -92,6 +92,59 @@ export async function fetchFAQContent(): Promise<FAQItem[]> {
 }
 
 /**
+ * Fetch Manuals content from Power Apps OData API
+ * Filters by prmtk_section = 3 (Manuals section)
+ */
+export async function fetchManualsContent(): Promise<ManualItem[]> {
+  try {
+    const filter = "$filter=prmtk_section eq 3";
+    const select =
+      "$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_category,prmtk_section,createdon,modifiedon,statuscode";
+    const orderBy = "$orderby=importsequencenumber asc";
+
+    const url = `${ODATA_BASE_URL}/prmtk_websitecontents?${filter}&${select}&${orderBy}`;
+
+    console.log("[OData] Fetching Manuals content from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: ODataResponse = await response.json();
+
+    // Transform OData response to our Manuals format
+    const manualItems: ManualItem[] = data.value
+      .filter((item) => item.statuscode === 1) // Only active items
+      .map((item) => ({
+        id: item.prmtk_websitecontentid,
+        title: item.prmtk_header,
+        description: item.prmtk_description,
+        category: item.prmtk_category || "General", // Default category if not set
+        createdOn: item.createdon,
+        modifiedOn: item.modifiedon,
+        section: item.prmtk_section,
+      }));
+
+    console.log("[OData] Fetched Manual items:", manualItems.length);
+
+    return manualItems;
+  } catch (error) {
+    console.error("[OData] Error fetching Manuals:", error);
+    throw error;
+  }
+}
+
+/**
  * Fetch all website content (not just FAQ)
  * Useful for fetching other sections like Manuals, etc.
  */
