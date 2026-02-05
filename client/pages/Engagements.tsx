@@ -25,7 +25,7 @@ const mockEngagements: Engagement[] = [
     startDate: "Oct 10, 2025",
     endDate: "Dec 15, 2025",
     status: "In Progress",
-    statusColor: "bg-blue-100 text-blue-700",
+    statusColor: "bg-orange-100 text-orange-700",
   },
   {
     id: "2",
@@ -34,7 +34,7 @@ const mockEngagements: Engagement[] = [
     startDate: "Oct 01, 2025",
     endDate: "Nov 30, 2025",
     status: "In Progress",
-    statusColor: "bg-blue-100 text-blue-700",
+    statusColor: "bg-orange-100 text-orange-700",
   },
 ];
 
