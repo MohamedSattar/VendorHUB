@@ -173,7 +173,7 @@ export default function ManualsGrid() {
             >
               <span className="text-xs text-gray-500">PDF Document</span>
               <button
-                onClick={() => handleDownload(manual.title)}
+                onClick={() => handleDownload(manual.id, manual.title)}
                 className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium text-sm"
               >
                 <Download className="w-4 h-4" />
