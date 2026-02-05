@@ -338,70 +338,160 @@ export default function OpenRoleDetails() {
                 </div>
 
                 <form className="space-y-6">
-                  {/* Role Name */}
+                  {/* Role Details Section */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Role Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editData.name || ""}
-                      onChange={(e) => handleEditChange("name", e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
+                    <h3 className="text-lg font-semibold text-navy mb-4">Role Details</h3>
 
-                  {/* Candidate Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Candidate Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editData.candidateName || ""}
-                      onChange={(e) => handleEditChange("candidateName", e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-
-                  {/* Expected Start Date */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Expected Start Date
-                    </label>
-                    <input
-                      type="date"
-                      value={parseDate(editData.expectedStartDate || "")}
-                      onChange={(e) => handleEditChange("expectedStartDate", e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-
-                  {/* Status */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Status
-                    </label>
-                    <input
-                      type="text"
-                      value={editData.status || ""}
-                      onChange={(e) => handleEditChange("status", e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-
-                  {/* Ready for Submission */}
-                  <div>
-                    <label className="flex items-center gap-3">
+                    {/* Role Name */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Role Name
+                      </label>
                       <input
-                        type="checkbox"
-                        checked={editData.readyForSubmission || false}
-                        onChange={(e) => handleEditChange("readyForSubmission", e.target.checked)}
-                        className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
+                        type="text"
+                        value={editData.name || ""}
+                        onChange={(e) => handleEditChange("name", e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       />
-                      <span className="text-sm font-medium text-gray-700">Ready for Submission</span>
-                    </label>
+                    </div>
+
+                    {/* Candidate Name */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Candidate Name
+                      </label>
+                      <input
+                        type="text"
+                        value={editData.candidateName || ""}
+                        onChange={(e) => handleEditChange("candidateName", e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Expected Start Date */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Expected Start Date
+                      </label>
+                      <input
+                        type="date"
+                        value={parseDate(editData.expectedStartDate || "")}
+                        onChange={(e) => handleEditChange("expectedStartDate", e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Status */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Status
+                      </label>
+                      <input
+                        type="text"
+                        value={editData.status || ""}
+                        onChange={(e) => handleEditChange("status", e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Ready for Submission */}
+                    <div>
+                      <label className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={editData.readyForSubmission || false}
+                          onChange={(e) => handleEditChange("readyForSubmission", e.target.checked)}
+                          className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Ready for Submission</span>
+                      </label>
+                    </div>
                   </div>
+
+                  {/* Candidate Details Section */}
+                  {openRole.candidateDetails && (
+                    <div className="pt-8 border-t border-gray-200">
+                      <h3 className="text-lg font-semibold text-navy mb-4">Candidate Details</h3>
+
+                      {/* First Name */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editCandidateData.firstName || ""}
+                          onChange={(e) => handleCandidateEditChange("firstName", e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+
+                      {/* Last Name */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editCandidateData.lastName || ""}
+                          onChange={(e) => handleCandidateEditChange("lastName", e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+
+                      {/* Email */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          value={editCandidateData.email || ""}
+                          onChange={(e) => handleCandidateEditChange("email", e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+
+                      {/* Phone */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Phone
+                        </label>
+                        <input
+                          type="tel"
+                          value={editCandidateData.phone || ""}
+                          onChange={(e) => handleCandidateEditChange("phone", e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+
+                      {/* Title */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Title
+                        </label>
+                        <input
+                          type="text"
+                          value={editCandidateData.title || ""}
+                          onChange={(e) => handleCandidateEditChange("title", e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+
+                      {/* Organization */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Organization
+                        </label>
+                        <input
+                          type="text"
+                          value={editCandidateData.organization || ""}
+                          onChange={(e) => handleCandidateEditChange("organization", e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  )}
 
                   {/* Action buttons */}
                   <div className="flex gap-4 mt-8 pt-8 border-t border-gray-200">
