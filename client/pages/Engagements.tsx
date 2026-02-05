@@ -16,40 +16,8 @@ interface Engagement {
   statusColor: string;
 }
 
-// Helper to format dates
-const formatDate = (dateString: string): string => {
-  if (!dateString) return "N/A";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return dateString;
-  }
-};
-
-// Helper to get status color based on status string
-const getStatusColor = (status: string): string => {
-  const statusLower = status?.toLowerCase() || "";
-  if (statusLower.includes("progress") || statusLower.includes("pending")) {
-    return "bg-blue-100 text-blue-700";
-  }
-  if (statusLower.includes("completed") || statusLower.includes("done")) {
-    return "bg-green-100 text-green-700";
-  }
-  if (statusLower.includes("hold") || statusLower.includes("suspended")) {
-    return "bg-yellow-100 text-yellow-700";
-  }
-  if (statusLower.includes("planned") || statusLower.includes("scheduled")) {
-    return "bg-purple-100 text-purple-700";
-  }
-  return "bg-gray-100 text-gray-700";
-};
-
-const engagements: Engagement[] = [
+// Mock data fallback
+const mockEngagements: Engagement[] = [
   {
     id: "1",
     title: "Cloud Migration Project Phase 1",
@@ -68,64 +36,42 @@ const engagements: Engagement[] = [
     status: "In Progress",
     statusColor: "bg-blue-100 text-blue-700",
   },
-  {
-    id: "3",
-    title: "Marketing Campaign Software",
-    requestedBy: "Eman Salama",
-    startDate: "Sep 14, 2025",
-    endDate: "Oct 31, 2025",
-    status: "On-hold",
-    statusColor: "bg-yellow-100 text-yellow-700",
-  },
-  {
-    id: "4",
-    title: "Network Infrastructure Build-out",
-    requestedBy: "Eman Salama",
-    startDate: "Oct 01, 2025",
-    endDate: "Sep 30, 2024",
-    status: "Completed",
-    statusColor: "bg-green-100 text-green-700",
-  },
-  {
-    id: "5",
-    title: "Security Audit and Assessment",
-    requestedBy: "Fatima Al Mansouri",
-    startDate: "Nov 01, 2025",
-    endDate: "Dec 31, 2025",
-    status: "Planned",
-    statusColor: "bg-gray-100 text-gray-700",
-  },
-  {
-    id: "6",
-    title: "Data Center Optimization",
-    requestedBy: "Ahmed Abdullah",
-    startDate: "Sep 20, 2025",
-    endDate: "Oct 20, 2024",
-    status: "Completed",
-    statusColor: "bg-green-100 text-green-700",
-  },
-  {
-    id: "7",
-    title: "Mobile App Development Platform",
-    requestedBy: "Khalid Saeed",
-    startDate: "Oct 15, 2025",
-    endDate: "Jan 15, 2026",
-    status: "In Progress",
-    statusColor: "bg-blue-100 text-blue-700",
-  },
-  {
-    id: "8",
-    title: "Customer Portal Enhancement",
-    requestedBy: "Layla Hassan",
-    startDate: "Sep 01, 2025",
-    endDate: "Sep 30, 2025",
-    status: "Completed",
-    statusColor: "bg-green-100 text-green-700",
-  },
 ];
 
+// Helper to format dates
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+// Helper to get status color
+const getStatusColor = (status: string): string => {
+  const statusLower = status?.toLowerCase() || "";
+  if (statusLower.includes("progress") || statusLower.includes("pending")) {
+    return "bg-blue-100 text-blue-700";
+  }
+  if (statusLower.includes("completed") || statusLower.includes("done")) {
+    return "bg-green-100 text-green-700";
+  }
+  if (statusLower.includes("hold") || statusLower.includes("suspended")) {
+    return "bg-yellow-100 text-yellow-700";
+  }
+  if (statusLower.includes("planned") || statusLower.includes("scheduled")) {
+    return "bg-purple-100 text-purple-700";
+  }
+  return "bg-gray-100 text-gray-700";
+};
+
 type SortType = "name" | "date" | "status";
-type StatusFilter = "all" | "In Progress" | "On-hold" | "Completed" | "Planned";
 
 export default function Engagements() {
   const navigate = useNavigate();
@@ -149,7 +95,7 @@ export default function Engagements() {
   }));
 
   // Use API data if available, otherwise fall back to mock data
-  const engagementsList = transformedEngagements.length > 0 ? transformedEngagements : engagements;
+  const engagementsList = transformedEngagements.length > 0 ? transformedEngagements : mockEngagements;
 
   // Get unique statuses for filter dropdown
   const uniqueStatuses = ["all", ...new Set(engagementsList.map((e) => e.status))];
@@ -212,81 +158,79 @@ export default function Engagements() {
 
           {/* Error State */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-              <p className="text-red-800 mb-4">
-                Failed to load engagements from API. Showing mock data.
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+              <p className="text-yellow-800 mb-4">
+                Using sample data. Showing mock engagements.
               </p>
               <button
                 onClick={() => refetch()}
                 disabled={isFetching}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition disabled:opacity-50"
               >
                 <RefreshCw size={18} className={isFetching ? "animate-spin" : ""} />
-                {isFetching ? "Retrying..." : "Retry"}
+                {isFetching ? "Retrying..." : "Retry API"}
               </button>
             </div>
           )}
 
           {/* Controls section */}
-          {(!isLoading || engagementsList.length > 0) && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                {/* Search */}
-                <div className="md:col-span-5">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Search
-                  </label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Search by title or requested by..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Sort */}
-                <div className="md:col-span-3">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sort By
-                  </label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as SortType)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                  >
-                    <option value="date">Start Date (Newest)</option>
-                    <option value="name">Title (A-Z)</option>
-                    <option value="status">Status</option>
-                  </select>
-                </div>
-
-                {/* Filter */}
-                <div className="md:col-span-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Filter by Status
-                  </label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                  >
-                    <option value="all">All Statuses</option>
-                    {uniqueStatuses.map((status) =>
-                      status !== "all" ? (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ) : null
-                    )}
-                  </select>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              {/* Search */}
+              <div className="md:col-span-5">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by title or requested by..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
                 </div>
               </div>
+
+              {/* Sort */}
+              <div className="md:col-span-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sort By
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortType)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                >
+                  <option value="date">Start Date (Newest)</option>
+                  <option value="name">Title (A-Z)</option>
+                  <option value="status">Status</option>
+                </select>
+              </div>
+
+              {/* Filter */}
+              <div className="md:col-span-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                >
+                  <option value="all">All Statuses</option>
+                  {uniqueStatuses.map((status) =>
+                    status !== "all" ? (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ) : null
+                  )}
+                </select>
+              </div>
             </div>
-          )}
+          </div>
 
           {/* Engagements Table */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
@@ -350,12 +294,14 @@ export default function Engagements() {
                           <div className="flex items-center gap-3">
                             <button
                               onClick={() => navigate(`/engagement/${engagement.id}`)}
-                              className="p-1 text-navy hover:bg-gray-100 rounded transition">
+                              className="p-1 text-navy hover:bg-gray-100 rounded transition"
+                            >
                               <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => navigate(`/engagement/${engagement.id}`)}
-                              className="p-1 text-navy hover:bg-gray-100 rounded transition">
+                              className="p-1 text-navy hover:bg-gray-100 rounded transition"
+                            >
                               <Eye className="w-4 h-4" />
                             </button>
                           </div>
