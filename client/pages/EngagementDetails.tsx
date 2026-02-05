@@ -390,12 +390,20 @@ export default function EngagementDetails() {
                           </div>
                         </div>
 
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center mb-4">
                           <span className="text-xs text-gray-600">Status</span>
                           <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
                             {role.status}
                           </span>
                         </div>
+
+                        <button
+                          onClick={() => navigate(`/open-role/${role.id}`)}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-opacity-90 transition"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Edit Details
+                        </button>
                       </div>
                     ))}
                   </div>
