@@ -50,6 +50,7 @@ export function createServer() {
   app.get("/api/odata/faq", handleGetFAQ);
   app.get("/api/odata/manuals", handleGetManuals);
   app.get("/api/odata/engagements", handleGetEngagements);
+  app.get("/api/odata/engagements/:id", handleGetEngagementById);
 
   return app;
 }
