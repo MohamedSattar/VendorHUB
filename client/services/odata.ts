@@ -14,6 +14,16 @@ export interface FAQItem {
   section: number;
 }
 
+export interface ManualItem {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  createdOn: string;
+  modifiedOn: string;
+  section: number;
+}
+
 interface ODataResponse {
   value: ODataFAQItem[];
 }
