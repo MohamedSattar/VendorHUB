@@ -8,7 +8,7 @@ import ContactSection from "@/components/ContactSection";
 
 export default function About() {
   const { t, isArabic } = useLanguage();
-  const { data: content, isLoading, error, refetch, isFetching } = useAboutPageContent();
+  const { data: content, isLoading, error, refetch } = useAboutPageContent();
 
   return (
     <div className="flex flex-col min-h-screen bg-white" dir={isArabic ? "rtl" : "ltr"}>
