@@ -77,6 +77,7 @@ export interface OpenRole {
   status: string;
   readyForSubmission?: boolean | null;
   candidateContactId?: string;
+  candidateId?: string;
   candidateDetails?: CandidateDetail;
   designation?: string;
   designationArabic?: string;
