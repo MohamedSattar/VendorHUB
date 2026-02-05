@@ -537,9 +537,9 @@ export async function fetchOpenRoles(
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item) => ({
         id: item.prmtk_candidateengagementnameid,
-        name: item.prmtk_candidaterequiredname,
-        expectedStartDate: item.prmtk_expstartdate,
-        status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || item.prmtk_status || "Open",
+        name: item.prmtk_rolename,
+        expectedStartDate: item.prmtk_startdate,
+        status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
       }));
