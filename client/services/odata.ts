@@ -572,8 +572,6 @@ export async function fetchOpenRoleById(
 
     const item: any = await response.json();
 
-    console.log("[OData] Raw Open Role API Response:", JSON.stringify(item, null, 2));
-
     // Transform OData response to our OpenRole format
     const openRole: OpenRole = {
       id: item.prmtk_candidateengagementnameid,
@@ -587,7 +585,7 @@ export async function fetchOpenRoleById(
       modifiedOn: item.modifiedon,
     };
 
-    console.log("[OData] Fetched Open Role:", openRole);
+    console.log("[OData] Fetched Open Role:", openRole, "with candidateContactId:", openRole.candidateContactId);
 
     return openRole;
   } catch (error) {
