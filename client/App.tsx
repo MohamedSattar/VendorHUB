@@ -36,9 +36,9 @@ export default function App() {
               <Sonner />
               <Routes>
                 {/* Public Routes */}
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<About />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/about" element={<About />} />
+                <Route path="/index" element={<Index />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/manuals" element={<Manuals />} />
                 <Route path="/terms" element={<Placeholder />} />
