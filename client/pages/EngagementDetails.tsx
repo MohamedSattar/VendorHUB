@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, X, RefreshCw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { EngagementItem } from "@/services/odata";
+import { EngagementItem, fetchEngagementById } from "@/services/odata";
 
 interface EngagementDetailsData extends EngagementItem {
   description?: string;
