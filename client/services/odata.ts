@@ -62,6 +62,7 @@ export interface EngagementItem {
 export interface OpenRole {
   id: string;
   name: string;
+  candidateName?: string;
   expectedStartDate: string;
   status: string;
   readyForSubmission?: boolean | null;
