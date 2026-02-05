@@ -9,9 +9,10 @@ export default function ManualsGrid() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   // Extract unique categories from manuals
+  // Use formatted category value if available, otherwise use the raw category value
   const categories =
     manuals && manuals.length > 0
-      ? ["All", ...new Set(manuals.map((m) => m.category))]
+      ? ["All", ...new Set(manuals.map((m) => m.categoryFormatted || m.category))]
       : ["All"];
 
   // Filter manuals by selected category
