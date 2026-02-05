@@ -242,6 +242,68 @@ export default function OpenRoleDetails() {
                 </div>
               </div>
 
+              {/* Candidate Details Section */}
+              <div className="mb-8">
+                <button
+                  onClick={() => setShowCandidateForm(!showCandidateForm)}
+                  className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
+                >
+                  <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
+                  {showCandidateForm ? (
+                    <ChevronUp className="w-5 h-5 text-navy" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-navy" />
+                  )}
+                </button>
+
+                {showCandidateForm && openRole.candidateDetails ? (
+                  <div className="mt-4 p-4 bg-white border border-blue-100 rounded-lg">
+                    <div className={`space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
+                      {openRole.candidateDetails.firstName && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">First Name:</span> {openRole.candidateDetails.firstName}
+                        </p>
+                      )}
+                      {openRole.candidateDetails.lastName && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Last Name:</span> {openRole.candidateDetails.lastName}
+                        </p>
+                      )}
+                      {openRole.candidateDetails.email && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Email:</span> {openRole.candidateDetails.email}
+                        </p>
+                      )}
+                      {openRole.candidateDetails.phone && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Phone:</span> {openRole.candidateDetails.phone}
+                        </p>
+                      )}
+                      {openRole.candidateDetails.title && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Title:</span> {openRole.candidateDetails.title}
+                        </p>
+                      )}
+                      {openRole.candidateDetails.organization && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Organization:</span> {openRole.candidateDetails.organization}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setShowCandidateForm(false)}
+                      className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : !showCandidateForm && !openRole.candidateDetails ? (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800">
+                    <p>No candidate details available for this open role.</p>
+                  </div>
+                ) : null}
+              </div>
+
               {/* Additional information */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-navy mb-4">Additional Information</h3>
