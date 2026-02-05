@@ -318,6 +318,59 @@ export default function EngagementDetails() {
                 </div>
               )}
 
+              {/* Vendor and Contract Information */}
+              <div className="mb-8 pb-8 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-navy mb-4">Vendor & Contract Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {engagement.vendorName && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Vendor Name</p>
+                      <p className="text-gray-900 font-medium">{engagement.vendorName}</p>
+                    </div>
+                  )}
+                  {engagement.typeOfEngagement && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Type of Engagement</p>
+                      <p className="text-gray-900 font-medium">{engagement.typeOfEngagement}</p>
+                    </div>
+                  )}
+                  {engagement.contractNumber && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Contract Number</p>
+                      <p className="text-gray-900 font-medium">{engagement.contractNumber}</p>
+                    </div>
+                  )}
+                </div>
+                {engagement.contractDescription && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Contract Description</p>
+                    <p className="text-gray-700 leading-relaxed">{engagement.contractDescription}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Open Roles Section */}
+              {engagement.openRoles && engagement.openRoles.length > 0 && (
+                <div className="mb-8 pb-8 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-navy mb-4">Open Roles ({engagement.openRoles.length})</h3>
+                  <div className="space-y-3">
+                    {engagement.openRoles.map((role) => (
+                      <div key={role.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-gray-900">{role.title}</h4>
+                          <span className="inline-block px-3 py-1 bg-primary text-white text-sm font-medium rounded-full">
+                            {role.count} Position{role.count > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        {role.description && (
+                          <p className="text-sm text-gray-600">{role.description}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Metadata section */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-navy mb-4">Additional Information</h3>
