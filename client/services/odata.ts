@@ -510,6 +510,59 @@ export async function fetchEngagementById(
 }
 
 /**
+ * Fetch single Open Role by ID from Power Apps OData API via backend proxy
+ * Returns detailed open role information
+ */
+export async function fetchOpenRoleById(
+  openRoleId: string
+): Promise<OpenRole | null> {
+  try {
+    const url = `${ODATA_PROXY_URL}/open-role/${openRoleId}`;
+
+    console.log("[OData] Fetching Open Role by ID:", openRoleId);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[OData] Open Role not found:", openRoleId);
+        return null;
+      }
+      throw new Error(
+        `Failed to fetch Open Role: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const item: any = await response.json();
+
+    // Transform OData response to our OpenRole format
+    const openRole: OpenRole = {
+      id: item.prmtk_candidateengagementnameid,
+      name: item.prmtk_rolename,
+      candidateName: item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"] || item.prmtk_name,
+      expectedStartDate: item.prmtk_startdate,
+      status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
+      readyForSubmission: item.prmtk_readyforsubmission,
+      createdOn: item.createdon,
+      modifiedOn: item.modifiedon,
+    };
+
+    console.log("[OData] Fetched Open Role:", openRole);
+
+    return openRole;
+  } catch (error) {
+    console.error("[OData] Error fetching Open Role by ID:", error);
+    throw error;
+  }
+}
+
+/**
  * Fetch Open Roles for an Engagement from Power Apps OData API via backend proxy
  * Returns list of open roles/positions needed for the engagement
  */
