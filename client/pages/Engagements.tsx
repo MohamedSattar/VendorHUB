@@ -55,15 +55,39 @@ export default function Engagements() {
   console.log("Engagements state:", { isLoading, error, hasData: apiEngagements.length > 0, dataLength: apiEngagements.length });
 
   // Transform API data to Engagement format
-  const engagements: Engagement[] = apiEngagements.map((eng) => ({
-    id: eng.id,
-    title: eng.name,
-    requestedBy: eng.ecaEngagementManager,
-    startDate: formatDate(eng.startDate),
-    endDate: formatDate(eng.endDate),
-    status: eng.status,
-    statusColor: getStatusColor(eng.status),
-  }));
+  // Use mock data as fallback if API returns empty
+  const mockEngagements: Engagement[] = [
+    {
+      id: "1",
+      title: "Cloud Migration Project",
+      requestedBy: "Ahmed Abdullah",
+      startDate: "Oct 10, 2025",
+      endDate: "Dec 15, 2025",
+      status: "In Progress",
+      statusColor: "bg-blue-100 text-blue-700",
+    },
+    {
+      id: "2",
+      title: "ERP System Upgrade",
+      requestedBy: "Ali Khouri",
+      startDate: "Oct 01, 2025",
+      endDate: "Nov 30, 2025",
+      status: "In Progress",
+      statusColor: "bg-blue-100 text-blue-700",
+    },
+  ];
+
+  const engagements: Engagement[] = apiEngagements.length > 0
+    ? apiEngagements.map((eng) => ({
+        id: eng.id,
+        title: eng.name,
+        requestedBy: eng.ecaEngagementManager,
+        startDate: formatDate(eng.startDate),
+        endDate: formatDate(eng.endDate),
+        status: eng.status,
+        statusColor: getStatusColor(eng.status),
+      }))
+    : mockEngagements;
 
   // Get unique statuses for filter dropdown
   const uniqueStatuses = ["all", ...new Set(engagements.map((e) => e.status))];
