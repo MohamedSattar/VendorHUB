@@ -14,7 +14,6 @@ import {
   handleGetWebsiteContents,
   handleGetFAQ,
   handleGetManuals,
-  handleGetEngagements,
 } from "./routes/odata";
 
 export function createServer() {
