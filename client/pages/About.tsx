@@ -17,18 +17,7 @@ export default function About() {
 
       <main className="flex-grow">
         <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${isArabic ? "text-right" : "text-left"}`}>
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-bold text-navy">{t("about.title")}</h1>
-            <button
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
-              title="Refresh About page content"
-            >
-              <RefreshCw size={18} className={isFetching ? "animate-spin" : ""} />
-              {isFetching ? "Loading..." : "Refresh"}
-            </button>
-          </div>
+          <h1 className="text-4xl font-bold text-navy mb-8">{t("about.title")}</h1>
 
           {isLoading && (
             <div className="space-y-6">
