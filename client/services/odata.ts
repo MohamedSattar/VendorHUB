@@ -155,20 +155,20 @@ export async function fetchContentByHeaderName(
   headerName: string
 ): Promise<WebsiteContentItem | null> {
   try {
-    const url = new URL(`${window.location.origin}${ODATA_PROXY_URL}/websitecontents`);
-    url.searchParams.append(
-      "filter",
-      `prmtk_header eq '${headerName.replace(/'/g, "''")}'`
-    );
-    url.searchParams.append(
+    // Build query parameters for OData filter
+    const params = new URLSearchParams();
+    params.append("filter", `prmtk_header eq '${headerName.replace(/'/g, "''")}'`);
+    params.append(
       "select",
       "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode"
     );
-    url.searchParams.append("top", "1");
+    params.append("top", "1");
+
+    const url = `${ODATA_PROXY_URL}/websitecontents?${params.toString()}`;
 
     console.log("[OData] Fetching content by header name:", headerName);
 
-    const response = await fetch(url.pathname + url.search, {
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
