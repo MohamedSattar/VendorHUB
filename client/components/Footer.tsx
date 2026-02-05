@@ -11,9 +11,9 @@ export default function Footer() {
             Copyright © {currentYear} ECA. All Rights Reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="/terms" className="text-sm text-navy hover:text-primary transition">
+            <a href="https://www.eca.gov.ae/terms-conditions" target="_blank" rel="noopener noreferrer" className="text-sm text-navy hover:text-primary transition">
               Terms of Use
-            </Link>
+            </a>
             <Link to="/privacy" className="text-sm text-navy hover:text-primary transition">
               Privacy Policy
             </Link>
