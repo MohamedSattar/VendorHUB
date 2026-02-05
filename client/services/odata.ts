@@ -409,3 +409,56 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
     throw error;
   }
 }
+
+/**
+ * Fetch single Engagement by ID from Power Apps OData API via backend proxy
+ * Returns detailed engagement information
+ */
+export async function fetchEngagementById(
+  engagementId: string
+): Promise<EngagementItem | null> {
+  try {
+    const url = `${ODATA_PROXY_URL}/engagements/${engagementId}`;
+
+    console.log("[OData] Fetching Engagement by ID:", engagementId);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[OData] Engagement not found:", engagementId);
+        return null;
+      }
+      throw new Error(
+        `Failed to fetch Engagement: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const item: ODataEngagementItem = await response.json();
+
+    // Transform OData response to our Engagement format
+    const engagement: EngagementItem = {
+      id: item.prmtk_engagementid,
+      name: item.prmtk_engagementname,
+      startDate: item.prmtk_startdate,
+      endDate: item.prmtk_enddate,
+      status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Pending",
+      ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
+      createdOn: item.createdon,
+      modifiedOn: item.modifiedon,
+    };
+
+    console.log("[OData] Fetched Engagement:", engagement);
+
+    return engagement;
+  } catch (error) {
+    console.error("[OData] Error fetching Engagement by ID:", error);
+    throw error;
+  }
+}
