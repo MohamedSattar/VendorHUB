@@ -14,9 +14,9 @@ export default function Footer() {
             <a href="https://www.eca.gov.ae/terms-conditions" target="_blank" rel="noopener noreferrer" className="text-sm text-navy hover:text-primary transition">
               Terms of Use
             </a>
-            <Link to="/privacy" className="text-sm text-navy hover:text-primary transition">
+            <a href="https://www.eca.gov.ae/en/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-sm text-navy hover:text-primary transition">
               Privacy Policy
-            </Link>
+            </a>
           </div>
         </div>
       </div>
