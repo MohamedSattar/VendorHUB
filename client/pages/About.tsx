@@ -5,6 +5,7 @@ import { useAboutPageContent } from "@/hooks/useAboutPageContent";
 import MissionSection from "@/components/MissionSection";
 import WhatWeDoSection from "@/components/WhatWeDoSection";
 import ContactSection from "@/components/ContactSection";
+import { RefreshCw } from "lucide-react";
 
 export default function About() {
   const { t, isArabic } = useLanguage();
