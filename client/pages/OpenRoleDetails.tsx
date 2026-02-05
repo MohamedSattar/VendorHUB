@@ -274,14 +274,9 @@ export default function OpenRoleDetails() {
                       </p>
                     ) : candidateDetails ? (
                       <div className={`space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
-                        {candidateDetails.firstName && (
+                        {candidateDetails.name && (
                           <p className="text-gray-700">
-                            <span className="font-medium">First Name:</span> {candidateDetails.firstName}
-                          </p>
-                        )}
-                        {candidateDetails.lastName && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Last Name:</span> {candidateDetails.lastName}
+                            <span className="font-medium">Name:</span> {candidateDetails.name}
                           </p>
                         )}
                         {candidateDetails.email && (
@@ -289,19 +284,14 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">Email:</span> {candidateDetails.email}
                           </p>
                         )}
-                        {candidateDetails.phone && (
+                        {candidateDetails.phoneNumber && (
                           <p className="text-gray-700">
-                            <span className="font-medium">Phone:</span> {candidateDetails.phone}
+                            <span className="font-medium">Phone Number:</span> {candidateDetails.phoneNumber}
                           </p>
                         )}
-                        {candidateDetails.title && (
+                        {candidateDetails.status && (
                           <p className="text-gray-700">
-                            <span className="font-medium">Title:</span> {candidateDetails.title}
-                          </p>
-                        )}
-                        {candidateDetails.organization && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Organization:</span> {candidateDetails.organization}
+                            <span className="font-medium">Status:</span> {candidateDetails.status}
                           </p>
                         )}
                       </div>
