@@ -657,6 +657,12 @@ export async function fetchCandidateContactById(
 
     const item: any = await response.json();
 
+    console.log("[OData] Raw API response for Candidate Contact:", {
+      id: item.prmtk_engagementcontactid,
+      fields: Object.keys(item),
+      rawData: item,
+    });
+
     // Transform OData response to our CandidateDetail format
     const candidateDetail: CandidateDetail = {
       id: item.prmtk_engagementcontactid,
@@ -678,7 +684,19 @@ export async function fetchCandidateContactById(
       modifiedOn: item.modifiedon,
     };
 
-    console.log("[OData] Fetched Candidate Contact:", candidateDetail);
+    console.log("[OData] Fetched Candidate Contact:", {
+      ...candidateDetail,
+      documents: {
+        cvFile: candidateDetail.cvFile,
+        introductionDocument: candidateDetail.introductionDocument,
+        educationalCertificate: candidateDetail.educationalCertificate,
+        eid: candidateDetail.eid,
+        salaryCertificate: candidateDetail.salaryCertificate,
+        passport: candidateDetail.passport,
+        experienceLetter: candidateDetail.experienceLetter,
+        policeClearance: candidateDetail.policeClearance,
+      },
+    });
 
     return candidateDetail;
   } catch (error) {
