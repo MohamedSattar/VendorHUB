@@ -18,6 +18,7 @@ import {
   handleGetEngagementById,
   handleGetOpenRoles,
   handleGetOpenRoleById,
+  handleGetCandidateContact,
 } from "./routes/odata";
 
 export function createServer() {
