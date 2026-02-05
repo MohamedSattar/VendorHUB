@@ -539,7 +539,7 @@ export async function fetchEngagementById(
 
 /**
  * Fetch single Open Role by ID from Power Apps OData API via backend proxy
- * Returns detailed open role information
+ * Returns detailed open role information including expanded candidate details
  */
 export async function fetchOpenRoleById(
   openRoleId: string
@@ -569,6 +569,23 @@ export async function fetchOpenRoleById(
 
     const item: any = await response.json();
 
+    // Transform candidate details from expanded data
+    let candidateDetails: CandidateDetail | undefined;
+    if (item.prmtk_engagementcontact) {
+      const candidate = item.prmtk_engagementcontact;
+      candidateDetails = {
+        id: candidate.prmtk_engagementcontactid,
+        firstName: candidate.prmtk_firstname,
+        lastName: candidate.prmtk_lastname,
+        email: candidate.prmtk_email,
+        phone: candidate.prmtk_phone,
+        title: candidate.prmtk_title,
+        organization: candidate.prmtk_organization,
+        createdOn: candidate.createdon,
+        modifiedOn: candidate.modifiedon,
+      };
+    }
+
     // Transform OData response to our OpenRole format
     const openRole: OpenRole = {
       id: item.prmtk_candidateengagementnameid,
@@ -577,6 +594,7 @@ export async function fetchOpenRoleById(
       expectedStartDate: item.prmtk_startdate,
       status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
       readyForSubmission: item.prmtk_readyforsubmission,
+      candidateDetails,
       createdOn: item.createdon,
       modifiedOn: item.modifiedon,
     };
