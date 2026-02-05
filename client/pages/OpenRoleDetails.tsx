@@ -449,6 +449,63 @@ export default function OpenRoleDetails() {
                     </div>
                   </div>
 
+                  {/* Role Assignment Details Section */}
+                  <div className="pt-8 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-navy mb-4">Role Assignment Details</h3>
+
+                    {/* Designation */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Designation
+                      </label>
+                      <input
+                        type="text"
+                        value={editData.designation || ""}
+                        onChange={(e) => handleEditChange("designation", e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Designation in Arabic */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Designation in Arabic
+                      </label>
+                      <input
+                        type="text"
+                        value={editData.designationArabic || ""}
+                        onChange={(e) => handleEditChange("designationArabic", e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Current Salary */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Current Salary
+                      </label>
+                      <input
+                        type="number"
+                        value={editData.currentSalary || ""}
+                        onChange={(e) => handleEditChange("currentSalary", parseFloat(e.target.value) || 0)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Proposed Salary */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Proposed Salary
+                      </label>
+                      <input
+                        type="number"
+                        value={editData.proposedSalary || ""}
+                        onChange={(e) => handleEditChange("proposedSalary", parseFloat(e.target.value) || 0)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
                   {/* Candidate Details Section */}
                   {candidateDetails && (
                     <div className="pt-8 border-t border-gray-200">
