@@ -160,3 +160,45 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get Engagements content
+ * GET /api/odata/engagements
+ */
+export const handleGetEngagements: RequestHandler = async (req, res) => {
+  try {
+    const url =
+      `${ODATA_BASE_URL}/prmtk_engagements?` +
+      `$select=prmtk_engagementid,prmtk_engagementname,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,createdon,modifiedon,statuscode&` +
+      `$orderby=prmtk_startdate%20desc`;
+
+    console.log("[OData Proxy] Fetching Engagements from Power Apps");
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Add cache headers for performance
+    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    res.json(data);
+  } catch (error) {
+    console.error("[OData Proxy] Engagements Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch Engagements content",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
