@@ -52,6 +52,7 @@ export function createServer() {
   app.get("/api/odata/manuals", handleGetManuals);
   app.get("/api/odata/engagements", handleGetEngagements);
   app.get("/api/odata/engagements/:id", handleGetEngagementById);
+  app.get("/api/odata/open-roles/:engagementId", handleGetOpenRoles);
 
   return app;
 }
