@@ -78,11 +78,25 @@ export default function EngagementDetails() {
   const { toast } = useToast();
   const { isArabic } = useLanguage();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [engagement, setEngagement] = useState<EngagementDetailsData | null>(
-    id && mockEngagements[id] ? mockEngagements[id] : null
-  );
+  // Fetch engagement data from API
+  const {
+    data: apiEngagement,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["engagement", id],
+    queryFn: () => (id ? fetchEngagementById(id) : Promise.reject("No ID")),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
+  });
+
+  // Use API data if available, otherwise fallback to mock data
+  const engagement: EngagementDetailsData | null =
+    apiEngagement ||
+    (id && mockEngagements[id] ? mockEngagements[id] : null);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editData, setEditData] = useState<Partial<EngagementDetailsData>>({
@@ -92,6 +106,19 @@ export default function EngagementDetails() {
     startDate: engagement?.startDate,
     endDate: engagement?.endDate,
   });
+
+  // Update edit data when engagement data changes
+  useEffect(() => {
+    if (engagement) {
+      setEditData({
+        name: engagement.name,
+        description: engagement.description,
+        budget: engagement.budget,
+        startDate: engagement.startDate,
+        endDate: engagement.endDate,
+      });
+    }
+  }, [engagement]);
 
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
