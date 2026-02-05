@@ -591,6 +591,60 @@ export async function fetchOpenRoleById(
 }
 
 /**
+ * Fetch Candidate Contact by ID from Power Apps OData API via backend proxy
+ * Returns candidate contact information
+ */
+export async function fetchCandidateContactById(
+  contactId: string
+): Promise<CandidateDetail | null> {
+  try {
+    const url = `${ODATA_PROXY_URL}/candidate-contact/${contactId}`;
+
+    console.log("[OData] Fetching Candidate Contact by ID:", contactId);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[OData] Candidate Contact not found:", contactId);
+        return null;
+      }
+      throw new Error(
+        `Failed to fetch Candidate Contact: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const item: any = await response.json();
+
+    // Transform OData response to our CandidateDetail format
+    const candidateDetail: CandidateDetail = {
+      id: item.prmtk_engagementcontactid,
+      firstName: item.prmtk_firstname,
+      lastName: item.prmtk_lastname,
+      email: item.prmtk_email,
+      phone: item.prmtk_phone,
+      title: item.prmtk_title,
+      organization: item.prmtk_organization,
+      createdOn: item.createdon,
+      modifiedOn: item.modifiedon,
+    };
+
+    console.log("[OData] Fetched Candidate Contact:", candidateDetail);
+
+    return candidateDetail;
+  } catch (error) {
+    console.error("[OData] Error fetching Candidate Contact by ID:", error);
+    throw error;
+  }
+}
+
+/**
  * Fetch Open Roles for an Engagement from Power Apps OData API via backend proxy
  * Returns list of open roles/positions needed for the engagement
  */
