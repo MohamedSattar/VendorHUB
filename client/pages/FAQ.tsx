@@ -7,7 +7,7 @@ import { useFAQContent } from "@/hooks/useFAQContent";
 
 export default function FAQ() {
   const { t, language } = useLanguage();
-  const { refetch, isFetching } = useFAQContent();
+  const { refetch } = useFAQContent();
 
   return (
     <div
@@ -20,23 +20,9 @@ export default function FAQ() {
         <div
           className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ${language === "ar" ? "text-right" : "text-left"}`}
         >
-          <div className={`flex items-center justify-between mb-4 ${language === "ar" ? "flex-row-reverse" : ""}`}>
-            <h1 className="text-4xl font-bold text-navy">
-              {t("faq.title")}
-            </h1>
-            <button
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition disabled:opacity-50"
-              title="Refresh FAQ content from server"
-            >
-              <RefreshCw
-                size={18}
-                className={isFetching ? "animate-spin" : ""}
-              />
-              {isFetching ? "Refreshing..." : "Refresh"}
-            </button>
-          </div>
+          <h1 className="text-4xl font-bold text-navy mb-4">
+            {t("faq.title")}
+          </h1>
           <p className="text-lg text-gray-600 mb-12">{t("faq.subtitle")}</p>
 
           {/* Dynamic FAQ content from Power Apps API */}
