@@ -85,12 +85,10 @@ export default function OpenRoleDetails() {
   useEffect(() => {
     if (candidateDetails) {
       setEditCandidateData({
-        firstName: candidateDetails.firstName,
-        lastName: candidateDetails.lastName,
+        name: candidateDetails.name,
         email: candidateDetails.email,
-        phone: candidateDetails.phone,
-        title: candidateDetails.title,
-        organization: candidateDetails.organization,
+        phoneNumber: candidateDetails.phoneNumber,
+        status: candidateDetails.status,
       });
     }
   }, [candidateDetails]);
