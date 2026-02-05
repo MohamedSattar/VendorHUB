@@ -200,61 +200,93 @@ export default function Engagements() {
             <h1 className="text-3xl font-bold text-navy">{t("engagements.title")}</h1>
           </div>
 
-          {/* Controls section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-              {/* Search */}
-              <div className="md:col-span-5">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search by title or requested by..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Sort */}
-              <div className="md:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Sort By
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortType)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                >
-                  <option value="date">Start Date (Newest)</option>
-                  <option value="name">Title (A-Z)</option>
-                  <option value="status">Status</option>
-                </select>
-              </div>
-
-              {/* Filter */}
-              <div className="md:col-span-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Filter by Status
-                </label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Planned">Planned</option>
-                  <option value="On-hold">On-hold</option>
-                  <option value="Completed">Completed</option>
-                </select>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+              <div className="flex items-center justify-center gap-3">
+                <RefreshCw className="w-5 h-5 text-primary animate-spin" />
+                <p className="text-gray-600">Loading engagements from API...</p>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+              <p className="text-red-800 mb-4">
+                Failed to load engagements from API. Showing mock data.
+              </p>
+              <button
+                onClick={() => refetch()}
+                disabled={isFetching}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+              >
+                <RefreshCw size={18} className={isFetching ? "animate-spin" : ""} />
+                {isFetching ? "Retrying..." : "Retry"}
+              </button>
+            </div>
+          )}
+
+          {/* Controls section */}
+          {(!isLoading || engagementsList.length > 0) && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                {/* Search */}
+                <div className="md:col-span-5">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Search
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by title or requested by..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Sort */}
+                <div className="md:col-span-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sort By
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortType)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                  >
+                    <option value="date">Start Date (Newest)</option>
+                    <option value="name">Title (A-Z)</option>
+                    <option value="status">Status</option>
+                  </select>
+                </div>
+
+                {/* Filter */}
+                <div className="md:col-span-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Filter by Status
+                  </label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                  >
+                    <option value="all">All Statuses</option>
+                    {uniqueStatuses.map((status) =>
+                      status !== "all" ? (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ) : null
+                    )}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Engagements Table */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
