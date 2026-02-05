@@ -126,6 +126,10 @@ export default function EngagementDetails() {
   const [editData, setEditData] = useState<Partial<EngagementDetailsData>>({
     name: engagement?.name,
     description: engagement?.description,
+    vendorName: engagement?.vendorName,
+    contractNumber: engagement?.contractNumber,
+    contractDescription: engagement?.contractDescription,
+    typeOfEngagement: engagement?.typeOfEngagement,
     budget: engagement?.budget,
     startDate: engagement?.startDate,
     endDate: engagement?.endDate,
@@ -137,6 +141,10 @@ export default function EngagementDetails() {
       setEditData({
         name: engagement.name,
         description: engagement.description,
+        vendorName: engagement.vendorName,
+        contractNumber: engagement.contractNumber,
+        contractDescription: engagement.contractDescription,
+        typeOfEngagement: engagement.typeOfEngagement,
         budget: engagement.budget,
         startDate: engagement.startDate,
         endDate: engagement.endDate,
