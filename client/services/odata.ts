@@ -149,7 +149,7 @@ interface ODataOpenRole {
   prmtk_readyforsubmission?: boolean | null;
   _prmtk_candidate_value?: string;
   "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"?: string;
-  prmtk_engagementcontact?: ODataCandidateDetail;
+  _prmtk_engagementcontact_value?: string;
   createdon: string;
   modifiedon: string;
   statuscode: number;
