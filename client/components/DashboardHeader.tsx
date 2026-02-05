@@ -19,12 +19,6 @@ export default function DashboardHeader() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <Link
-              to="/contracts"
-              className="text-navy font-medium hover:text-primary transition"
-            >
-              Contracts
-            </Link>
-            <Link
               to="/engagements"
               className="text-navy font-medium hover:text-primary transition"
             >
