@@ -154,6 +154,80 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 }
 
 /**
+ * Helper function to convert OData item to WebsiteContentItem
+ */
+function transformODataItem(item: ODataFAQItem): WebsiteContentItem {
+  return {
+    id: item.prmtk_websitecontentid,
+    header: item.prmtk_header,
+    description: item.prmtk_description,
+    section: item.prmtk_section.toString(),
+    createdOn: item.createdon,
+    modifiedOn: item.modifiedon,
+  };
+}
+
+/**
+ * Fetch all About page content with a single API call
+ * Retrieves Mission, What We Do, Email, and Hours sections
+ * Returns null for any section that doesn't exist or is inactive
+ */
+export async function fetchAboutPageContent(): Promise<AboutPageContent> {
+  try {
+    // Build query to fetch all content without filters first
+    const params = new URLSearchParams();
+    params.append(
+      "select",
+      "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode"
+    );
+
+    const url = `${ODATA_PROXY_URL}/websitecontents?${params.toString()}`;
+
+    console.log("[OData] Fetching all About page content with single API call");
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch content: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: ODataResponse = await response.json();
+
+    // Filter and organize content by header name
+    const activeItems = data.value.filter((item) => item.statuscode === 1);
+
+    const findByHeader = (headerName: string): WebsiteContentItem | null => {
+      const item = activeItems.find(
+        (i) => i.prmtk_header.toLowerCase() === headerName.toLowerCase()
+      );
+      return item ? transformODataItem(item) : null;
+    };
+
+    const aboutContent: AboutPageContent = {
+      mission: findByHeader("Our Mission"),
+      whatWeDo: findByHeader("What We Do"),
+      email: findByHeader("Email"),
+      hours: findByHeader("Hours"),
+    };
+
+    console.log("[OData] Fetched About page content:", aboutContent);
+
+    return aboutContent;
+  } catch (error) {
+    console.error("[OData] Error fetching About page content:", error);
+    throw error;
+  }
+}
+
+/**
  * Fetch website content by header name
  * Filters by prmtk_header to find specific content records
  * Returns the first matching active record
@@ -203,14 +277,7 @@ export async function fetchContentByHeaderName(
       return null;
     }
 
-    return {
-      id: item.prmtk_websitecontentid,
-      header: item.prmtk_header,
-      description: item.prmtk_description,
-      section: item.prmtk_section.toString(),
-      createdOn: item.createdon,
-      modifiedOn: item.modifiedon,
-    };
+    return transformODataItem(item);
   } catch (error) {
     console.error("[OData] Error fetching content by header name:", error);
     throw error;
