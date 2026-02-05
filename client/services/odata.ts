@@ -65,6 +65,16 @@ export interface CandidateDetail {
   email?: string;
   phoneNumber?: string;
   status?: string;
+  personalPhoto?: string;
+  uaeResident?: boolean | null;
+  cvFile?: string;
+  introductionDocument?: string;
+  educationalCertificate?: string;
+  eid?: string;
+  salaryCertificate?: string;
+  passport?: string;
+  experienceLetter?: string;
+  policeClearance?: string;
   createdOn: string;
   modifiedOn: string;
 }
