@@ -148,7 +148,7 @@ export default function ManualsGrid() {
                   {manual.title}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  {manual.category} • Updated{" "}
+                  {manual.categoryFormatted || manual.category} • Updated{" "}
                   {new Date(manual.modifiedOn).toLocaleDateString()}
                 </p>
               </div>
