@@ -366,8 +366,13 @@ export default function EngagementDetails() {
                         className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-md transition"
                       >
                         <div className="flex justify-between items-start mb-3">
-                          <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
-                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
+                            {role.candidateName && (
+                              <p className="text-sm text-gray-600 mt-1">{role.candidateName}</p>
+                            )}
+                          </div>
+                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ml-2 whitespace-nowrap ${
                             role.readyForSubmission
                               ? "bg-green-100 text-green-700"
                               : "bg-amber-100 text-amber-700"
