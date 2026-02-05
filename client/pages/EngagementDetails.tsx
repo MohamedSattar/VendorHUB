@@ -475,6 +475,63 @@ export default function EngagementDetails() {
                   />
                 </div>
 
+                {/* Vendor & Contract Section */}
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-semibold text-navy mb-6">Vendor & Contract Information</h3>
+
+                  {/* Vendor Name */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Vendor Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editData.vendorName || ""}
+                      onChange={(e) => handleEditChange("vendorName", e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Contract Number */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Contract Number
+                    </label>
+                    <input
+                      type="text"
+                      value={editData.contractNumber || ""}
+                      onChange={(e) => handleEditChange("contractNumber", e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Contract Description */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Contract Description
+                    </label>
+                    <textarea
+                      value={editData.contractDescription || ""}
+                      onChange={(e) => handleEditChange("contractDescription", e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                    />
+                  </div>
+
+                  {/* Type of Engagement */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Type of Engagement
+                    </label>
+                    <input
+                      type="text"
+                      value={editData.typeOfEngagement || ""}
+                      onChange={(e) => handleEditChange("typeOfEngagement", e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
                 {/* Action buttons */}
                 <div className="flex gap-4 mt-8 pt-8 border-t border-gray-200">
                   <button
