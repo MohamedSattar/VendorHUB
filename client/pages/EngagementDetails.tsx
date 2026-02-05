@@ -101,6 +101,13 @@ export default function EngagementDetails() {
     retry: 1,
   });
 
+  // Fetch open roles for the engagement
+  const {
+    data: openRoles = [],
+    isLoading: isLoadingRoles,
+    error: rolesError,
+  } = useOpenRoles(id);
+
   // Use API data if available, otherwise fallback to mock data
   const engagement: EngagementDetailsData | null =
     apiEngagement ||
