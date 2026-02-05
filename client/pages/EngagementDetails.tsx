@@ -341,26 +341,59 @@ export default function EngagementDetails() {
               </div>
 
               {/* Open Roles Section */}
-              {engagement.openRoles && engagement.openRoles.length > 0 && (
-                <div className="mb-8 pb-8 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-navy mb-4">Open Roles ({engagement.openRoles.length})</h3>
-                  <div className="space-y-3">
-                    {engagement.openRoles.map((role) => (
-                      <div key={role.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-gray-900">{role.title}</h4>
-                          <span className="inline-block px-3 py-1 bg-primary text-white text-sm font-medium rounded-full">
-                            {role.count} Position{role.count > 1 ? 's' : ''}
+              <div className="mb-8 pb-8 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-navy">Open Roles {openRoles.length > 0 && `(${openRoles.length})`}</h3>
+                  {isLoadingRoles && (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 text-primary animate-spin" />
+                      <span className="text-sm text-gray-600">Loading...</span>
+                    </div>
+                  )}
+                </div>
+
+                {rolesError && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <p className="text-yellow-800 text-sm">Unable to load open roles</p>
+                  </div>
+                )}
+
+                {openRoles.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {openRoles.map((role) => (
+                      <div
+                        key={role.id}
+                        className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-md transition"
+                      >
+                        <div className="mb-3">
+                          <h4 className="font-semibold text-gray-900 text-base mb-1">{role.name}</h4>
+                          <p className="text-xs text-gray-600">Position ID: {role.id}</p>
+                        </div>
+
+                        <div className="space-y-2 mb-3">
+                          <div>
+                            <p className="text-xs text-gray-600">Expected Start Date</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {formatDate(role.expectedStartDate)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-600">Status</span>
+                          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                            {role.status}
                           </span>
                         </div>
-                        {role.description && (
-                          <p className="text-sm text-gray-600">{role.description}</p>
-                        )}
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-500">No open roles found for this engagement</p>
+                  </div>
+                )}
+              </div>
 
               {/* Metadata section */}
               <div className="mb-8">
