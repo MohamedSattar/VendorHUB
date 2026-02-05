@@ -46,11 +46,10 @@ export default function About() {
               </p>
               <button
                 onClick={() => refetch()}
-                disabled={isFetching}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
               >
-                <RefreshCw size={18} className={isFetching ? "animate-spin" : ""} />
-                {isFetching ? "Retrying..." : "Retry"}
+                <RefreshCw size={18} />
+                Retry
               </button>
             </div>
           )}
