@@ -258,22 +258,27 @@ export default function OpenRoleDetails() {
               </div>
 
               {/* Candidate Details Section */}
-              {candidateDetails && (
-                <div className="mb-8">
-                  <button
-                    onClick={() => setShowCandidateForm(!showCandidateForm)}
-                    className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
-                  >
-                    <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
-                    {showCandidateForm ? (
-                      <ChevronUp className="w-5 h-5 text-navy" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-navy" />
-                    )}
-                  </button>
+              <div className="mb-8">
+                <button
+                  onClick={() => setShowCandidateForm(!showCandidateForm)}
+                  className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
+                >
+                  <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
+                  {showCandidateForm ? (
+                    <ChevronUp className="w-5 h-5 text-navy" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-navy" />
+                  )}
+                </button>
 
-                  {showCandidateForm && (
-                    <div className="mt-4 p-4 bg-white border border-blue-100 rounded-lg">
+                {showCandidateForm && (
+                  <div className="mt-4 p-4 bg-white border border-blue-100 rounded-lg">
+                    {isCandidateLoading ? (
+                      <p className="text-gray-600 flex items-center gap-2">
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Loading candidate details...
+                      </p>
+                    ) : candidateDetails ? (
                       <div className={`space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
                         {candidateDetails.firstName && (
                           <p className="text-gray-700">
@@ -306,10 +311,12 @@ export default function OpenRoleDetails() {
                           </p>
                         )}
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    ) : (
+                      <p className="text-gray-600">No candidate details available for this open role.</p>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Additional information */}
               <div className="mb-8">
