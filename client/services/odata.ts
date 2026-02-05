@@ -469,7 +469,7 @@ export async function fetchEngagementById(
       ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
       vendorName: item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
       contractNumber: item.prmtk_uniqueid,
-      contractDescription: item.prmtk_contractdescription,
+      contractDescription: item.prmtk_description,
       typeOfEngagement: item["prmtk_typeofengagement@OData.Community.Display.V1.FormattedValue"] || item.prmtk_typeofengagement,
       createdOn: item.createdon,
       modifiedOn: item.modifiedon,
