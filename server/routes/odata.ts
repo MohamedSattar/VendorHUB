@@ -128,6 +128,7 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
       `${ODATA_BASE_URL}/prmtk_websitecontents?` +
       `$filter=prmtk_section%20eq%203&` +
       `$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_category,prmtk_section,createdon,modifiedon,statuscode&` +
+      `$expand=prmtk_category($select=prmtk_categoryid,prmtk_name)&` +
       `$orderby=importsequencenumber%20asc`;
 
     console.log("[OData Proxy] Fetching Manuals from Power Apps");
