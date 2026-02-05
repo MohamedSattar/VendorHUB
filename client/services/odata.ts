@@ -35,6 +35,13 @@ export interface WebsiteContentItem {
   modifiedOn: string;
 }
 
+export interface AboutPageContent {
+  mission: WebsiteContentItem | null;
+  whatWeDo: WebsiteContentItem | null;
+  email: WebsiteContentItem | null;
+  hours: WebsiteContentItem | null;
+}
+
 interface ODataResponse {
   value: ODataFAQItem[];
 }
