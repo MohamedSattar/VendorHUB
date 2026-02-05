@@ -542,6 +542,7 @@ export async function fetchOpenRoles(
         name: item.prmtk_rolename,
         expectedStartDate: item.prmtk_startdate,
         status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
+        readyForSubmission: item.prmtk_readyforsubmission,
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
       }));
