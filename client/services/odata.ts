@@ -1,9 +1,11 @@
 /**
  * OData Service for Power Apps Portal API
- * Handles fetching website content from the Power Apps portal
+ * Handles fetching website content from the Power Apps portal via backend proxy
+ * This avoids CORS issues by routing through our Express server
  */
 
-const ODATA_BASE_URL = "https://ecavendorhubspa.powerappsportals.com/_api";
+// Use backend proxy instead of direct API calls to avoid CORS issues
+const ODATA_PROXY_URL = "/api/odata";
 
 export interface FAQItem {
   id: string;
@@ -64,7 +66,7 @@ export async function fetchFAQContent(): Promise<FAQItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`,
+        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`
       );
     }
 
@@ -116,7 +118,7 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`,
+        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`
       );
     }
 
@@ -149,7 +151,7 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
  * Useful for fetching other sections like Manuals, etc.
  */
 export async function fetchWebsiteContent(
-  sectionFilter?: number,
+  sectionFilter?: number
 ): Promise<ODataFAQItem[]> {
   try {
     let url = `${ODATA_BASE_URL}/prmtk_websitecontents`;
