@@ -146,72 +146,76 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     };
 
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        {/* Candidate Details Section - Collapsible */}
-        <button
-          type="button"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex items-center gap-3 w-full text-left mb-6 hover:opacity-75 transition"
-          aria-expanded={!isCollapsed}
-        >
-          <ChevronDown
-            className={`w-5 h-5 text-navy transition-transform duration-200 flex-shrink-0 ${
-              isCollapsed ? "-rotate-90" : ""
-            }`}
-          />
-          <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
-        </button>
+      <div className={isControlled ? "" : "bg-white rounded-lg shadow-sm border border-gray-200 p-6"}>
+        {/* Candidate Details Section - Collapsible (only show header when not controlled by parent) */}
+        {!isControlled && (
+          <>
+            <button
+              type="button"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="flex items-center gap-3 w-full text-left mb-6 hover:opacity-75 transition"
+              aria-expanded={!isCollapsed}
+            >
+              <ChevronDown
+                className={`w-5 h-5 text-navy transition-transform duration-200 flex-shrink-0 ${
+                  isCollapsed ? "-rotate-90" : ""
+                }`}
+              />
+              <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
+            </button>
 
-        {/* Collapsed Preview */}
-        {isCollapsed && (
-          <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50 flex items-center gap-4">
-            {/* Photo */}
-            <div className="w-16 h-16 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden flex items-center justify-center flex-shrink-0">
-              {photoUrl ? (
-                <img
-                  src={photoUrl}
-                  alt="Candidate"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="text-center">
-                  <span className="text-2xl font-bold text-gray-400">
-                    {formData.fullName.charAt(0).toUpperCase() || "?"}
-                  </span>
+            {/* Collapsed Preview */}
+            {isCollapsed && (
+              <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50 flex items-center gap-4">
+                {/* Photo */}
+                <div className="w-16 h-16 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden flex items-center justify-center flex-shrink-0">
+                  {photoUrl ? (
+                    <img
+                      src={photoUrl}
+                      alt="Candidate"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <span className="text-2xl font-bold text-gray-400">
+                        {formData.fullName.charAt(0).toUpperCase() || "?"}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Candidate Info */}
-            <div className="flex-1 min-w-0">
-              {formData.fullName ? (
-                <>
-                  <p className="text-sm font-medium text-gray-600">Assigned Candidate</p>
-                  <p className="text-base font-semibold text-navy truncate">{formData.fullName}</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm font-medium text-gray-600">Status</p>
-                  <p className="text-base font-semibold text-orange-600">Not Assigned yet</p>
-                </>
-              )}
-            </div>
+                {/* Candidate Info */}
+                <div className="flex-1 min-w-0">
+                  {formData.fullName ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-600">Assigned Candidate</p>
+                      <p className="text-base font-semibold text-navy truncate">{formData.fullName}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-600">Status</p>
+                      <p className="text-base font-semibold text-orange-600">Not Assigned yet</p>
+                    </>
+                  )}
+                </div>
 
-            {/* Status Flag */}
-            <div className="flex flex-col items-center gap-1">
-              {formData.fullName ? (
-                <>
-                  <Flag className="w-6 h-6 text-green-500 fill-current" />
-                  <span className="text-xs font-semibold text-green-600">Ready</span>
-                </>
-              ) : (
-                <>
-                  <Flag className="w-6 h-6 text-orange-500 fill-current" />
-                  <span className="text-xs font-semibold text-orange-600">Pending</span>
-                </>
-              )}
-            </div>
-          </div>
+                {/* Status Flag */}
+                <div className="flex flex-col items-center gap-1">
+                  {formData.fullName ? (
+                    <>
+                      <Flag className="w-6 h-6 text-green-500 fill-current" />
+                      <span className="text-xs font-semibold text-green-600">Ready</span>
+                    </>
+                  ) : (
+                    <>
+                      <Flag className="w-6 h-6 text-orange-500 fill-current" />
+                      <span className="text-xs font-semibold text-orange-600">Pending</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Collapsible Content */}
