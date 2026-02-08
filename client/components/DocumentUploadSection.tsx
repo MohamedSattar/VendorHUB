@@ -95,9 +95,34 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
     const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
     const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
     const [templateLoading, setTemplateLoading] = useState(false);
+    const [draggedOverDocId, setDraggedOverDocId] = useState<string | null>(null);
 
     // Mandatory documents
     const mandatoryDocIds = ["cv", "introduction", "passport", "education"];
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>, docId: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDraggedOverDocId(docId);
+    };
+
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDraggedOverDocId(null);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, docId: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDraggedOverDocId(null);
+
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        handleFileSelect(docId, file);
+      }
+    };
 
     // Expose validation through ref
     useImperativeHandle(ref, () => ({
