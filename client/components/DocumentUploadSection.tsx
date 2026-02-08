@@ -211,6 +211,8 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
             ? "border-gray-300"
             : "border-yellow-300";
 
+          const hasLocalFile = updatedFiles[doc.id];
+
           return (
             <div
               key={doc.id}
@@ -240,7 +242,11 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
                     </div>
                   )}
                 </div>
-                {isUploaded ? (
+                {hasLocalFile ? (
+                  <p className="text-xs text-green-600 break-words font-medium">
+                    {hasLocalFile.name} (pending upload)
+                  </p>
+                ) : isUploaded ? (
                   <p className="text-xs text-blue-600 break-words">
                     {fileName}
                   </p>
