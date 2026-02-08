@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { Download, Trash2, Info } from "lucide-react";
 import { CandidateDetail } from "@/services/odata";
 
