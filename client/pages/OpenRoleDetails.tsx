@@ -516,8 +516,125 @@ export default function OpenRoleDetails() {
                     </div>
                   </div>
 
-                  {/* Assigned Candidate Section - Using Resource Edit Form */}
-                  {candidateDetails && openRole && (
+                  {/* Assign the Resource Section */}
+                  <div className="pt-8 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-navy mb-6">Assign the Resource</h3>
+
+                    {/* Assignment Mode Selection */}
+                    {!assignResourceMode ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Option 1: Search Existing Resource */}
+                        <button
+                          type="button"
+                          onClick={() => setAssignResourceMode("existing")}
+                          className="p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <Search className="w-6 h-6 text-primary" />
+                            <h4 className="font-semibold text-navy">Search Existing Resource</h4>
+                          </div>
+                          <p className="text-sm text-gray-600">Find and assign a resource from the existing pool using email or name</p>
+                        </button>
+
+                        {/* Option 2: Add New Resource */}
+                        <button
+                          type="button"
+                          onClick={() => navigate("/add-resource")}
+                          className="p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <Plus className="w-6 h-6 text-primary" />
+                            <h4 className="font-semibold text-navy">Add New Resource</h4>
+                          </div>
+                          <p className="text-sm text-gray-600">Create and add a new resource to the system</p>
+                        </button>
+                      </div>
+                    ) : assignResourceMode === "existing" ? (
+                      /* Search Existing Resource Mode */
+                      <div className="space-y-4">
+                        <div className="flex gap-2 mb-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAssignResourceMode(null);
+                              setSearchQuery("");
+                              setSearchResults([]);
+                              setSelectedResource(null);
+                            }}
+                            className="text-sm text-gray-600 hover:text-gray-800 underline"
+                          >
+                            ← Back
+                          </button>
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative">
+                          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Search by email or name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          />
+                        </div>
+
+                        {/* Search Results */}
+                        {searchQuery && (
+                          <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto">
+                            {isSearching ? (
+                              <p className="text-center text-gray-500 py-8">Searching...</p>
+                            ) : searchResults.length > 0 ? (
+                              <div className="space-y-2">
+                                {searchResults.map((resource) => (
+                                  <button
+                                    key={resource.id}
+                                    type="button"
+                                    onClick={() => setSelectedResource(resource)}
+                                    className={`w-full p-3 rounded-lg text-left transition ${
+                                      selectedResource?.id === resource.id
+                                        ? "bg-primary/10 border-primary border-2"
+                                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
+                                    }`}
+                                  >
+                                    <p className="font-medium text-gray-900">{resource.name}</p>
+                                    <p className="text-sm text-gray-600">{resource.email}</p>
+                                  </button>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-center text-gray-500 py-8">No resources found</p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Selected Resource Preview */}
+                        {selectedResource && (
+                          <div className="p-4 rounded-lg border-2 border-green-200 bg-green-50">
+                            <p className="text-sm text-gray-600 mb-2">Selected Resource:</p>
+                            <p className="font-semibold text-navy">{selectedResource.name}</p>
+                            <p className="text-sm text-gray-600">{selectedResource.email}</p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Here we would assign the selected resource to the open role
+                                console.log("Assigning resource:", selectedResource);
+                                setSelectedResource(null);
+                                setSearchQuery("");
+                                setAssignResourceMode(null);
+                              }}
+                              className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                            >
+                              Confirm Assignment
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* Candidate Details & Documents Section - Only show if candidate assigned */}
+                  {candidateDetails && openRole?.candidateId && (
                     <div className="pt-8 border-t border-gray-200">
                       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-12">
                         {/* Collapsible Header for Candidate Details and Documents */}
