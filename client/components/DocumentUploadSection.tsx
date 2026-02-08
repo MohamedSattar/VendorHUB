@@ -91,7 +91,7 @@ const documents: DocumentConfigExtended[] = [
 ];
 
 const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSectionProps>(
-  function DocumentUploadSection({ contactId, documentData, uaeResident, hideHeader = false }, ref) {
+  function DocumentUploadSection({ contactId, documentData, uaeResident, hideHeader = false, isCollapsed = false }, ref) {
     // Create refs for file inputs
     const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
     const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
