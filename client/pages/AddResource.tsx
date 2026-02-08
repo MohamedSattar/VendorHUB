@@ -201,35 +201,37 @@ export default function AddResource() {
               </button>
             </div>
             <button
-              onClick={() => {
-                triggerValidation();
-                if (validateForm()) {
-                  // Form is valid, proceed with save
-                  console.log("Saving resource...");
-                  // TODO: Implement save logic
-                }
-              }}
-              disabled={!isFormValid}
+              onClick={handleSave}
+              disabled={!isFormValid || isSaving}
               className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition ${
-                isFormValid
+                isFormValid && !isSaving
                   ? "bg-navy text-white hover:bg-navy/90 cursor-pointer"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
               }`}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                />
-              </svg>
-              Save
+              {isSaving ? (
+                <>
+                  <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                    />
+                  </svg>
+                  Save
+                </>
+              )}
             </button>
           </div>
         </div>
