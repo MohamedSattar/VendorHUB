@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
 import DocumentUploadSection, { DocumentUploadHandle } from "@/components/DocumentUploadSection";
 import ImportCVModal from "@/components/ImportCVModal";
-import { Plus, ChevronDown } from "lucide-react";
+import { Plus, ChevronDown, Flag } from "lucide-react";
 
 export default function AddResource() {
   const navigate = useNavigate();
