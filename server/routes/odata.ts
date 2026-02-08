@@ -643,9 +643,69 @@ export const handleGetEngagementContactDocument: RequestHandler = async (req, re
 };
 
 /**
+ * Create New Engagement Contact Record
+ * POST /api/odata/engagement-contact
+ * Creates a new engagement contact record
+ */
+export const handleCreateEngagementContact: RequestHandler = async (req, res) => {
+  try {
+    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident } = req.body;
+
+    if (!prmtk_id) {
+      return res.status(400).json({ error: "Name (prmtk_id) is required" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts`;
+
+    console.log("[OData Proxy] Creating new Engagement Contact");
+
+    // Build the create payload
+    const createData: Record<string, any> = {
+      prmtk_id: prmtk_id,
+    };
+    if (prmtk_email !== undefined) createData.prmtk_email = prmtk_email;
+    if (prmtk_phonenumber !== undefined) createData.prmtk_phonenumber = prmtk_phonenumber;
+    if (prmtk_uaeresident !== undefined) createData.prmtk_uaeresident = prmtk_uaeresident;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(createData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData Proxy] Create Error Response:", response.status, errorText);
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`
+      );
+    }
+
+    const responseData = await response.json();
+    console.log("[OData Proxy] Successfully created Engagement Contact");
+
+    res.json({
+      success: true,
+      message: "Engagement Contact created successfully",
+      id: responseData.prmtk_engagementcontactid,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Create Engagement Contact Error:", error);
+    res.status(500).json({
+      error: "Failed to create Engagement Contact",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Update Candidate Contact Record
  * PATCH /api/odata/candidate-contact/:id
- * Updates the engagement contact record with new values
+ * Updates the existing engagement contact record with new values
  */
 export const handleUpdateCandidateContact: RequestHandler = async (req, res) => {
   try {
@@ -656,9 +716,9 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
       return res.status(400).json({ error: "Contact ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontact(${id})`;
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})`;
 
-    console.log("[OData Proxy] Updating Candidate Contact by ID:", id);
+    console.log("[OData Proxy] Updating Engagement Contact by ID:", id);
 
     // Build the update payload
     const updateData: Record<string, any> = {};
@@ -677,22 +737,24 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData Proxy] Update Error Response:", response.status, errorText);
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`
       );
     }
 
-    console.log("[OData Proxy] Successfully updated Candidate Contact:", id);
+    console.log("[OData Proxy] Successfully updated Engagement Contact:", id);
 
     res.json({
       success: true,
-      message: "Candidate Contact updated successfully",
+      message: "Engagement Contact updated successfully",
       id: id,
     });
   } catch (error) {
-    console.error("[OData Proxy] Update Candidate Contact Error:", error);
+    console.error("[OData Proxy] Update Engagement Contact Error:", error);
     res.status(500).json({
-      error: "Failed to update Candidate Contact",
+      error: "Failed to update Engagement Contact",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
