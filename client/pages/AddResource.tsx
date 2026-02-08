@@ -36,26 +36,16 @@ export default function AddResource() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Breadcrumb */}
           <div className="mb-8">
-            <p className="text-sm text-gray-600 mb-4">Home / Add Resources</p>
-            <div className="flex items-center gap-4 mb-8">
-              <h1 className="text-3xl font-bold text-navy">
-                External Employee Onboarding Form
-              </h1>
-              {/* Avatar indicators */}
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-sm">
-                  M
-                </div>
-                <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold text-sm">
-                  +
-                </div>
-              </div>
-            </div>
+            <p className="text-sm text-gray-600 mb-2">Home / Add Resource</p>
+            <h1 className="text-3xl font-bold text-navy mb-6">
+              Add New Resource
+            </h1>
 
-            {/* Import from CV button */}
+            {/* Import from CV button - Disabled */}
             <button
-              onClick={() => setIsImportModalOpen(true)}
-              className="flex items-center gap-2 text-sm text-navy border border-navy px-4 py-2 rounded hover:bg-navy/5 transition"
+              disabled
+              className="flex items-center gap-2 text-sm text-gray-400 border border-gray-300 px-4 py-2 rounded bg-gray-50 cursor-not-allowed opacity-60"
+              title="Import from CV is currently disabled"
             >
               <svg
                 className="w-4 h-4"
@@ -71,30 +61,6 @@ export default function AddResource() {
                 />
               </svg>
               Import from CV
-            </button>
-          </div>
-
-          {/* Resource tabs */}
-          <div className="mb-8 flex items-center gap-3 flex-wrap bg-white p-4 rounded-lg border border-gray-200">
-            {resources.map((resourceNum) => (
-              <button
-                key={resourceNum}
-                onClick={() => setActiveResource(resourceNum)}
-                className={`px-4 py-2 rounded-full font-medium transition ${
-                  activeResource === resourceNum
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-navy hover:bg-gray-200"
-                }`}
-              >
-                Resource #{resourceNum}
-              </button>
-            ))}
-            <button
-              onClick={handleAddResource}
-              className="px-3 py-2 rounded-full font-medium bg-gray-100 text-navy hover:bg-gray-200 transition flex items-center gap-1"
-            >
-              <Plus className="w-4 h-4" />
-              Add
             </button>
           </div>
 
