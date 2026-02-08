@@ -231,6 +231,14 @@ export default function EngagementDetails() {
   // Check if all open roles are ready for submission
   const allRolesReady = openRoles.length > 0 && openRoles.every(role => role.readyForSubmission === true);
 
+  // Automatically refresh data when component mounts
+  useEffect(() => {
+    if (id) {
+      refetch();
+      refetchRoles();
+    }
+  }, [id, refetch, refetchRoles]);
+
   if (!engagement) {
     return (
       <div className={`flex flex-col min-h-screen bg-gray-50 ${isArabic ? "rtl" : "ltr"}`}>
