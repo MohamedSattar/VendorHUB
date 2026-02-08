@@ -401,11 +401,12 @@ export default function OpenRoleDetails() {
                 </div>
 
                 <form className="space-y-6">
-                  {/* Role Details Section */}
+                  {/* Role Details Section - READ ONLY */}
                   <div>
                     <h3 className="text-lg font-semibold text-navy mb-4">Role Details</h3>
+                    <p className="text-xs text-gray-500 mb-4">Read-only section</p>
 
-                    {/* Role Name */}
+                    {/* Role Name - READ ONLY */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Role Name
@@ -413,25 +414,12 @@ export default function OpenRoleDetails() {
                       <input
                         type="text"
                         value={editData.name || ""}
-                        onChange={(e) => handleEditChange("name", e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                       />
                     </div>
 
-                    {/* Candidate Name */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Candidate Name
-                      </label>
-                      <input
-                        type="text"
-                        value={editData.candidateName || ""}
-                        onChange={(e) => handleEditChange("candidateName", e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Expected Start Date */}
+                    {/* Expected Start Date - READ ONLY */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Expected Start Date
@@ -439,12 +427,12 @@ export default function OpenRoleDetails() {
                       <input
                         type="date"
                         value={parseDate(editData.expectedStartDate || "")}
-                        onChange={(e) => handleEditChange("expectedStartDate", e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                       />
                     </div>
 
-                    {/* Status */}
+                    {/* Status - READ ONLY */}
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Status
@@ -452,12 +440,12 @@ export default function OpenRoleDetails() {
                       <input
                         type="text"
                         value={editData.status || ""}
-                        onChange={(e) => handleEditChange("status", e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                       />
                     </div>
 
-                    {/* Ready for Submission */}
+                    {/* Ready for Submission - EDITABLE */}
                     <div>
                       <label className="flex items-center gap-3">
                         <input
