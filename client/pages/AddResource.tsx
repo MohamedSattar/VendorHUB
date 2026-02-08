@@ -20,6 +20,7 @@ export default function AddResource() {
   const [savedContactData, setSavedContactData] = useState<any>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isDetailsCollapsed, setIsDetailsCollapsed] = useState(false);
 
   const handleAddResource = () => {
     const newResourceNum = Math.max(...resources) + 1;
