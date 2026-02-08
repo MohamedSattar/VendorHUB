@@ -378,13 +378,21 @@ export default function EngagementDetails() {
                       return (
                       <div
                         key={role.id}
-                        className={`p-4 rounded-lg border transition ${
+                        className={`p-4 rounded-lg border transition relative ${
                           isPendingAssignment
                             ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-300 hover:border-orange-400 hover:shadow-md ring-1 ring-orange-200"
                             : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 hover:border-blue-200 hover:shadow-md"
                         }`}
                       >
-                        <div className="flex justify-between items-start mb-3">
+                        {/* Ready for Submission Flag */}
+                        {role.readyForSubmission && (
+                          <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                            <Flag className="w-3 h-3 fill-current" />
+                            Ready to Submit
+                          </div>
+                        )}
+
+                        <div className="flex justify-between items-start mb-3 pr-32">
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
                             {role.candidateName && (
