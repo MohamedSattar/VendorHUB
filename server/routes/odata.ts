@@ -369,7 +369,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
   try {
     const url =
       `${ODATA_BASE_URL}/prmtk_engagementcontacts?` +
-      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_personalphoto,prmtk_uaeresident,_prmtk_engagement_value,createdon,modifiedon,statuscode&` +
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_id%20asc`;
 
     console.log("[OData Proxy] Fetching all Engagement Contacts from Power Apps");
@@ -403,6 +403,61 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
     console.error("[OData Proxy] Engagement Contacts Error:", error);
     res.status(500).json({
       error: "Failed to fetch Engagement Contacts",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Get Engagement Contact Personal Photo
+ * GET /api/odata/engagement-contact-photo/:id
+ */
+export const handleGetEngagementContactPhoto: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Contact ID is required" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
+
+    console.log("[OData Proxy] Fetching contact photo for ID:", id);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "image/*",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[OData Proxy] Photo not found for contact:", id);
+        return res.status(404).json({ error: "Photo not found" });
+      }
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    // Get the image buffer
+    const buffer = await response.arrayBuffer();
+
+    // Get content type from response headers
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+
+    console.log("[OData Proxy] Successfully fetched contact photo, size:", buffer.byteLength, "bytes");
+
+    // Set appropriate headers for image response
+    res.set("Content-Type", contentType);
+    res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error("[OData Proxy] Contact Photo Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch contact photo",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
