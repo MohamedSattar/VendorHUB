@@ -241,7 +241,14 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
           return (
             <div
               key={doc.id}
-              className={`flex items-center justify-between p-4 border rounded transition ${bgColor} ${borderColor}`}
+              onDragOver={(e) => handleDragOver(e, doc.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, doc.id)}
+              className={`flex items-center justify-between p-4 border rounded transition ${
+                draggedOverDocId === doc.id
+                  ? "bg-blue-100 border-blue-400 shadow-md"
+                  : `${bgColor} ${borderColor}`
+              } cursor-pointer`}
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
