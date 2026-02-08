@@ -519,17 +519,38 @@ export default function OpenRoleDetails() {
                   {candidateDetails && openRole && (
                     <div className="pt-8 border-t border-gray-200">
                       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-12">
-                        <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} />
-
-                        {/* Documents Section */}
-                        <div className="mt-8 pt-8 border-t border-gray-200">
-                          <DocumentUploadSection
-                            contactId={openRole.candidateContactId}
-                            documentData={candidateDetails}
-                            uaeResident={candidateDetails?.uaeResident}
-                            hideHeader={true}
+                        {/* Collapsible Header for Candidate Details and Documents */}
+                        <button
+                          type="button"
+                          onClick={() => setIsDetailsCollapsed(!isDetailsCollapsed)}
+                          className="flex items-center gap-3 w-full text-left mb-6 hover:opacity-75 transition"
+                          aria-expanded={!isDetailsCollapsed}
+                        >
+                          <ChevronDown
+                            className={`w-5 h-5 text-navy transition-transform duration-200 flex-shrink-0 ${
+                              isDetailsCollapsed ? "-rotate-90" : ""
+                            }`}
                           />
-                        </div>
+                          <h3 className="text-lg font-semibold text-navy">Candidate Details & Documents</h3>
+                        </button>
+
+                        {/* Collapsible Content */}
+                        {!isDetailsCollapsed && (
+                          <>
+                            <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} isCollapsed={false} />
+
+                            {/* Documents Section */}
+                            <div className="mt-8 pt-8 border-t border-gray-200">
+                              <DocumentUploadSection
+                                contactId={openRole.candidateContactId}
+                                documentData={candidateDetails}
+                                uaeResident={candidateDetails?.uaeResident}
+                                hideHeader={true}
+                                isCollapsed={false}
+                              />
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
