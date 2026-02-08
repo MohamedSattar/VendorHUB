@@ -17,6 +17,8 @@ export interface FormData {
 export interface AddResourceFormHandle {
   getFormData: () => FormData;
   getUAEResident: () => boolean;
+  isFormValid: () => boolean;
+  getPhotoUrl: () => string | null;
 }
 
 const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
