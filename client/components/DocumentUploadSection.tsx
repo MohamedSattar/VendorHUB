@@ -15,11 +15,21 @@ interface DocumentUploadSectionProps {
   uaeResident?: boolean;
 }
 
-const documents: DocumentConfig[] = [
+interface DocumentConfigExtended extends DocumentConfig {
+  isRequired?: (uaeResident: boolean) => boolean;
+}
+
+const documents: DocumentConfigExtended[] = [
   { id: "cv", label: "CV File", apiField: "cvFile", downloadField: "prmtk_cvfile" },
   { id: "introduction", label: "Introduction Document", apiField: "introductionDocument", downloadField: "prmtk_introductiondocument" },
   { id: "education", label: "Educational Certificate", apiField: "educationalCertificate", downloadField: "prmtk_educationalcertificate" },
-  { id: "eid", label: "Emirates ID", apiField: "eid", downloadField: "prmtk_eid" },
+  {
+    id: "eid",
+    label: "Emirates ID",
+    apiField: "eid",
+    downloadField: "prmtk_eid",
+    isRequired: (uaeResident: boolean) => uaeResident === true
+  },
   { id: "salary", label: "Salary Certificate", apiField: "salaryCertificate", downloadField: "prmtk_salarycertificate" },
   { id: "passport", label: "Passport", apiField: "passport", downloadField: "prmtk_passport" },
   { id: "experience", label: "Experience Letter", apiField: "experienceLetter", downloadField: "prmtk_experienceletter" },
