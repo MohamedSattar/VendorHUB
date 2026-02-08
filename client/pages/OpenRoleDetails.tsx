@@ -4,6 +4,8 @@ import { ArrowLeft, Save, X, RefreshCw, ChevronDown, ChevronUp } from "lucide-re
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
+import AddResourceForm from "@/components/AddResourceForm";
+import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOpenRoleDetails } from "@/hooks/useOpenRoleDetails";
 import { useCandidateDetails } from "@/hooks/useCandidateDetails";
