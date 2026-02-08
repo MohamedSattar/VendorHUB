@@ -204,18 +204,19 @@ export default function EditResource() {
             </div>
           )}
 
-          {/* Form */}
-          <div className="mb-12">
+          {/* Candidate Details and Documents Combined */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-12">
             <AddResourceForm ref={formRef} mode="edit" resourceData={contactDetails} />
-          </div>
 
-          {/* Document Upload Section */}
-          <div className="mb-12">
-            <DocumentUploadSection
-              contactId={id}
-              documentData={contactDetails}
-              uaeResident={contactDetails?.uaeResident}
-            />
+            {/* Documents Section */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <DocumentUploadSection
+                contactId={id}
+                documentData={contactDetails}
+                uaeResident={contactDetails?.uaeResident}
+                hideHeader={true}
+              />
+            </div>
           </div>
 
           {/* Action buttons */}
