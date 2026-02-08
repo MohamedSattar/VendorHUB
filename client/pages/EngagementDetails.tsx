@@ -106,6 +106,7 @@ export default function EngagementDetails() {
     data: openRoles = [],
     isLoading: isLoadingRoles,
     error: rolesError,
+    refetch: refetchRoles,
   } = useOpenRoles(id);
 
   // Use API data if available, otherwise fallback to mock data
