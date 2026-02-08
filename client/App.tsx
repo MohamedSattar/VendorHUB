@@ -52,7 +52,7 @@ export default function App() {
                 <Route path="/engagements" element={<Engagements />} />
                 <Route path="/engagement/:id" element={<EngagementDetails />} />
                 <Route path="/open-role/:id" element={<OpenRoleDetails />} />
-                <Route path="/resources" element={<Resources />} />
+                <Route path="/resources" element={<ResourcePool />} />
                 <Route path="/resource-pool" element={<ResourcePool />} />
                 <Route path="/add-resource" element={<AddResource />} />
                 <Route path="/profile" element={<Profile />} />
