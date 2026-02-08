@@ -117,22 +117,6 @@ export default function AddResource() {
               >
                 Cancel All
               </button>
-              <button className="px-6 py-3 border border-gray-300 text-navy rounded-lg font-medium hover:bg-gray-50 transition flex items-center gap-2">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 5a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"
-                  />
-                </svg>
-                Save Draft
-              </button>
             </div>
             <button className="px-6 py-3 bg-navy text-white rounded-lg font-medium hover:bg-navy/90 transition flex items-center gap-2">
               <svg
