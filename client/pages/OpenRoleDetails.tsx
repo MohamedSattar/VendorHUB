@@ -678,7 +678,7 @@ export default function OpenRoleDetails() {
                             ) : allResources.length === 0 ? (
                               <p className="text-center text-gray-500 py-8">No resources available in the system</p>
                             ) : (
-                              <p className="text-center text-gray-500 py-8">No resources match "<strong>{searchQuery}</strong>"</p>
+                              <p className="text-center text-gray-500 py-8">No resources match "{searchQuery}"</p>
                             )}
                           </div>
                         )}
