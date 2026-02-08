@@ -90,10 +90,45 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           [name]: (e.target as HTMLInputElement).checked,
         }));
       } else {
+        let finalValue = value;
+        let error = "";
+
+        // Validate phone number - only allow digits
+        if (name === "phoneNumber") {
+          // Remove non-digit characters from display
+          const digitsOnly = value.replace(/\D/g, "");
+          finalValue = digitsOnly;
+
+          if (digitsOnly.length > 0 && !validatePhone(digitsOnly)) {
+            error = "Phone number must contain only numbers";
+          }
+        }
+
+        // Validate email format
+        if (name === "email") {
+          if (value.length > 0 && !validateEmail(value)) {
+            error = "Please enter a valid email address";
+          }
+        }
+
         setFormData((prev) => ({
           ...prev,
-          [name]: value,
+          [name]: finalValue,
         }));
+
+        // Update validation errors
+        if (error) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            [name]: error,
+          }));
+        } else {
+          setValidationErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+          });
+        }
       }
     };
 
