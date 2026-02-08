@@ -76,6 +76,74 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-navy mb-6">Candidate Details</h3>
 
+          {/* Personal Photo */}
+          <div className="mb-8">
+            <label className="block text-sm font-medium text-navy mb-3">
+              Personal Photo
+            </label>
+            <div className="flex flex-col gap-4">
+              {/* Photo Display */}
+              <div className="flex gap-4 items-start">
+                <div className="w-32 h-32 rounded-lg bg-gray-200 border-2 border-gray-300 overflow-hidden flex items-center justify-center flex-shrink-0">
+                  {photoUrl && !photoLoaded ? (
+                    <>
+                      <img
+                        src={photoUrl}
+                        alt="Personal Photo"
+                        className="w-full h-full object-cover"
+                        onLoad={() => setPhotoLoaded(true)}
+                        onError={() => setPhotoLoaded(true)}
+                      />
+                    </>
+                  ) : photoUrl && photoLoaded ? (
+                    <img
+                      src={photoUrl}
+                      alt="Personal Photo"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <span className="text-4xl font-bold text-gray-400">
+                        {formData.fullName.charAt(0).toUpperCase() || "?"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Change Photo Section */}
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600 mb-2">
+                    {photoUrl ? "Current Photo" : "No photo uploaded"}
+                  </p>
+                  <label className="inline-block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const url = URL.createObjectURL(file);
+                          setPhotoUrl(url);
+                          setPhotoLoaded(false);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.currentTarget.parentElement?.querySelector("input")?.click();
+                      }}
+                      className="px-4 py-2 border border-navy text-navy rounded text-sm hover:bg-navy/5 transition font-medium"
+                    >
+                      {photoUrl ? "Change Photo" : "Upload Photo"}
+                    </button>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* Full Name */}
             <div>
