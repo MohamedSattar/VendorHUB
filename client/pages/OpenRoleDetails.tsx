@@ -537,7 +537,7 @@ export default function OpenRoleDetails() {
                         {/* Collapsible Content */}
                         {!isDetailsCollapsed && (
                           <>
-                            <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} isCollapsed={false} />
+                            <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} isCollapsed={isDetailsCollapsed} />
 
                             {/* Documents Section */}
                             <div className="mt-8 pt-8 border-t border-gray-200">
@@ -546,7 +546,7 @@ export default function OpenRoleDetails() {
                                 documentData={candidateDetails}
                                 uaeResident={candidateDetails?.uaeResident}
                                 hideHeader={true}
-                                isCollapsed={false}
+                                isCollapsed={isDetailsCollapsed}
                               />
                             </div>
                           </>
