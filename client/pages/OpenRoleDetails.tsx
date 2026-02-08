@@ -13,8 +13,6 @@ import { OpenRole, CandidateDetail } from "@/services/odata";
 
 interface OpenRoleDetailsData extends OpenRole {}
 
-interface EditCandidateData extends CandidateDetail {}
-
 const formatDate = (dateString: string): string => {
   if (!dateString) return "";
   try {
