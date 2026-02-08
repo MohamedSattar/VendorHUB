@@ -34,6 +34,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
     const [photoLoaded, setPhotoLoaded] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     // Validation functions
     const validateEmail = (email: string): boolean => {
