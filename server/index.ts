@@ -64,11 +64,8 @@ export function createServer() {
   app.get("/api/odata/engagement-contact-photo/:id", handleGetEngagementContactPhoto);
   app.get("/api/odata/candidate-contact/:id", handleGetCandidateContact);
   app.get("/api/odata/candidate-contact-photo/:id", handleGetCandidateContactPhoto);
-  app.get(/^\/api\/odata\/engagement-contact\/([^/]+)\/([^/]+)\/\$value$/, (req, res) => {
-    req.params.id = req.params[0];
-    req.params.fieldName = req.params[1];
-    handleGetEngagementContactDocument(req, res);
-  });
+  // Route for document download: /api/odata/engagement-contact/:id/:fieldName/$value
+  app.get("/api/odata/engagement-contact/:id/:fieldName/*", handleGetEngagementContactDocument);
 
   return app;
 }
