@@ -521,7 +521,11 @@ export default function OpenRoleDetails() {
                         <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} />
                       </div>
                       <div className="mb-12">
-                        <DocumentUploadSection contactId={openRole.candidateContactId} documentData={candidateDetails} />
+                        <DocumentUploadSection
+                          contactId={openRole.candidateContactId}
+                          documentData={candidateDetails}
+                          uaeResident={candidateDetails?.uaeResident}
+                        />
                       </div>
                     </div>
                   )}
