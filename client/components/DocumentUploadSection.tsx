@@ -347,21 +347,6 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
-                {isUploaded && !hasLocalFile && (
-                  <button
-                    onClick={() => {
-                      setUpdatedFiles((prev) => {
-                        const newFiles = { ...prev };
-                        delete newFiles[doc.id];
-                        return newFiles;
-                      });
-                    }}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded transition"
-                    title="Delete uploaded file"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
               </div>
             </div>
           );
