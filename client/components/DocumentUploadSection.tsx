@@ -12,6 +12,7 @@ interface DocumentConfig {
 interface DocumentUploadSectionProps {
   contactId?: string;
   documentData?: CandidateDetail | null;
+  uaeResident?: boolean;
 }
 
 const documents: DocumentConfig[] = [
