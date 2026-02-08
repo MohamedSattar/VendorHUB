@@ -71,6 +71,8 @@ export default function OpenRoleDetails() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [allResources, setAllResources] = useState<any[]>([]);
+  const selectedResourceRef = useRef<AddResourceFormHandle>(null);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
