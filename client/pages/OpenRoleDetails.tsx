@@ -108,6 +108,45 @@ export default function OpenRoleDetails() {
     }
   }, [openRole]);
 
+  // Fetch available resources and filter based on search query
+  useEffect(() => {
+    if (assignResourceMode === "existing") {
+      const fetchResources = async () => {
+        try {
+          setIsSearching(true);
+          const resources = await fetchEngagementContacts();
+          setAllResources(resources);
+
+          // Filter based on search query
+          if (searchQuery.trim()) {
+            const filtered = resources.filter((resource) => {
+              const query = searchQuery.toLowerCase();
+              return (
+                (resource.name && resource.name.toLowerCase().includes(query)) ||
+                (resource.email && resource.email.toLowerCase().includes(query))
+              );
+            });
+            setSearchResults(filtered);
+          } else {
+            setSearchResults([]);
+          }
+        } catch (error) {
+          console.error("Error fetching resources:", error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch available resources.",
+            variant: "destructive",
+          });
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      };
+
+      fetchResources();
+    }
+  }, [assignResourceMode, searchQuery, toast]);
+
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
       ...prev,
