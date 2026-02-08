@@ -487,6 +487,19 @@ export default function EngagementDetails() {
                     <p className="text-gray-500">No open roles found for this engagement</p>
                   </div>
                 )}
+
+                {/* Submit Engagement Button - only show when all roles are ready */}
+                {allRolesReady && (
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={() => setShowSubmitConfirm(true)}
+                      className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md hover:shadow-lg"
+                    >
+                      <Flag className="w-5 h-5" />
+                      Submit Engagement
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Metadata section */}
