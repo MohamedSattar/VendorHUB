@@ -80,14 +80,6 @@ export default function AddResourceForm({ mode = "new", resourceData }: AddResou
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      {/* Mode Indicator */}
-      <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded">
-        <p className="text-sm text-blue-800">
-          <span className="font-semibold">Mode:</span>{" "}
-          {mode === "new" ? "Add New Resource" : "Edit Resource"}
-        </p>
-      </div>
-
       {/* Candidate Details Section */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-navy mb-6">Candidate Details</h3>
@@ -179,61 +171,9 @@ export default function AddResourceForm({ mode = "new", resourceData }: AddResou
           </div>
         </div>
 
-        {/* Personal Photo and UAE Resident */}
+        {/* UAE Resident Toggle */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Personal Photo */}
           <div>
-            <label className="block text-sm font-medium text-navy mb-3">
-              Personal Photo
-            </label>
-            <div className="flex flex-col gap-3">
-              <div className="w-full h-32 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center hover:bg-gray-50 transition overflow-hidden">
-                {formData.personalPhoto ? (
-                  <img
-                    src={formData.personalPhoto}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center">
-                    <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Click to upload</p>
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <label className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoUpload}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.currentTarget.parentElement?.querySelector("input")?.click();
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-100 transition"
-                  >
-                    Upload
-                  </button>
-                </label>
-                {formData.personalPhoto && (
-                  <button
-                    type="button"
-                    onClick={handlePhotoDelete}
-                    className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded text-sm hover:bg-red-50 transition"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* UAE Resident Toggle */}
-          <div className="col-span-2">
             <label className="block text-sm font-medium text-navy mb-4">
               UAE Resident
             </label>
@@ -271,12 +211,6 @@ export default function AddResourceForm({ mode = "new", resourceData }: AddResou
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Form Data Debug - Remove in production */}
-      <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded text-xs">
-        <p className="font-semibold text-gray-700 mb-2">Current Form Data:</p>
-        <pre className="text-gray-600 overflow-auto">{JSON.stringify(formData, null, 2)}</pre>
       </div>
     </div>
   );
