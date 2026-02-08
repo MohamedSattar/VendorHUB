@@ -15,6 +15,7 @@ interface DocumentUploadSectionProps {
   documentData?: CandidateDetail | null;
   uaeResident?: boolean | null;
   hideHeader?: boolean;
+  isCollapsed?: boolean;
 }
 
 export interface DocumentUploadHandle {
