@@ -23,7 +23,6 @@ import FAQ from "./pages/FAQ";
 import Manuals from "./pages/Manuals";
 import SupplierApplication from "./pages/SupplierApplication";
 import DebugAPI from "./pages/DebugAPI";
-import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,8 +45,6 @@ export default function App() {
                 <Route path="/manuals" element={<Manuals />} />
                 <Route path="/supplier-application" element={<SupplierApplication />} />
                 <Route path="/debug-api" element={<DebugAPI />} />
-                <Route path="/terms" element={<Placeholder />} />
-                <Route path="/privacy" element={<Placeholder />} />
 
                 {/* All Routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
