@@ -10,9 +10,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
-import Resources from "./pages/Resources";
 import ResourcePool from "./pages/ResourcePool";
 import AddResource from "./pages/AddResource";
+import EditResource from "./pages/EditResource";
 import Engagements from "./pages/Engagements";
 import EngagementDetails from "./pages/EngagementDetails";
 import OpenRoleDetails from "./pages/OpenRoleDetails";
@@ -55,6 +55,7 @@ export default function App() {
                 <Route path="/resources" element={<ResourcePool />} />
                 <Route path="/resource-pool" element={<ResourcePool />} />
                 <Route path="/add-resource" element={<AddResource />} />
+                <Route path="/edit-resource/:id" element={<EditResource />} />
                 <Route path="/profile" element={<Profile />} />
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
