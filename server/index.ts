@@ -23,6 +23,7 @@ import {
   handleGetEngagementContacts,
   handleGetEngagementContactPhoto,
   handleGetEngagementContactDocument,
+  handleCreateEngagementContact,
   handleUpdateCandidateContact,
 } from "./routes/odata";
 
