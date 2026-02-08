@@ -517,15 +517,18 @@ export default function OpenRoleDetails() {
                   {/* Assigned Candidate Section - Using Resource Edit Form */}
                   {candidateDetails && openRole && (
                     <div className="pt-8 border-t border-gray-200">
-                      <div className="mb-8">
+                      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-12">
                         <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} />
-                      </div>
-                      <div className="mb-12">
-                        <DocumentUploadSection
-                          contactId={openRole.candidateContactId}
-                          documentData={candidateDetails}
-                          uaeResident={candidateDetails?.uaeResident}
-                        />
+
+                        {/* Documents Section */}
+                        <div className="mt-8 pt-8 border-t border-gray-200">
+                          <DocumentUploadSection
+                            contactId={openRole.candidateContactId}
+                            documentData={candidateDetails}
+                            uaeResident={candidateDetails?.uaeResident}
+                            hideHeader={true}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
