@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, Info } from "lucide-react";
 import { CandidateDetail } from "@/services/odata";
 
 interface DocumentConfig {
@@ -7,6 +7,7 @@ interface DocumentConfig {
   label: string;
   apiField: keyof CandidateDetail;
   downloadField: string; // The Power Apps field name for download URL
+  tooltip?: string; // Description of what should be uploaded
 }
 
 interface DocumentUploadSectionProps {
@@ -20,20 +21,63 @@ interface DocumentConfigExtended extends DocumentConfig {
 }
 
 const documents: DocumentConfigExtended[] = [
-  { id: "cv", label: "CV File", apiField: "cvFile", downloadField: "prmtk_cvfile" },
-  { id: "introduction", label: "Introduction Document", apiField: "introductionDocument", downloadField: "prmtk_introductiondocument" },
-  { id: "education", label: "Educational Certificate", apiField: "educationalCertificate", downloadField: "prmtk_educationalcertificate" },
+  {
+    id: "cv",
+    label: "CV File",
+    apiField: "cvFile",
+    downloadField: "prmtk_cvfile",
+    tooltip: "Upload your professional curriculum vitae (CV) or resume documenting your work experience and qualifications"
+  },
+  {
+    id: "introduction",
+    label: "Introduction Document",
+    apiField: "introductionDocument",
+    downloadField: "prmtk_introductiondocument",
+    tooltip: "Professional introduction letter highlighting your background, qualifications, and interest in the role"
+  },
+  {
+    id: "education",
+    label: "Educational Certificate",
+    apiField: "educationalCertificate",
+    downloadField: "prmtk_educationalcertificate",
+    tooltip: "Copy of your highest educational qualification or diploma"
+  },
   {
     id: "eid",
     label: "Emirates ID",
     apiField: "eid",
     downloadField: "prmtk_eid",
+    tooltip: "Scanned copy of your valid Emirates ID",
     isRequired: (uaeResident: boolean) => uaeResident === true
   },
-  { id: "salary", label: "Salary Certificate", apiField: "salaryCertificate", downloadField: "prmtk_salarycertificate" },
-  { id: "passport", label: "Passport", apiField: "passport", downloadField: "prmtk_passport" },
-  { id: "experience", label: "Experience Letter", apiField: "experienceLetter", downloadField: "prmtk_experienceletter" },
-  { id: "police", label: "Police Clearance", apiField: "policeClearance", downloadField: "prmtk_policeclearance" },
+  {
+    id: "salary",
+    label: "Salary Certificate",
+    apiField: "salaryCertificate",
+    downloadField: "prmtk_salarycertificate",
+    tooltip: "Certificate or letter from your current/previous employer confirming your salary details"
+  },
+  {
+    id: "passport",
+    label: "Passport",
+    apiField: "passport",
+    downloadField: "prmtk_passport",
+    tooltip: "Scanned copy of your valid passport"
+  },
+  {
+    id: "experience",
+    label: "Experience Letter",
+    apiField: "experienceLetter",
+    downloadField: "prmtk_experienceletter",
+    tooltip: "Letter from your employer confirming your work experience and responsibilities"
+  },
+  {
+    id: "police",
+    label: "Police Clearance",
+    apiField: "policeClearance",
+    downloadField: "prmtk_policeclearance",
+    tooltip: "Official police clearance certificate from your country of residence"
+  },
 ];
 
 export default function DocumentUploadSection({ contactId, documentData, uaeResident }: DocumentUploadSectionProps) {
