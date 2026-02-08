@@ -52,10 +52,17 @@ export default function AddResource() {
     setIsFormValid(validateForm());
   };
 
-  // Set up interval to check form validity frequently
+  // Set up interval to check form validity frequently and track unsaved changes
   useEffect(() => {
     const interval = setInterval(() => {
       setIsFormValid(validateForm());
+      // If form is valid, it means user has entered data
+      if (validateForm() || (formRef.current &&
+          (formRef.current.getFormData().fullName !== "" ||
+           formRef.current.getFormData().email !== "" ||
+           formRef.current.getFormData().phoneNumber !== ""))) {
+        setHasUnsavedChanges(true);
+      }
     }, 500); // Check every 500ms
 
     return () => clearInterval(interval);
