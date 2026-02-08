@@ -30,6 +30,23 @@ export default function AddResource() {
     alert(`CV "${file.name}" imported successfully! Form fields will be populated with extracted data.`);
   };
 
+  const validateForm = () => {
+    if (!formRef.current || !docsRef.current) return false;
+
+    const isFormDataValid = formRef.current.isFormValid();
+    const uaeResident = formRef.current.getUAEResident();
+    const areDocsValid = docsRef.current.areDocumentsValid(uaeResident);
+
+    return isFormDataValid && areDocsValid;
+  };
+
+  // Periodically check form validity
+  const [checkCount, setCheckCount] = useState(0);
+  const triggerValidation = () => {
+    setCheckCount(prev => prev + 1);
+    setIsFormValid(validateForm());
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <DashboardHeader />
