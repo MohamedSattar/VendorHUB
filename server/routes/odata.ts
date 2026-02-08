@@ -667,12 +667,22 @@ export const handleCreateEngagementContact: RequestHandler = async (req, res) =>
     if (prmtk_phonenumber !== undefined) createData.prmtk_phonenumber = prmtk_phonenumber;
     if (prmtk_uaeresident !== undefined) createData.prmtk_uaeresident = prmtk_uaeresident;
 
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+
+    // Add authentication if available from environment
+    if (process.env.POWER_APPS_USERNAME && process.env.POWER_APPS_PASSWORD) {
+      const credentials = Buffer.from(
+        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`
+      ).toString("base64");
+      headers["Authorization"] = `Basic ${credentials}`;
+    }
+
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(createData),
     });
 
