@@ -127,7 +127,8 @@ export default function AddResource() {
         }
       }
 
-      // Step 3: Redirect to edit page
+      // Step 3: Reset unsaved changes and redirect to edit page
+      setHasUnsavedChanges(false);
       navigate(`/resources/edit/${contactId}`);
     } catch (error) {
       console.error("Error saving resource:", error);
