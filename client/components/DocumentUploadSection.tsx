@@ -127,22 +127,25 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
     // Expose validation through ref
     useImperativeHandle(ref, () => ({
       areDocumentsValid: (uaeResidentValue: boolean | null) => {
-        // All mandatory documents must be uploaded
+        // All mandatory documents must be uploaded (either from API or locally selected)
         const allMandatoryUploaded = mandatoryDocIds.every(docId => {
           const doc = documents.find(d => d.id === docId);
           if (!doc) return false;
-          return documentData && documentData[doc.apiField];
+          // Check if file exists either in API data or locally selected files
+          const hasApiFile = documentData && documentData[doc.apiField];
+          const hasLocalFile = updatedFiles[docId];
+          return hasApiFile || hasLocalFile;
         });
 
-        // If UAE Resident is Yes, Emirates ID must also be uploaded
+        // If UAE Resident is Yes, Emirates ID must also be uploaded (either from API or locally)
         const emiratesIdValid = uaeResidentValue === true
-          ? documentData && documentData.eid
+          ? (documentData && documentData.eid) || updatedFiles["eid"]
           : true;
 
         return allMandatoryUploaded && emiratesIdValid;
       },
       getMandatoryDocuments: () => mandatoryDocIds,
-    }), [documentData]);
+    }), [documentData, updatedFiles]);
 
   const handleDownload = (downloadField: string) => {
     if (!contactId) return;
