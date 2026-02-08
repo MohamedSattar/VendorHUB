@@ -95,28 +95,8 @@ export default function OpenRoleDetails() {
     }
   }, [openRole]);
 
-  // Update candidate edit data when candidate details change
-  useEffect(() => {
-    if (candidateDetails) {
-      setEditCandidateData({
-        name: candidateDetails.name,
-        email: candidateDetails.email,
-        phoneNumber: candidateDetails.phoneNumber,
-        status: candidateDetails.status,
-        uaeResident: candidateDetails.uaeResident,
-      });
-    }
-  }, [candidateDetails]);
-
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleCandidateEditChange = (field: string, value: any) => {
-    setEditCandidateData((prev) => ({
       ...prev,
       [field]: value,
     }));
