@@ -3,18 +3,14 @@ import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import ResourceCard from "@/components/ResourceCard";
-import EditResourceModal from "@/components/EditResourceModal";
 import { Search, Loader, Plus } from "lucide-react";
 import { useEngagementContacts } from "@/hooks/useEngagementContacts";
-import { EngagementContact } from "@/services/odata";
 
 export default function ResourcePool() {
   const navigate = useNavigate();
   const { data: contacts = [], isLoading, isError, error } = useEngagementContacts();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"All" | "Assigned" | "Not Assigned">("All");
-  const [editingContact, setEditingContact] = useState<EngagementContact | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Filter and search contacts
   const filteredContacts = useMemo(() => {
@@ -33,11 +29,6 @@ export default function ResourcePool() {
       return matchesSearch && matchesStatus;
     });
   }, [contacts, searchQuery, statusFilter]);
-
-  const handleEditContact = (contact: EngagementContact) => {
-    setEditingContact(contact);
-    setIsEditModalOpen(true);
-  };
 
   const handleAddResource = () => {
     navigate("/add-resource");
@@ -140,7 +131,6 @@ export default function ResourcePool() {
                     <ResourceCard
                       key={contact.id}
                       contact={contact}
-                      onEdit={handleEditContact}
                     />
                   ))}
                 </div>
@@ -159,16 +149,6 @@ export default function ResourcePool() {
       </main>
 
       <Footer />
-
-      {/* Edit Resource Modal */}
-      <EditResourceModal
-        isOpen={isEditModalOpen}
-        contact={editingContact}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingContact(null);
-        }}
-      />
     </div>
   );
 }
