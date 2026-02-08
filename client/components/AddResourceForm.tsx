@@ -1,4 +1,5 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { ChevronDown } from "lucide-react";
 import { CandidateDetail } from "@/services/odata";
 
 interface AddResourceFormProps {
