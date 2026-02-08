@@ -13,11 +13,18 @@ interface DocumentConfig {
 interface DocumentUploadSectionProps {
   contactId?: string;
   documentData?: CandidateDetail | null;
-  uaeResident?: boolean;
+  uaeResident?: boolean | null;
   hideHeader?: boolean;
 }
 
+export interface DocumentUploadHandle {
+  areDocumentsValid: (uaeResident: boolean | null) => boolean;
+  getMandatoryDocuments: () => string[];
+}
+
 interface DocumentConfigExtended extends DocumentConfig {
+  id: string;
+  mandatory?: boolean;
   isRequired?: (uaeResident: boolean) => boolean;
 }
 
