@@ -628,26 +628,28 @@ export default function OpenRoleDetails() {
                         </div>
 
                         {/* Search Input */}
-                        <div className="relative">
-                          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                          <input
-                            type="text"
-                            placeholder="Search by email or name..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          />
-                        </div>
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Search by name, email, or phone..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
 
-                        {/* Status Information */}
-                        <div className="text-xs text-gray-500 p-2">
-                          {isSearching ? (
-                            "Loading resources..."
-                          ) : allResources.length === 0 ? (
-                            "No resources available in the system"
-                          ) : (
-                            `${allResources.length} resource${allResources.length !== 1 ? 's' : ''} available`
-                          )}
+                          {/* Status Information */}
+                          <div className="text-xs text-gray-500 p-2">
+                            {isSearching ? (
+                              "Loading resources..."
+                            ) : allResources.length === 0 ? (
+                              "No resources available in the system"
+                            ) : (
+                              `${allResources.length} resource${allResources.length !== 1 ? 's' : ''} available`
+                            )}
+                          </div>
                         </div>
 
                         {/* Search Results */}
