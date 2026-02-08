@@ -20,6 +20,7 @@ interface DocumentUploadSectionProps {
 export interface DocumentUploadHandle {
   areDocumentsValid: (uaeResident: boolean | null) => boolean;
   getMandatoryDocuments: () => string[];
+  getUpdatedFiles: () => Record<string, File>;
 }
 
 interface DocumentConfigExtended extends DocumentConfig {
