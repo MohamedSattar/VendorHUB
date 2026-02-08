@@ -57,7 +57,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           fullName: resourceData.name || "",
           email: resourceData.email || "",
           phoneNumber: resourceData.phoneNumber || "",
-          uaeResident: resourceData.uaeResident || false,
+          uaeResident: resourceData.uaeResident !== undefined ? resourceData.uaeResident : null,
         });
         // Set photo URL from resourceData
         if (resourceData.personalPhoto) {
