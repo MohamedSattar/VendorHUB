@@ -16,6 +16,7 @@ export interface FormData {
 
 export interface AddResourceFormHandle {
   getFormData: () => FormData;
+  getUAEResident: () => boolean;
 }
 
 const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
