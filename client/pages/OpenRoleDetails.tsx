@@ -91,6 +91,12 @@ export default function OpenRoleDetails() {
         currentSalary: openRole.currentSalary,
         proposedSalary: openRole.proposedSalary,
       });
+
+      // If pending candidate assignment, open in edit mode automatically
+      const isPendingAssignment = !openRole.candidateName || !openRole.candidateId;
+      if (isPendingAssignment) {
+        setIsEditMode(true);
+      }
     }
   }, [openRole]);
 
