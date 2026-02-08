@@ -239,6 +239,37 @@ export default function AddResource() {
 
       <Footer />
 
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-navy mb-2">
+              Discard Changes?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              You have unsaved changes. Are you sure you want to discard them?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="px-4 py-2 border border-navy text-navy rounded-lg font-medium hover:bg-navy/5 transition"
+              >
+                Continue Editing
+              </button>
+              <button
+                onClick={() => {
+                  setShowCancelConfirm(false);
+                  navigate("/resources");
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition"
+              >
+                Discard Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Import CV Modal */}
       <ImportCVModal
         isOpen={isImportModalOpen}
