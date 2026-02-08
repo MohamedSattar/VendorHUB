@@ -19,6 +19,7 @@ import {
   handleGetOpenRoles,
   handleGetOpenRoleById,
   handleGetCandidateContact,
+  handleGetCandidateContactPhoto,
   handleGetEngagementContacts,
   handleGetEngagementContactPhoto,
 } from "./routes/odata";
@@ -61,6 +62,7 @@ export function createServer() {
   app.get("/api/odata/engagement-contacts", handleGetEngagementContacts);
   app.get("/api/odata/engagement-contact-photo/:id", handleGetEngagementContactPhoto);
   app.get("/api/odata/candidate-contact/:id", handleGetCandidateContact);
+  app.get("/api/odata/candidate-contact-photo/:id", handleGetCandidateContactPhoto);
 
   return app;
 }
