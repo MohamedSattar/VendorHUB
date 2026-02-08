@@ -84,6 +84,8 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
   // Create refs for file inputs
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
+  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
+  const [templateLoading, setTemplateLoading] = useState(false);
 
   const handleDownload = (downloadField: string) => {
     if (!contactId) return;
@@ -98,6 +100,52 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      setTemplateLoading(true);
+
+      // Fetch manuals content to find Introduction Template
+      const response = await fetch("/api/odata/manuals");
+      if (!response.ok) {
+        throw new Error("Failed to fetch templates");
+      }
+
+      const data = await response.json();
+
+      // Find Introduction Template in manuals
+      const template = data.value?.find((item: any) =>
+        item.prmtk_header?.toLowerCase().includes("introduction") &&
+        item.prmtk_header?.toLowerCase().includes("template")
+      );
+
+      if (!template) {
+        alert("Introduction Template not found in manuals");
+        return;
+      }
+
+      // The description contains the file download information
+      // Try to download the attachment if available, otherwise create from description
+      if (template.prmtk_description) {
+        // Create a text file with the template content
+        const element = document.createElement("a");
+        const file = new Blob([template.prmtk_description], { type: "text/plain" });
+        element.href = URL.createObjectURL(file);
+        element.download = "Introduction_Template.txt";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        URL.revokeObjectURL(element.href);
+      } else {
+        alert("Template content not available");
+      }
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      alert("Failed to download template");
+    } finally {
+      setTemplateLoading(false);
+    }
   };
 
   const handleFileSelect = (docId: string, file: File) => {
