@@ -208,7 +208,7 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
           const borderColor = isRequired && !isUploaded
             ? "border-red-300"
             : isUploaded
-            ? "border-gray-300"
+            ? "border-green-300"
             : "border-yellow-300";
 
           const hasLocalFile = updatedFiles[doc.id];
