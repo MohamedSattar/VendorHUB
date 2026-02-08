@@ -790,3 +790,54 @@ export async function fetchOpenRoles(
     throw error;
   }
 }
+
+/**
+ * Fetch all Engagement Contacts from Power Apps OData API via backend proxy
+ * Returns all contacts with status (Assigned/Not Assigned) based on active engagements
+ */
+export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
+  try {
+    const url = `${ODATA_PROXY_URL}/engagement-contacts`;
+
+    console.log("[OData] Fetching all Engagement Contacts via proxy from:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch Engagement Contacts: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: { value: ODataEngagementContact[] } = await response.json();
+
+    // Transform OData response to our EngagementContact format
+    const contacts: EngagementContact[] = data.value
+      .filter((item) => item.statuscode === 1) // Only active items
+      .map((item: any) => ({
+        id: item.prmtk_engagementcontactid,
+        name: item.prmtk_id,
+        email: item.prmtk_email,
+        phoneNumber: item.prmtk_phonenumber,
+        personalPhoto: item.prmtk_personalphoto,
+        // If engagement ID is present, contact is assigned; otherwise not assigned
+        status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
+        engagementId: item._prmtk_engagement_value,
+        createdOn: item.createdon,
+        modifiedOn: item.modifiedon,
+      }));
+
+    console.log("[OData] Fetched Engagement Contacts:", contacts.length);
+
+    return contacts;
+  } catch (error) {
+    console.error("[OData] Error fetching Engagement Contacts:", error);
+    throw error;
+  }
+}
