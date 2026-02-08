@@ -510,3 +510,58 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get Candidate Contact Personal Photo
+ * GET /api/odata/candidate-contact-photo/:id
+ */
+export const handleGetCandidateContactPhoto: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Contact ID is required" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
+
+    console.log("[OData Proxy] Fetching candidate contact photo for ID:", id);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "image/*",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[OData Proxy] Photo not found for candidate contact:", id);
+        return res.status(404).json({ error: "Photo not found" });
+      }
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    // Get the image buffer
+    const buffer = await response.arrayBuffer();
+
+    // Get content type from response headers
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+
+    console.log("[OData Proxy] Successfully fetched candidate contact photo, size:", buffer.byteLength, "bytes");
+
+    // Set appropriate headers for image response
+    res.set("Content-Type", contentType);
+    res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error("[OData Proxy] Candidate Contact Photo Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch candidate contact photo",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
