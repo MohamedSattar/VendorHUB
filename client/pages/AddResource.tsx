@@ -104,7 +104,22 @@ export default function AddResource() {
                 Cancel
               </button>
             </div>
-            <button className="px-6 py-3 bg-navy text-white rounded-lg font-medium hover:bg-navy/90 transition flex items-center gap-2">
+            <button
+              onClick={() => {
+                triggerValidation();
+                if (validateForm()) {
+                  // Form is valid, proceed with save
+                  console.log("Saving resource...");
+                  // TODO: Implement save logic
+                }
+              }}
+              disabled={!isFormValid}
+              className={`px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition ${
+                isFormValid
+                  ? "bg-navy text-white hover:bg-navy/90 cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
+              }`}
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
