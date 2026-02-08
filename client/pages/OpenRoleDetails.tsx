@@ -66,7 +66,6 @@ export default function OpenRoleDetails() {
   }, [openRole, candidateDetails]);
 
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showCandidateForm, setShowCandidateForm] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
@@ -77,13 +76,6 @@ export default function OpenRoleDetails() {
     designationArabic: openRole?.designationArabic,
     currentSalary: openRole?.currentSalary,
     proposedSalary: openRole?.proposedSalary,
-  });
-  const [editCandidateData, setEditCandidateData] = useState<Partial<EditCandidateData>>({
-    name: candidateDetails?.name,
-    email: candidateDetails?.email,
-    phoneNumber: candidateDetails?.phoneNumber,
-    status: candidateDetails?.status,
-    uaeResident: candidateDetails?.uaeResident,
   });
 
   // Update edit data when open role data changes
