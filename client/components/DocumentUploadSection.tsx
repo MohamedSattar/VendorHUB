@@ -188,12 +188,29 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
               className={`flex items-center justify-between p-4 border rounded transition ${bgColor} ${borderColor}`}
             >
               <div className="flex-1 min-w-0">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {doc.label}
-                  {isRequired && (
-                    <span className="ml-1 text-red-600 font-bold">*</span>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    {doc.label}
+                    {isRequired && (
+                      <span className="ml-1 text-red-600 font-bold">*</span>
+                    )}
+                  </label>
+                  {doc.tooltip && (
+                    <div
+                      className="relative"
+                      onMouseEnter={() => setHoveredTooltip(doc.id)}
+                      onMouseLeave={() => setHoveredTooltip(null)}
+                    >
+                      <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                      {hoveredTooltip === doc.id && (
+                        <div className="absolute left-0 bottom-full mb-2 w-48 bg-gray-900 text-white text-xs rounded p-2 z-10 shadow-lg">
+                          {doc.tooltip}
+                          <div className="absolute top-full left-2 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                        </div>
+                      )}
+                    </div>
                   )}
-                </label>
+                </div>
                 {isUploaded ? (
                   <p className="text-xs text-blue-600 break-words">
                     {fileName}
@@ -205,6 +222,16 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
                 )}
               </div>
               <div className="flex gap-2 ml-4 flex-shrink-0">
+                {doc.id === "introduction" && (
+                  <button
+                    onClick={handleDownloadTemplate}
+                    disabled={templateLoading}
+                    className="px-2 py-2 text-green-600 border border-green-300 text-xs rounded hover:bg-green-50 transition disabled:opacity-50"
+                    title="Download empty template"
+                  >
+                    {templateLoading ? "Loading..." : "Template"}
+                  </button>
+                )}
                 {isUploaded && contactId && (
                   <button
                     onClick={() => handleDownload(doc.downloadField)}
