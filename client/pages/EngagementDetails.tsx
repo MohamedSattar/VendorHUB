@@ -388,7 +388,12 @@ export default function EngagementDetails() {
               {/* Open Roles Section */}
               <div className="mb-8 pb-8 border-b border-gray-200">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-navy">Open Roles {openRoles.length > 0 && `(${openRoles.length})`}</h3>
+                  <div>
+                    <h3 className="text-lg font-semibold text-navy">Open Roles {openRoles.length > 0 && `(${openRoles.length})`}</h3>
+                    {allRolesReady && (
+                      <p className="text-sm text-green-600 mt-2">✓ All roles are ready for submission</p>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2">
                     {isLoadingRoles && (
                       <div className="flex items-center gap-2">
