@@ -362,6 +362,54 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Get all Engagement Contacts
+ * GET /api/odata/engagement-contacts
+ */
+export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
+  try {
+    const url =
+      `${ODATA_BASE_URL}/prmtk_engagementcontacts?` +
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_personalphoto,prmtk_uaeresident,_prmtk_engagement_value,createdon,modifiedon,statuscode&` +
+      `$orderby=prmtk_id%20asc`;
+
+    console.log("[OData Proxy] Fetching all Engagement Contacts from Power Apps");
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    console.log("[OData Proxy] Engagement Contacts API Response:", {
+      status: response.status,
+      hasValue: !!data.value,
+      itemCount: data.value ? data.value.length : 0,
+    });
+
+    // Add cache headers for performance
+    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    res.json(data);
+  } catch (error) {
+    console.error("[OData Proxy] Engagement Contacts Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch Engagement Contacts",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Get Candidate Contact by ID
  * GET /api/odata/candidate-contact/:id
  */
