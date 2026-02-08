@@ -111,59 +111,36 @@ export default function OpenRoleDetails() {
   // Fetch available resources when entering search mode
   useEffect(() => {
     if (assignResourceMode === "existing") {
-      const fetchResources = async () => {
+      const loadResources = async () => {
         try {
           setIsSearching(true);
-          console.log("[OpenRoleDetails] Fetching engagement contacts...");
           const resources = await fetchEngagementContacts();
-          console.log("[OpenRoleDetails] Fetched resources:", resources);
           setAllResources(resources);
-          setSearchResults([]); // Clear results when first entering search mode
         } catch (error) {
-          console.error("[OpenRoleDetails] Error fetching resources:", error);
-          toast({
-            title: "Error",
-            description: "Failed to fetch available resources.",
-            variant: "destructive",
-          });
+          console.error("Error fetching resources:", error);
           setAllResources([]);
-          setSearchResults([]);
         } finally {
           setIsSearching(false);
         }
       };
-
-      fetchResources();
+      loadResources();
     }
-  }, [assignResourceMode, toast]);
+  }, [assignResourceMode]);
 
-  // Filter resources based on search query - partial/contains matching
+  // Filter resources based on search query
   useEffect(() => {
-    if (assignResourceMode === "existing" && searchQuery.trim()) {
-      console.log("[OpenRoleDetails] Filtering with query:", searchQuery);
-      console.log("[OpenRoleDetails] All resources count:", allResources.length);
-      console.log("[OpenRoleDetails] All resources:", allResources);
-
-      const query = searchQuery.toLowerCase().trim();
+    if (searchQuery.trim() && allResources.length > 0) {
+      const query = searchQuery.toLowerCase();
       const filtered = allResources.filter((resource) => {
-        // Convert to strings and handle null/undefined
-        const name = (resource.name || "").toString().toLowerCase();
-        const email = (resource.email || "").toString().toLowerCase();
-        const phone = (resource.phoneNumber || "").toString().toLowerCase();
-
-        // Partial/contains match - return true if query is found anywhere in name, email, or phone
-        const matches = name.includes(query) || email.includes(query) || phone.includes(query);
-
-        console.log(`[OpenRoleDetails] Checking resource: name="${name}", email="${email}", phone="${phone}", matches=${matches}`);
-        return matches;
+        const name = (resource.name || "").toLowerCase();
+        const email = (resource.email || "").toLowerCase();
+        return name.includes(query) || email.includes(query);
       });
-
-      console.log(`[OpenRoleDetails] Filtered results: ${filtered.length} matches`, filtered);
       setSearchResults(filtered);
-    } else if (searchQuery === "") {
+    } else {
       setSearchResults([]);
     }
-  }, [searchQuery, allResources, assignResourceMode]);
+  }, [searchQuery, allResources]);
 
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
