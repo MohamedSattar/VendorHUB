@@ -534,6 +534,58 @@ export default function OpenRoleDetails() {
                           <h3 className="text-lg font-semibold text-navy">Candidate Details & Documents</h3>
                         </button>
 
+                        {/* Collapsed Preview */}
+                        {isDetailsCollapsed && candidateDetails && (
+                          <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50 flex items-center gap-4">
+                            {/* Photo */}
+                            <div className="w-16 h-16 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden flex items-center justify-center flex-shrink-0">
+                              {candidateDetails.personalPhoto ? (
+                                <img
+                                  src={candidateDetails.personalPhoto}
+                                  alt="Candidate"
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="text-center">
+                                  <span className="text-2xl font-bold text-gray-400">
+                                    {(candidateDetails.name || "?").charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Candidate Info */}
+                            <div className="flex-1 min-w-0">
+                              {candidateDetails.name ? (
+                                <>
+                                  <p className="text-sm font-medium text-gray-600">Assigned Candidate</p>
+                                  <p className="text-base font-semibold text-navy truncate">{candidateDetails.name}</p>
+                                </>
+                              ) : (
+                                <>
+                                  <p className="text-sm font-medium text-gray-600">Status</p>
+                                  <p className="text-base font-semibold text-orange-600">Not Assigned yet</p>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Status Flag */}
+                            <div className="flex flex-col items-center gap-1">
+                              {candidateDetails.name ? (
+                                <>
+                                  <Flag className="w-6 h-6 text-green-500 fill-current" />
+                                  <span className="text-xs font-semibold text-green-600">Ready</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Flag className="w-6 h-6 text-orange-500 fill-current" />
+                                  <span className="text-xs font-semibold text-orange-600">Pending</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Collapsible Content */}
                         {!isDetailsCollapsed && (
                           <>
