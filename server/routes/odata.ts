@@ -565,3 +565,79 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (req, res) =
     });
   }
 };
+
+/**
+ * Get Engagement Contact Document (e.g., CV, certificates, etc.)
+ * GET /api/odata/engagement-contact/:id/:fieldName/$value
+ * Example: /api/odata/engagement-contact/123/prmtk_cvfile/$value
+ */
+export const handleGetEngagementContactDocument: RequestHandler = async (req, res) => {
+  try {
+    const { id, fieldName } = req.params;
+
+    if (!id || !fieldName) {
+      return res.status(400).json({ error: "Contact ID and field name are required" });
+    }
+
+    // Validate field name to prevent injection attacks
+    const validFields = [
+      "prmtk_cvfile",
+      "prmtk_introductiondocument",
+      "prmtk_educationalcertificate",
+      "prmtk_eid",
+      "prmtk_salarycertificate",
+      "prmtk_passport",
+      "prmtk_experienceletter",
+      "prmtk_policeclearance",
+    ];
+
+    if (!validFields.includes(fieldName)) {
+      return res.status(400).json({ error: "Invalid document field" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/${fieldName}/$value`;
+
+    console.log("[OData Proxy] Fetching document for ID:", id, "Field:", fieldName);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "*/*",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[OData Proxy] Document not found for contact:", id, "Field:", fieldName);
+        return res.status(404).json({ error: "Document not found" });
+      }
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    // Get the document buffer
+    const buffer = await response.arrayBuffer();
+
+    // Get content type from response headers - for documents, often application/octet-stream
+    const contentType = response.headers.get("content-type") || "application/octet-stream";
+
+    // Try to extract filename from Content-Disposition header if available
+    const contentDisposition = response.headers.get("content-disposition") || "";
+
+    console.log("[OData Proxy] Successfully fetched document, size:", buffer.byteLength, "bytes");
+
+    // Set appropriate headers for document response
+    res.set("Content-Type", contentType);
+    res.set("Content-Disposition", contentDisposition || "attachment");
+    res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error("[OData Proxy] Document Download Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch document",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
