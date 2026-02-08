@@ -14,6 +14,7 @@ interface DocumentUploadSectionProps {
   contactId?: string;
   documentData?: CandidateDetail | null;
   uaeResident?: boolean;
+  hideHeader?: boolean;
 }
 
 interface DocumentConfigExtended extends DocumentConfig {
