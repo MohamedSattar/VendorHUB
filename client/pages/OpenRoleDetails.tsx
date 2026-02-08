@@ -632,6 +632,17 @@ export default function OpenRoleDetails() {
                           />
                         </div>
 
+                        {/* Status Information */}
+                        <div className="text-xs text-gray-500 p-2">
+                          {isSearching ? (
+                            "Loading resources..."
+                          ) : allResources.length === 0 ? (
+                            "No resources available in the system"
+                          ) : (
+                            `${allResources.length} resource${allResources.length !== 1 ? 's' : ''} available`
+                          )}
+                        </div>
+
                         {/* Search Results */}
                         {searchQuery && (
                           <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto">
