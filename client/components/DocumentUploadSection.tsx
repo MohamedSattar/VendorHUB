@@ -106,6 +106,8 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
                   <p className="text-xs text-blue-600 break-words">
                     {fileName}
                   </p>
+                ) : isRequired ? (
+                  <p className="text-xs text-red-600 font-medium">Required - Not uploaded</p>
                 ) : (
                   <p className="text-xs text-yellow-700">Not uploaded</p>
                 )}
