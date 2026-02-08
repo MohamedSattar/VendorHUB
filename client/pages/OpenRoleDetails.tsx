@@ -562,109 +562,14 @@ export default function OpenRoleDetails() {
                     </div>
                   </div>
 
-                  {/* Assigned Candidate Section */}
-                  {candidateDetails && (
+                  {/* Assigned Candidate Section - Using Resource Edit Form */}
+                  {candidateDetails && openRole && (
                     <div className="pt-8 border-t border-gray-200">
-                      <h3 className="text-lg font-semibold text-navy mb-4">Assigned Candidate</h3>
-
-                      {/* Name */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Name
-                        </label>
-                        <input
-                          type="text"
-                          value={editCandidateData.name || ""}
-                          onChange={(e) => handleCandidateEditChange("name", e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
+                      <div className="mb-8">
+                        <AddResourceForm mode="edit" resourceData={candidateDetails} contactId={openRole.candidateContactId} />
                       </div>
-
-                      {/* Email */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          value={editCandidateData.email || ""}
-                          onChange={(e) => handleCandidateEditChange("email", e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      {/* Phone Number */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          value={editCandidateData.phoneNumber || ""}
-                          onChange={(e) => handleCandidateEditChange("phoneNumber", e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      {/* Status */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Status
-                        </label>
-                        <input
-                          type="text"
-                          value={editCandidateData.status || ""}
-                          onChange={(e) => handleCandidateEditChange("status", e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      {/* UAE Resident */}
-                      <div className="mb-4">
-                        <label className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={editCandidateData.uaeResident || false}
-                            onChange={(e) => handleCandidateEditChange("uaeResident", e.target.checked)}
-                            className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
-                          />
-                          <span className="text-sm font-medium text-gray-700">UAE Resident</span>
-                        </label>
-                      </div>
-
-                      {/* Documents Section */}
-                      <div className="pt-6 border-t border-gray-200">
-                        <h4 className="text-md font-semibold text-navy mb-3">Documents</h4>
-                        {(candidateDetails.cvFile || candidateDetails.introductionDocument || candidateDetails.educationalCertificate || candidateDetails.eid || candidateDetails.salaryCertificate || candidateDetails.passport || candidateDetails.experienceLetter || candidateDetails.policeClearance) ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {candidateDetails.cvFile && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">CV:</span> {candidateDetails.cvFile}</p>
-                            )}
-                            {candidateDetails.introductionDocument && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">Introduction Document:</span> {candidateDetails.introductionDocument}</p>
-                            )}
-                            {candidateDetails.educationalCertificate && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">Educational Certificate:</span> {candidateDetails.educationalCertificate}</p>
-                            )}
-                            {candidateDetails.eid && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">EID:</span> {candidateDetails.eid}</p>
-                            )}
-                            {candidateDetails.salaryCertificate && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">Salary Certificate:</span> {candidateDetails.salaryCertificate}</p>
-                            )}
-                            {candidateDetails.passport && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">Passport:</span> {candidateDetails.passport}</p>
-                            )}
-                            {candidateDetails.experienceLetter && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">Experience Letter:</span> {candidateDetails.experienceLetter}</p>
-                            )}
-                            {candidateDetails.policeClearance && (
-                              <p className="text-sm text-gray-700"><span className="font-medium">Police Clearance:</span> {candidateDetails.policeClearance}</p>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-gray-600 italic">No documents uploaded</p>
-                        )}
+                      <div className="mb-12">
+                        <DocumentUploadSection contactId={openRole.candidateContactId} documentData={candidateDetails} />
                       </div>
                     </div>
                   )}
