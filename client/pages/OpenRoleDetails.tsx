@@ -137,21 +137,28 @@ export default function OpenRoleDetails() {
     }
   }, [assignResourceMode, toast]);
 
-  // Filter resources based on search query
+  // Filter resources based on search query - partial/contains matching
   useEffect(() => {
     if (assignResourceMode === "existing" && searchQuery.trim()) {
       console.log("[OpenRoleDetails] Filtering with query:", searchQuery);
+      console.log("[OpenRoleDetails] All resources count:", allResources.length);
       console.log("[OpenRoleDetails] All resources:", allResources);
 
+      const query = searchQuery.toLowerCase().trim();
       const filtered = allResources.filter((resource) => {
-        const query = searchQuery.toLowerCase();
-        const nameMatch = resource.name && resource.name.toLowerCase().includes(query);
-        const emailMatch = resource.email && resource.email.toLowerCase().includes(query);
-        console.log(`[OpenRoleDetails] Checking resource ${resource.name}: nameMatch=${nameMatch}, emailMatch=${emailMatch}`);
-        return nameMatch || emailMatch;
+        // Convert to strings and handle null/undefined
+        const name = (resource.name || "").toString().toLowerCase();
+        const email = (resource.email || "").toString().toLowerCase();
+        const phone = (resource.phoneNumber || "").toString().toLowerCase();
+
+        // Partial/contains match - return true if query is found anywhere in name, email, or phone
+        const matches = name.includes(query) || email.includes(query) || phone.includes(query);
+
+        console.log(`[OpenRoleDetails] Checking resource: name="${name}", email="${email}", phone="${phone}", matches=${matches}`);
+        return matches;
       });
 
-      console.log("[OpenRoleDetails] Filtered results:", filtered);
+      console.log(`[OpenRoleDetails] Filtered results: ${filtered.length} matches`, filtered);
       setSearchResults(filtered);
     } else if (searchQuery === "") {
       setSearchResults([]);
