@@ -9,7 +9,8 @@ import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOpenRoleDetails } from "@/hooks/useOpenRoleDetails";
 import { useCandidateDetails } from "@/hooks/useCandidateDetails";
-import { OpenRole, CandidateDetail } from "@/services/odata";
+import { OpenRole, CandidateDetail, fetchEngagementContacts } from "@/services/odata";
+import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
 
 interface OpenRoleDetailsData extends OpenRole {}
 
