@@ -206,7 +206,7 @@ export default function EditResource() {
 
           {/* Form */}
           <div className="mb-12">
-            <AddResourceForm mode="edit" resourceData={contactDetails} />
+            <AddResourceForm ref={formRef} mode="edit" resourceData={contactDetails} />
           </div>
 
           {/* Document Upload Section */}
