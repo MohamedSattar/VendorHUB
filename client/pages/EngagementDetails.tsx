@@ -672,6 +672,44 @@ export default function EngagementDetails() {
               </form>
             </div>
           )}
+
+          {/* Submit Confirmation Modal */}
+          {showSubmitConfirm && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-8 max-w-md mx-4">
+                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full">
+                  <Flag className="w-6 h-6 text-green-600 fill-current" />
+                </div>
+                <h3 className="text-xl font-semibold text-navy text-center mb-3">Submit Engagement?</h3>
+                <p className="text-gray-600 text-center mb-6">
+                  This engagement will be sent to ECA for processing. All open roles are ready for submission.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowSubmitConfirm(false)}
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitEngagement}
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Confirm"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
