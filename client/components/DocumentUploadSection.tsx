@@ -77,8 +77,18 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
           // Check if document has a value from API
           const isUploaded = documentData && documentData[doc.apiField];
           const fileName = isUploaded ? documentData?.[doc.apiField] : null;
-          const bgColor = isUploaded ? "bg-white" : "bg-yellow-50";
-          const borderColor = isUploaded ? "border-gray-300" : "border-yellow-300";
+          const isRequired = doc.isRequired ? doc.isRequired(uaeResident || false) : false;
+
+          const bgColor = isRequired && !isUploaded
+            ? "bg-red-50"
+            : isUploaded
+            ? "bg-white"
+            : "bg-yellow-50";
+          const borderColor = isRequired && !isUploaded
+            ? "border-red-300"
+            : isUploaded
+            ? "border-gray-300"
+            : "border-yellow-300";
 
           return (
             <div
@@ -88,6 +98,9 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
               <div className="flex-1 min-w-0">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {doc.label}
+                  {isRequired && (
+                    <span className="ml-1 text-red-600 font-bold">*</span>
+                  )}
                 </label>
                 {isUploaded ? (
                   <p className="text-xs text-blue-600 break-words">
