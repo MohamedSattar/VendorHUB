@@ -136,9 +136,23 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
 
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        {/* Candidate Details Section */}
-        <h3 className="text-lg font-semibold text-navy mb-6">Candidate Details</h3>
+        {/* Candidate Details Section - Collapsible */}
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex items-center gap-3 w-full text-left mb-6 hover:opacity-75 transition"
+          aria-expanded={!isCollapsed}
+        >
+          <ChevronDown
+            className={`w-5 h-5 text-navy transition-transform duration-200 flex-shrink-0 ${
+              isCollapsed ? "-rotate-90" : ""
+            }`}
+          />
+          <h3 className="text-lg font-semibold text-navy">Candidate Details</h3>
+        </button>
 
+        {/* Collapsible Content */}
+        {!isCollapsed && (
         <div className="mb-8">
           {/* Personal Photo */}
           <div className="mb-8">
@@ -357,6 +371,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           </div>
         </div>
         </div>
+        )}
       </div>
     );
   }
