@@ -275,8 +275,12 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  placeholder="+971 50 000 0000"
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-navy/20"
+                  placeholder="97150000000"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 ${
+                    validationErrors.phoneNumber
+                      ? "border-red-300 focus:ring-red-200"
+                      : "border-gray-300 focus:ring-navy/20"
+                  }`}
                 />
                 <button
                   type="button"
@@ -297,6 +301,9 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
                   </svg>
                 </button>
               </div>
+              {validationErrors.phoneNumber && (
+                <p className="text-xs text-red-600 mt-1">{validationErrors.phoneNumber}</p>
+              )}
             </div>
           </div>
 
