@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { CandidateDetail } from "@/services/odata";
 
@@ -25,6 +26,10 @@ const documents: DocumentConfig[] = [
 ];
 
 export default function DocumentUploadSection({ contactId, documentData }: DocumentUploadSectionProps) {
+  // Create refs for file inputs
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
+
   const handleDownload = (downloadField: string) => {
     if (!contactId) return;
 
@@ -38,6 +43,18 @@ export default function DocumentUploadSection({ contactId, documentData }: Docum
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleFileSelect = (docId: string, file: File) => {
+    setUpdatedFiles((prev) => ({
+      ...prev,
+      [docId]: file,
+    }));
+    console.log(`File selected for ${docId}:`, file.name);
+  };
+
+  const triggerFileInput = (docId: string) => {
+    fileInputRefs.current[docId]?.click();
   };
 
   return (
