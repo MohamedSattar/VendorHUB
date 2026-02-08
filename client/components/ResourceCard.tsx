@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit2 } from "lucide-react";
 import { EngagementContact } from "@/services/odata";
@@ -13,9 +14,20 @@ const statusColors = {
 
 export default function ResourceCard({ contact }: ResourceCardProps) {
   const navigate = useNavigate();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleEditClick = () => {
     navigate(`/edit-resource/${contact.id}`);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoaded(false);
   };
 
   return (
@@ -24,15 +36,21 @@ export default function ResourceCard({ contact }: ResourceCardProps) {
       <div className="p-6 text-center">
         {/* Profile Photo */}
         <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-          {contact.personalPhoto ? (
-            <img
-              src={contact.personalPhoto}
-              alt={contact.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
+          {contact.personalPhoto && !imageError ? (
+            <>
+              <img
+                src={contact.personalPhoto}
+                alt={contact.name}
+                className={`w-full h-full object-cover ${imageLoaded ? "block" : "hidden"}`}
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+              />
+              {!imageLoaded && (
+                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
+                  {contact.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
               {contact.name.charAt(0).toUpperCase()}
