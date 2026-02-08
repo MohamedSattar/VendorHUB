@@ -15,6 +15,9 @@ export default function AddResource() {
   const [resources, setResources] = useState([1]);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedContactId, setSavedContactId] = useState<string | null>(null);
+  const [savedContactData, setSavedContactData] = useState<any>(null);
 
   const handleAddResource = () => {
     const newResourceNum = Math.max(...resources) + 1;
