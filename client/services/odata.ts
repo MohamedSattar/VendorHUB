@@ -79,6 +79,18 @@ export interface CandidateDetail {
   modifiedOn: string;
 }
 
+export interface EngagementContact {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNumber?: string;
+  personalPhoto?: string;
+  status: "Assigned" | "Not Assigned";
+  engagementId?: string;
+  createdOn: string;
+  modifiedOn: string;
+}
+
 export interface OpenRole {
   id: string;
   name: string;
