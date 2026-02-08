@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Edit2 } from "lucide-react";
 import { EngagementContact } from "@/services/odata";
 
 interface ResourceCardProps {
   contact: EngagementContact;
-  onEdit: (contact: EngagementContact) => void;
 }
 
 const statusColors = {
@@ -12,12 +12,13 @@ const statusColors = {
   "Not Assigned": "bg-orange-100 text-orange-700",
 };
 
-export default function ResourceCard({ contact, onEdit }: ResourceCardProps) {
+export default function ResourceCard({ contact }: ResourceCardProps) {
+  const navigate = useNavigate();
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const handleEditClick = () => {
-    onEdit(contact);
+    navigate(`/edit-resource/${contact.id}`);
   };
 
   const handleImageLoad = () => {
