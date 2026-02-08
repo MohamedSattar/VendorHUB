@@ -173,14 +173,12 @@ export default function EditResource() {
           </div>
 
           {/* Form */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-navy mb-4">Personal Details</h2>
+          <div className="mb-12">
             <AddResourceForm />
           </div>
 
           {/* Document Upload Section */}
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-navy mb-4">Documents & Files</h2>
             <DocumentUploadSection />
           </div>
 
