@@ -93,48 +93,33 @@ export default function AddResource() {
         throw new Error("No contact ID returned from API");
       }
 
-      // Step 2: Upload photo if selected locally
-      const photoUrl = formRef.current.getPhotoUrl();
-      if (photoUrl && photoUrl.startsWith("blob:")) {
-        // Convert blob URL to file and upload
-        const photoResponse = await fetch(photoUrl);
-        const photoBlob = await photoResponse.blob();
-
-        const photoFormData = new FormData();
-        photoFormData.append("file", photoBlob, "personal-photo.jpg");
-
-        // Photo would be uploaded here in a real implementation
-        // await fetch(`/api/odata/engagement-contact/${contactId}/photo`, {
-        //   method: "POST",
-        //   body: photoFormData,
-        // });
-      }
-
-      // Step 3: Upload documents
-      const mandatoryDocIds = ["cv", "introduction", "passport", "education"];
-      const documentFields: Record<string, string> = {
+      // Step 2: Upload documents
+      const updatedFiles = docsRef.current.getUpdatedFiles();
+      const documentFieldMap: Record<string, string> = {
         cv: "prmtk_cvfile",
         introduction: "prmtk_introductiondocument",
         passport: "prmtk_passport",
         education: "prmtk_educationalcertificate",
         eid: "prmtk_eid",
+        salary: "prmtk_salarycertificate",
+        experience: "prmtk_experienceletter",
+        police: "prmtk_policeclearance",
       };
 
-      // Get the updatedFiles from DocumentUploadSection (this would need to be exposed via ref)
-      // For now, we'll need to add a method to get updated files from DocumentUploadSection
+      for (const [docId, file] of Object.entries(updatedFiles)) {
+        const fieldName = documentFieldMap[docId];
+        if (fieldName) {
+          const docFormData = new FormData();
+          docFormData.append("file", file);
 
-      // Step 4: Update form state to show as saved
-      setSavedContactId(contactId);
-      setSavedContactData({
-        id: contactId,
-        name: formData.fullName,
-        email: formData.email,
-        phoneNumber: formData.phoneNumber,
-        uaeResident: formData.uaeResident,
-      });
+          // Note: Document upload endpoint would need to be implemented on the backend
+          // This is a placeholder for the actual implementation
+          console.log(`Would upload document: ${docId} to field: ${fieldName}`);
+        }
+      }
 
-      // Show success message
-      alert("Resource saved successfully!");
+      // Step 3: Redirect to edit page
+      navigate(`/resources/edit/${contactId}`);
     } catch (error) {
       console.error("Error saving resource:", error);
       alert(`Failed to save: ${error instanceof Error ? error.message : "Unknown error"}`);
