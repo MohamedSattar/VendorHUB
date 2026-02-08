@@ -27,6 +27,9 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
       uaeResident: false,
     });
 
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+    const [photoLoaded, setPhotoLoaded] = useState(false);
+
     // Expose form data through ref
     useImperativeHandle(ref, () => ({
       getFormData: () => formData,
@@ -41,6 +44,11 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           phoneNumber: resourceData.phoneNumber || "",
           uaeResident: resourceData.uaeResident || false,
         });
+        // Set photo URL from resourceData
+        if (resourceData.personalPhoto) {
+          setPhotoUrl(resourceData.personalPhoto);
+          setPhotoLoaded(false);
+        }
       }
     }, [mode, resourceData]);
 
