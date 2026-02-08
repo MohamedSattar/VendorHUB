@@ -1,10 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { CandidateDetail } from "@/services/odata";
 
 interface AddResourceFormProps {
   mode?: "new" | "edit";
   resourceData?: CandidateDetail | null;
   contactId?: string;
+}
+
+export interface AddResourceFormHandle {
+  getFormData: () => FormData;
+}
+
+interface FormData {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  uaeResident: boolean;
 }
 
 interface FormData {
