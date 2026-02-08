@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Upload } from "lucide-react";
 import { CandidateDetail } from "@/services/odata";
 
 interface AddResourceFormProps {
@@ -12,7 +11,6 @@ interface FormData {
   email: string;
   phoneNumber: string;
   uaeResident: boolean;
-  personalPhoto: string | null;
 }
 
 export default function AddResourceForm({ mode = "new", resourceData }: AddResourceFormProps) {
@@ -21,10 +19,7 @@ export default function AddResourceForm({ mode = "new", resourceData }: AddResou
     email: "",
     phoneNumber: "",
     uaeResident: false,
-    personalPhoto: null,
   });
-
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   // Bind form fields from API data when in edit mode
   useEffect(() => {
@@ -34,7 +29,6 @@ export default function AddResourceForm({ mode = "new", resourceData }: AddResou
         email: resourceData.email || "",
         phoneNumber: resourceData.phoneNumber || "",
         uaeResident: resourceData.uaeResident || false,
-        personalPhoto: resourceData.personalPhoto || null,
       });
     }
   }, [mode, resourceData]);
@@ -55,27 +49,6 @@ export default function AddResourceForm({ mode = "new", resourceData }: AddResou
         [name]: value,
       }));
     }
-  };
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPhotoFile(file);
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({
-        ...prev,
-        personalPhoto: previewUrl,
-      }));
-    }
-  };
-
-  const handlePhotoDelete = () => {
-    setPhotoFile(null);
-    setFormData((prev) => ({
-      ...prev,
-      personalPhoto: null,
-    }));
   };
 
   return (
