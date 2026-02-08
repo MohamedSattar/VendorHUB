@@ -373,16 +373,25 @@ export default function EngagementDetails() {
 
                 {openRoles.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {openRoles.map((role) => (
+                    {openRoles.map((role) => {
+                      const isPendingAssignment = !role.candidateName || !role.candidateId;
+                      return (
                       <div
                         key={role.id}
-                        className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100 hover:border-blue-200 hover:shadow-md transition"
+                        className={`p-4 rounded-lg border transition ${
+                          isPendingAssignment
+                            ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-300 hover:border-orange-400 hover:shadow-md ring-1 ring-orange-200"
+                            : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 hover:border-blue-200 hover:shadow-md"
+                        }`}
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
                             {role.candidateName && (
                               <p className="text-sm text-gray-600 mt-1">{role.candidateName}</p>
+                            )}
+                            {!role.candidateName && (
+                              <p className="text-sm text-orange-600 font-medium mt-1">⚠️ Pending Candidate Assignment</p>
                             )}
                           </div>
                           <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ml-2 whitespace-nowrap ${
@@ -418,7 +427,8 @@ export default function EngagementDetails() {
                           Edit Details
                         </button>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
