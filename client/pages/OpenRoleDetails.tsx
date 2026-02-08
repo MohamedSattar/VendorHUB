@@ -108,35 +108,25 @@ export default function OpenRoleDetails() {
     }
   }, [openRole]);
 
-  // Fetch available resources and filter based on search query
+  // Fetch available resources when entering search mode
   useEffect(() => {
     if (assignResourceMode === "existing") {
       const fetchResources = async () => {
         try {
           setIsSearching(true);
+          console.log("[OpenRoleDetails] Fetching engagement contacts...");
           const resources = await fetchEngagementContacts();
+          console.log("[OpenRoleDetails] Fetched resources:", resources);
           setAllResources(resources);
-
-          // Filter based on search query
-          if (searchQuery.trim()) {
-            const filtered = resources.filter((resource) => {
-              const query = searchQuery.toLowerCase();
-              return (
-                (resource.name && resource.name.toLowerCase().includes(query)) ||
-                (resource.email && resource.email.toLowerCase().includes(query))
-              );
-            });
-            setSearchResults(filtered);
-          } else {
-            setSearchResults([]);
-          }
+          setSearchResults([]); // Clear results when first entering search mode
         } catch (error) {
-          console.error("Error fetching resources:", error);
+          console.error("[OpenRoleDetails] Error fetching resources:", error);
           toast({
             title: "Error",
             description: "Failed to fetch available resources.",
             variant: "destructive",
           });
+          setAllResources([]);
           setSearchResults([]);
         } finally {
           setIsSearching(false);
@@ -145,7 +135,28 @@ export default function OpenRoleDetails() {
 
       fetchResources();
     }
-  }, [assignResourceMode, searchQuery, toast]);
+  }, [assignResourceMode, toast]);
+
+  // Filter resources based on search query
+  useEffect(() => {
+    if (assignResourceMode === "existing" && searchQuery.trim()) {
+      console.log("[OpenRoleDetails] Filtering with query:", searchQuery);
+      console.log("[OpenRoleDetails] All resources:", allResources);
+
+      const filtered = allResources.filter((resource) => {
+        const query = searchQuery.toLowerCase();
+        const nameMatch = resource.name && resource.name.toLowerCase().includes(query);
+        const emailMatch = resource.email && resource.email.toLowerCase().includes(query);
+        console.log(`[OpenRoleDetails] Checking resource ${resource.name}: nameMatch=${nameMatch}, emailMatch=${emailMatch}`);
+        return nameMatch || emailMatch;
+      });
+
+      console.log("[OpenRoleDetails] Filtered results:", filtered);
+      setSearchResults(filtered);
+    } else if (searchQuery === "") {
+      setSearchResults([]);
+    }
+  }, [searchQuery, allResources, assignResourceMode]);
 
   const handleEditChange = (field: string, value: any) => {
     setEditData((prev) => ({
