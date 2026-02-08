@@ -234,45 +234,52 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           </div>
 
           {/* UAE Resident Toggle */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-navy mb-4">
-                UAE Resident
-              </label>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="uaeResident"
-                    checked={formData.uaeResident === true}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        uaeResident: true,
-                      }))
-                    }
-                    className="w-4 h-4 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Yes</span>
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="uaeResident"
-                    checked={formData.uaeResident === false}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        uaeResident: false,
-                      }))
-                    }
-                    className="w-4 h-4 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">No</span>
-                </label>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-navy mb-4">
+              UAE Resident
+            </label>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    uaeResident: true,
+                  }))
+                }
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
+                  formData.uaeResident === true
+                    ? "bg-green-500 text-white shadow-md"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    uaeResident: false,
+                  }))
+                }
+                className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
+                  formData.uaeResident === false
+                    ? "bg-red-500 text-white shadow-md"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                No
+              </button>
             </div>
+            {formData.uaeResident === true && (
+              <p className="text-xs text-green-600 mt-2 font-medium">
+                ✓ Emirates ID is required
+              </p>
+            )}
           </div>
+        </div>
         </div>
       </div>
     );
