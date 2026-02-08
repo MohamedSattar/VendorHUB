@@ -266,95 +266,70 @@ export default function OpenRoleDetails() {
               </div>
 
               {/* Assigned Candidate Section */}
-              <div className="mb-8">
-                <button
-                  onClick={() => setShowCandidateForm(!showCandidateForm)}
-                  className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition"
-                >
-                  <h3 className="text-lg font-semibold text-navy">Assigned Candidate</h3>
-                  {showCandidateForm ? (
-                    <ChevronUp className="w-5 h-5 text-navy" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-navy" />
-                  )}
-                </button>
-
-                {showCandidateForm && (
-                  <div className="mt-4 p-4 bg-white border border-blue-100 rounded-lg">
-                    {isCandidateLoading ? (
-                      <p className="text-gray-600 flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Loading candidate details...
+              {candidateDetails && (
+                <div className="mb-8 pt-8 border-t border-gray-200">
+                  <div className={`space-y-2 mb-6 ${isArabic ? "text-right" : "text-left"}`}>
+                    {candidateDetails.name && (
+                      <p className="text-gray-700">
+                        <span className="font-medium">Candidate Name:</span> {candidateDetails.name}
                       </p>
-                    ) : candidateDetails ? (
-                      <div className={`space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
-                        {candidateDetails.name && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Name:</span> {candidateDetails.name}
-                          </p>
-                        )}
-                        {candidateDetails.email && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Email:</span> {candidateDetails.email}
-                          </p>
-                        )}
-                        {candidateDetails.phoneNumber && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Phone Number:</span> {candidateDetails.phoneNumber}
-                          </p>
-                        )}
-                        {candidateDetails.status && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Status:</span> {candidateDetails.status}
-                          </p>
-                        )}
-                        {candidateDetails.uaeResident !== null && candidateDetails.uaeResident !== undefined && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">UAE Resident:</span> {candidateDetails.uaeResident ? "Yes" : "No"}
-                          </p>
-                        )}
-
-                        {/* Documents Section */}
-                        <div className="mt-6 pt-6 border-t border-gray-200">
-                          <h4 className="text-md font-semibold text-navy mb-3">Documents</h4>
-                          {(candidateDetails.cvFile || candidateDetails.introductionDocument || candidateDetails.educationalCertificate || candidateDetails.eid || candidateDetails.salaryCertificate || candidateDetails.passport || candidateDetails.experienceLetter || candidateDetails.policeClearance) ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {candidateDetails.cvFile && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">CV:</span> {candidateDetails.cvFile}</p>
-                              )}
-                              {candidateDetails.introductionDocument && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">Introduction Document:</span> {candidateDetails.introductionDocument}</p>
-                              )}
-                              {candidateDetails.educationalCertificate && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">Educational Certificate:</span> {candidateDetails.educationalCertificate}</p>
-                              )}
-                              {candidateDetails.eid && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">EID:</span> {candidateDetails.eid}</p>
-                              )}
-                              {candidateDetails.salaryCertificate && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">Salary Certificate:</span> {candidateDetails.salaryCertificate}</p>
-                              )}
-                              {candidateDetails.passport && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">Passport:</span> {candidateDetails.passport}</p>
-                              )}
-                              {candidateDetails.experienceLetter && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">Experience Letter:</span> {candidateDetails.experienceLetter}</p>
-                              )}
-                              {candidateDetails.policeClearance && (
-                                <p className="text-sm text-gray-700"><span className="font-medium">Police Clearance:</span> {candidateDetails.policeClearance}</p>
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-600 italic">No documents uploaded</p>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-600">No candidate details available for this open role.</p>
+                    )}
+                    {candidateDetails.email && (
+                      <p className="text-gray-700">
+                        <span className="font-medium">Email:</span> {candidateDetails.email}
+                      </p>
+                    )}
+                    {candidateDetails.phoneNumber && (
+                      <p className="text-gray-700">
+                        <span className="font-medium">Phone Number:</span> {candidateDetails.phoneNumber}
+                      </p>
+                    )}
+                    {candidateDetails.status && (
+                      <p className="text-gray-700">
+                        <span className="font-medium">Status:</span> {candidateDetails.status}
+                      </p>
+                    )}
+                    {candidateDetails.uaeResident !== null && candidateDetails.uaeResident !== undefined && (
+                      <p className="text-gray-700">
+                        <span className="font-medium">UAE Resident:</span> {candidateDetails.uaeResident ? "Yes" : "No"}
+                      </p>
                     )}
                   </div>
-                )}
-              </div>
+
+                  {/* Documents Section */}
+                  {(candidateDetails.cvFile || candidateDetails.introductionDocument || candidateDetails.educationalCertificate || candidateDetails.eid || candidateDetails.salaryCertificate || candidateDetails.passport || candidateDetails.experienceLetter || candidateDetails.policeClearance) && (
+                    <div className="pt-6 border-t border-gray-200">
+                      <h4 className="text-md font-semibold text-navy mb-3">Documents</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {candidateDetails.cvFile && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">CV:</span> {candidateDetails.cvFile}</p>
+                        )}
+                        {candidateDetails.introductionDocument && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">Introduction Document:</span> {candidateDetails.introductionDocument}</p>
+                        )}
+                        {candidateDetails.educationalCertificate && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">Educational Certificate:</span> {candidateDetails.educationalCertificate}</p>
+                        )}
+                        {candidateDetails.eid && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">EID:</span> {candidateDetails.eid}</p>
+                        )}
+                        {candidateDetails.salaryCertificate && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">Salary Certificate:</span> {candidateDetails.salaryCertificate}</p>
+                        )}
+                        {candidateDetails.passport && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">Passport:</span> {candidateDetails.passport}</p>
+                        )}
+                        {candidateDetails.experienceLetter && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">Experience Letter:</span> {candidateDetails.experienceLetter}</p>
+                        )}
+                        {candidateDetails.policeClearance && (
+                          <p className="text-sm text-gray-700"><span className="font-medium">Police Clearance:</span> {candidateDetails.policeClearance}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Additional information */}
               <div className="mb-8">
