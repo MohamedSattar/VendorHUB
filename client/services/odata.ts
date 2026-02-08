@@ -697,7 +697,8 @@ export async function fetchCandidateContactById(
       email: item.prmtk_email,
       phoneNumber: item.prmtk_phonenumber,
       status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Unknown",
-      personalPhoto: item.prmtk_personalphoto,
+      // Construct photo URL to fetch the actual image via backend proxy
+      personalPhoto: `/api/odata/candidate-contact-photo/${item.prmtk_engagementcontactid}`,
       uaeResident: item.prmtk_uaeresident,
       cvFile: item.prmtk_cvfile_name,
       introductionDocument: item.prmtk_introductiondocument_name,
