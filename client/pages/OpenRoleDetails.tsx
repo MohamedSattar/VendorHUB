@@ -266,32 +266,56 @@ export default function OpenRoleDetails() {
               {/* Assigned Candidate Section */}
               {candidateDetails && (
                 <div className="mb-8 pt-8 border-t border-gray-200">
-                  <div className={`space-y-2 mb-6 ${isArabic ? "text-right" : "text-left"}`}>
-                    {candidateDetails.name && (
-                      <p className="text-gray-700">
-                        <span className="font-medium">Candidate Name:</span> {candidateDetails.name}
-                      </p>
-                    )}
-                    {candidateDetails.email && (
-                      <p className="text-gray-700">
-                        <span className="font-medium">Email:</span> {candidateDetails.email}
-                      </p>
-                    )}
-                    {candidateDetails.phoneNumber && (
-                      <p className="text-gray-700">
-                        <span className="font-medium">Phone Number:</span> {candidateDetails.phoneNumber}
-                      </p>
-                    )}
-                    {candidateDetails.status && (
-                      <p className="text-gray-700">
-                        <span className="font-medium">Status:</span> {candidateDetails.status}
-                      </p>
-                    )}
-                    {candidateDetails.uaeResident !== null && candidateDetails.uaeResident !== undefined && (
-                      <p className="text-gray-700">
-                        <span className="font-medium">UAE Resident:</span> {candidateDetails.uaeResident ? "Yes" : "No"}
-                      </p>
-                    )}
+                  <h3 className="text-lg font-semibold text-navy mb-6">Candidate Details</h3>
+
+                  {/* Photo and Details */}
+                  <div className="flex gap-6 mb-6 items-start">
+                    {/* Personal Photo */}
+                    <div className="w-32 h-32 rounded-lg bg-gray-200 border-2 border-gray-300 overflow-hidden flex items-center justify-center flex-shrink-0">
+                      {candidateDetails.personalPhoto ? (
+                        <img
+                          src={candidateDetails.personalPhoto}
+                          alt={candidateDetails.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <span className="text-4xl font-bold text-gray-400">
+                          {candidateDetails.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Details */}
+                    <div className={`flex-1 space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
+                      {candidateDetails.name && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Candidate Name:</span> {candidateDetails.name}
+                        </p>
+                      )}
+                      {candidateDetails.email && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Email:</span> {candidateDetails.email}
+                        </p>
+                      )}
+                      {candidateDetails.phoneNumber && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Phone Number:</span> {candidateDetails.phoneNumber}
+                        </p>
+                      )}
+                      {candidateDetails.status && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">Status:</span> {candidateDetails.status}
+                        </p>
+                      )}
+                      {candidateDetails.uaeResident !== null && candidateDetails.uaeResident !== undefined && (
+                        <p className="text-gray-700">
+                          <span className="font-medium">UAE Resident:</span> {candidateDetails.uaeResident ? "Yes" : "No"}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Documents Section */}
