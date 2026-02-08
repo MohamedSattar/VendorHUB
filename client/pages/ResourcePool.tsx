@@ -51,9 +51,9 @@ export default function ResourcePool() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-navy mb-2">Resource Pool</h1>
+          <h1 className="text-3xl font-bold text-navy mb-2">Resources</h1>
           <p className="text-gray-600">
-            Manage and view all resources with their assignment status
+            Manage and view all your resources with their assignment status, edit profiles, and upload documents
           </p>
         </div>
 
