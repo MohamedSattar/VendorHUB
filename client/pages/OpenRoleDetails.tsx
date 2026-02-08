@@ -65,6 +65,11 @@ export default function OpenRoleDetails() {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDetailsCollapsed, setIsDetailsCollapsed] = useState(false);
+  const [assignResourceMode, setAssignResourceMode] = useState<"existing" | "new" | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
