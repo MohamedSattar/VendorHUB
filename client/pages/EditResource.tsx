@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import AddResourceForm from "@/components/AddResourceForm";
 import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { ChevronLeft } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useContactDetails } from "@/hooks/useContactDetails";
 
 export default function EditResource() {
