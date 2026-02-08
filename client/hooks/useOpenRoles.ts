@@ -4,6 +4,7 @@ import { fetchOpenRoles, OpenRole } from "@/services/odata";
 /**
  * React Query hook for fetching open roles for an engagement
  * Handles loading, error, and caching states
+ * Returns data, error states, and refetch function for manual refresh
  */
 export function useOpenRoles(
   engagementId: string | undefined
@@ -12,7 +13,7 @@ export function useOpenRoles(
     queryKey: ["openRoles", engagementId],
     queryFn: () => (engagementId ? fetchOpenRoles(engagementId) : Promise.resolve([])),
     enabled: !!engagementId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Data is always considered stale to ensure fresh data
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,
   });
