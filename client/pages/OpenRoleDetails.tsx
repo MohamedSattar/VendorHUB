@@ -661,7 +661,7 @@ export default function OpenRoleDetails() {
                               <AddResourceForm
                                 ref={selectedResourceRef}
                                 mode="edit"
-                                resourceData={selectedResource}
+                                resourceData={selectedResource as CandidateDetail}
                                 contactId={selectedResource.id}
                               />
                             </div>
