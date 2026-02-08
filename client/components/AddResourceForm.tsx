@@ -11,7 +11,7 @@ export interface FormData {
   fullName: string;
   email: string;
   phoneNumber: string;
-  uaeResident: boolean;
+  uaeResident: boolean | null;
 }
 
 export interface AddResourceFormHandle {
