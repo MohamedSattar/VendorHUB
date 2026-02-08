@@ -223,6 +223,11 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
     fileInputRefs.current[docId]?.click();
   };
 
+  // When collapsed (and hideHeader is true, meaning parent controls collapse), don't render
+  if (isCollapsed && hideHeader) {
+    return null;
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {documents.map((doc) => {
