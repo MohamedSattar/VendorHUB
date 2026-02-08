@@ -211,7 +211,11 @@ export default function EditResource() {
 
           {/* Document Upload Section */}
           <div className="mb-12">
-            <DocumentUploadSection contactId={id} documentData={contactDetails} />
+            <DocumentUploadSection
+              contactId={id}
+              documentData={contactDetails}
+              uaeResident={contactDetails?.uaeResident}
+            />
           </div>
 
           {/* Action buttons */}
