@@ -1,29 +1,63 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
-import AddResourceForm from "@/components/AddResourceForm";
+import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
 import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { ChevronLeft } from "lucide-react";
 import { useContactDetails } from "@/hooks/useContactDetails";
+import { useToast } from "@/hooks/use-toast";
 
 export default function EditResource() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const formRef = useRef<AddResourceFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   // Fetch full contact details for editing
   const { data: contactDetails, isLoading, error } = useContactDetails(id);
 
   const handleSave = async () => {
+    if (!id || !formRef.current) return;
+
     setIsSaving(true);
     try {
-      // TODO: Implement actual save logic to backend
-      console.log("Saving resource:", id);
-      // After saving, redirect back to resources
+      const formData = formRef.current.getFormData();
+
+      const response = await fetch(`/api/odata/candidate-contact/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prmtk_id: formData.fullName,
+          prmtk_email: formData.email,
+          prmtk_phonenumber: formData.phoneNumber,
+          prmtk_uaeresident: formData.uaeResident,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save changes: ${response.statusText}`);
+      }
+
+      toast({
+        title: "Success",
+        description: "Resource updated successfully",
+      });
+
+      // Redirect back to resources after successful save
       setTimeout(() => {
         navigate("/resources");
-      }, 500);
+      }, 1000);
+    } catch (err) {
+      console.error("Error saving resource:", err);
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to save changes",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
