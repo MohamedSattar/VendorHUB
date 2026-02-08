@@ -86,11 +86,11 @@ export default function AddResource() {
 
           {/* Candidate Details and Documents Combined */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-12">
-            <AddResourceForm mode="new" />
+            <AddResourceForm ref={formRef} mode="new" />
 
             {/* Documents Section */}
             <div className="mt-8 pt-8 border-t border-gray-200">
-              <DocumentUploadSection hideHeader={true} />
+              <DocumentUploadSection ref={docsRef} hideHeader={true} />
             </div>
           </div>
 
