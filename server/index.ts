@@ -64,8 +64,17 @@ export function createServer() {
   app.get("/api/odata/engagement-contact-photo/:id", handleGetEngagementContactPhoto);
   app.get("/api/odata/candidate-contact/:id", handleGetCandidateContact);
   app.get("/api/odata/candidate-contact-photo/:id", handleGetCandidateContactPhoto);
-  // Route for document download: /api/odata/engagement-contact/:id/:fieldName/$value
-  app.get("/api/odata/engagement-contact/:id/:fieldName/*", handleGetEngagementContactDocument);
+  // Route for document download: /api/odata/engagement-contact/{id}/{fieldName}/$value
+  // Using regex to handle the $value part
+  app.get(/^\/api\/odata\/engagement-contact\/(.+?)\/(.+?)\/\$value$/, (req, res) => {
+    const id = req.params[0];
+    const fieldName = req.params[1];
+    const modifiedReq = {
+      ...req,
+      params: { id, fieldName },
+    } as any;
+    handleGetEngagementContactDocument(modifiedReq, res);
+  });
 
   return app;
 }
