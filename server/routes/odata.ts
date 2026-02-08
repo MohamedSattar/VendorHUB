@@ -656,7 +656,7 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
       return res.status(400).json({ error: "Contact ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})`;
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontact(${id})`;
 
     console.log("[OData Proxy] Updating Candidate Contact by ID:", id);
 
