@@ -64,6 +64,7 @@ export default function OpenRoleDetails() {
   }, [openRole, candidateDetails]);
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isDetailsCollapsed, setIsDetailsCollapsed] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
