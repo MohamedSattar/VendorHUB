@@ -81,7 +81,7 @@ export default function AddResource() {
                 onClick={() => navigate("/resources")}
                 className="px-6 py-3 border border-navy text-navy rounded-lg font-medium hover:bg-navy/5 transition"
               >
-                Cancel All
+                Cancel
               </button>
             </div>
             <button className="px-6 py-3 bg-navy text-white rounded-lg font-medium hover:bg-navy/90 transition flex items-center gap-2">
