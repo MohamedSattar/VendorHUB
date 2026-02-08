@@ -22,6 +22,7 @@ import {
   handleGetCandidateContactPhoto,
   handleGetEngagementContacts,
   handleGetEngagementContactPhoto,
+  handleGetEngagementContactDocument,
 } from "./routes/odata";
 
 export function createServer() {
