@@ -650,25 +650,61 @@ export default function OpenRoleDetails() {
                           </div>
                         )}
 
-                        {/* Selected Resource Preview */}
+                        {/* Selected Resource Edit Form */}
                         {selectedResource && (
-                          <div className="p-4 rounded-lg border-2 border-green-200 bg-green-50">
-                            <p className="text-sm text-gray-600 mb-2">Selected Resource:</p>
-                            <p className="font-semibold text-navy">{selectedResource.name}</p>
-                            <p className="text-sm text-gray-600">{selectedResource.email}</p>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                // Here we would assign the selected resource to the open role
-                                console.log("Assigning resource:", selectedResource);
-                                setSelectedResource(null);
-                                setSearchQuery("");
-                                setAssignResourceMode(null);
-                              }}
-                              className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                            >
-                              Confirm Assignment
-                            </button>
+                          <div className="mt-6 p-6 rounded-lg border-2 border-blue-200 bg-blue-50">
+                            <h4 className="text-lg font-semibold text-navy mb-4">Edit Resource Details</h4>
+                            <p className="text-sm text-gray-600 mb-6">Modify the resource details before assignment</p>
+
+                            {/* Resource Edit Form */}
+                            <div className="bg-white rounded-lg p-6 border border-gray-200">
+                              <AddResourceForm
+                                ref={selectedResourceRef}
+                                mode="edit"
+                                resourceData={selectedResource}
+                                contactId={selectedResource.id}
+                              />
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3 mt-6">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedResource(null);
+                                  setSearchQuery("");
+                                }}
+                                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                              >
+                                Back to Search
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  // Get updated form data and assign the resource
+                                  if (selectedResourceRef.current) {
+                                    const formData = selectedResourceRef.current.getFormData();
+                                    console.log("Assigning resource with updated data:", {
+                                      ...selectedResource,
+                                      ...formData
+                                    });
+
+                                    // Close the search and return to form
+                                    setSelectedResource(null);
+                                    setSearchQuery("");
+                                    setAssignResourceMode(null);
+
+                                    toast({
+                                      title: "Success",
+                                      description: "Resource assigned successfully.",
+                                    });
+                                  }
+                                }}
+                                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+                              >
+                                Confirm & Assign
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
