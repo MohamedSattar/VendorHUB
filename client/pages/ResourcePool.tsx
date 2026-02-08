@@ -1,15 +1,20 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import ResourceCard from "@/components/ResourceCard";
-import { Search, Loader } from "lucide-react";
+import EditResourceModal from "@/components/EditResourceModal";
+import { Search, Loader, Plus } from "lucide-react";
 import { useEngagementContacts } from "@/hooks/useEngagementContacts";
 import { EngagementContact } from "@/services/odata";
 
 export default function ResourcePool() {
+  const navigate = useNavigate();
   const { data: contacts = [], isLoading, isError, error } = useEngagementContacts();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"All" | "Assigned" | "Not Assigned">("All");
+  const [editingContact, setEditingContact] = useState<EngagementContact | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Filter and search contacts
   const filteredContacts = useMemo(() => {
@@ -29,6 +34,15 @@ export default function ResourcePool() {
     });
   }, [contacts, searchQuery, statusFilter]);
 
+  const handleEditContact = (contact: EngagementContact) => {
+    setEditingContact(contact);
+    setIsEditModalOpen(true);
+  };
+
+  const handleAddResource = () => {
+    navigate("/add-resource");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <DashboardHeader />
@@ -41,6 +55,17 @@ export default function ResourcePool() {
           <p className="text-gray-600">
             Manage and view all resources with their assignment status
           </p>
+        </div>
+
+        {/* Action Buttons Section */}
+        <div className="mb-6 flex gap-3 flex-wrap">
+          <button
+            onClick={handleAddResource}
+            className="flex items-center gap-2 bg-navy text-white px-6 py-2 rounded-lg font-medium hover:bg-navy/90 transition"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Resource
+          </button>
         </div>
 
         {/* Filters Section */}
@@ -112,7 +137,11 @@ export default function ResourcePool() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredContacts.map((contact) => (
-                    <ResourceCard key={contact.id} contact={contact} />
+                    <ResourceCard
+                      key={contact.id}
+                      contact={contact}
+                      onEdit={handleEditContact}
+                    />
                   ))}
                 </div>
               </>
@@ -130,6 +159,16 @@ export default function ResourcePool() {
       </main>
 
       <Footer />
+
+      {/* Edit Resource Modal */}
+      <EditResourceModal
+        isOpen={isEditModalOpen}
+        contact={editingContact}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingContact(null);
+        }}
+      />
     </div>
   );
 }
