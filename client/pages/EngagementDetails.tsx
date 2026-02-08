@@ -189,6 +189,48 @@ export default function EngagementDetails() {
     setIsEditMode(false);
   };
 
+  const handleSubmitEngagement = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`/api/odata/engagement/${id}/submit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          engagementId: id,
+          submittedAt: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit engagement");
+      }
+
+      toast({
+        title: "Success",
+        description: "Engagement has been submitted to ECA for processing.",
+      });
+
+      setShowSubmitConfirm(false);
+
+      // Refetch engagement data to reflect the new status
+      refetch();
+    } catch (error) {
+      console.error("Error submitting engagement:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit engagement. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Check if all open roles are ready for submission
+  const allRolesReady = openRoles.length > 0 && openRoles.every(role => role.readyForSubmission === true);
+
   if (!engagement) {
     return (
       <div className={`flex flex-col min-h-screen bg-gray-50 ${isArabic ? "rtl" : "ltr"}`}>
