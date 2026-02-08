@@ -24,7 +24,7 @@ export interface AddResourceFormHandle {
 }
 
 const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
-  function AddResourceForm({ mode = "new", resourceData }, ref) {
+  function AddResourceForm({ mode = "new", resourceData, isCollapsed: isCollapsedProp }, ref) {
     const [formData, setFormData] = useState<FormData>({
       fullName: "",
       email: "",
@@ -35,7 +35,11 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
     const [photoLoaded, setPhotoLoaded] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsedLocal, setIsCollapsedLocal] = useState(false);
+
+    // Use prop if provided, otherwise use local state
+    const isCollapsed = isCollapsedProp !== undefined ? isCollapsedProp : isCollapsedLocal;
+    const setIsCollapsed = isCollapsedProp !== undefined ? () => {} : setIsCollapsedLocal;
 
     // Validation functions
     const validateEmail = (email: string): boolean => {
