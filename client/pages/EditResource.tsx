@@ -5,21 +5,15 @@ import Footer from "@/components/Footer";
 import AddResourceForm from "@/components/AddResourceForm";
 import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { ChevronLeft } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchEngagementContacts } from "@/services/odata";
+import { useContactDetails } from "@/hooks/useContactDetails";
 
 export default function EditResource() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch all contacts and find the one we're editing
-  const { data: contacts = [], isLoading, error } = useQuery({
-    queryKey: ["engagementContacts"],
-    queryFn: () => fetchEngagementContacts(),
-  });
-
-  const resource = contacts.find((c) => c.id === id);
+  // Fetch full contact details for editing
+  const { data: contactDetails, isLoading, error } = useContactDetails(id);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -97,84 +91,88 @@ export default function EditResource() {
                 <p className="text-sm text-gray-600 mb-2">Home / Resources / Edit</p>
                 <h1 className="text-3xl font-bold text-navy">Edit Resource</h1>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600 mb-1">Resource:</p>
-                <p className="text-lg font-semibold text-navy">{resource.name}</p>
-              </div>
+              {contactDetails && (
+                <div className="text-right">
+                  <p className="text-sm text-gray-600 mb-1">Resource:</p>
+                  <p className="text-lg font-semibold text-navy">{contactDetails.name}</p>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Resource Info Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Photo */}
-              <div className="flex flex-col items-center">
-                <div className="w-32 h-32 rounded-lg bg-gray-200 overflow-hidden flex items-center justify-center mb-4">
-                  {resource.personalPhoto ? (
-                    <img
-                      src={resource.personalPhoto}
-                      alt={resource.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <span className="text-4xl font-bold text-gray-400">
-                      {resource.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                <button className="px-4 py-2 border border-gray-300 rounded text-gray-700 text-sm hover:bg-gray-100 transition">
-                  Change Photo
-                </button>
-              </div>
-
-              {/* Contact Info */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-4">Contact Information</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-500">Full Name</label>
-                    <p className="font-medium text-navy">{resource.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500">Email</label>
-                    <p className="font-medium text-navy">{resource.email || "—"}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500">Phone</label>
-                    <p className="font-medium text-navy">{resource.phoneNumber || "—"}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Status */}
-              <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-4">Status</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-500">Assignment Status</label>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                          resource.status === "Assigned"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-orange-100 text-orange-700"
-                        }`}
-                      >
-                        {resource.status}
+          {contactDetails && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Photo */}
+                <div className="flex flex-col items-center">
+                  <div className="w-32 h-32 rounded-lg bg-gray-200 overflow-hidden flex items-center justify-center mb-4">
+                    {contactDetails.personalPhoto ? (
+                      <img
+                        src={contactDetails.personalPhoto}
+                        alt={contactDetails.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span className="text-4xl font-bold text-gray-400">
+                        {contactDetails.name.charAt(0).toUpperCase()}
                       </span>
+                    )}
+                  </div>
+                  <button className="px-4 py-2 border border-gray-300 rounded text-gray-700 text-sm hover:bg-gray-100 transition">
+                    Change Photo
+                  </button>
+                </div>
+
+                {/* Contact Info */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-4">Contact Information</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500">Full Name</label>
+                      <p className="font-medium text-navy">{contactDetails.name}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Email</label>
+                      <p className="font-medium text-navy">{contactDetails.email || "—"}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Phone</label>
+                      <p className="font-medium text-navy">{contactDetails.phoneNumber || "—"}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-4">Status</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500">Assignment Status</label>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                            contactDetails.status === "Assigned"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-orange-100 text-orange-700"
+                          }`}
+                        >
+                          {contactDetails.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Form */}
           <div className="mb-12">
-            <AddResourceForm />
+            <AddResourceForm mode="edit" resourceData={contactDetails} />
           </div>
 
           {/* Document Upload Section */}
