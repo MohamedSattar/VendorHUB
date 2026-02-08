@@ -6,6 +6,7 @@ interface AddResourceFormProps {
   mode?: "new" | "edit";
   resourceData?: CandidateDetail | null;
   contactId?: string;
+  isCollapsed?: boolean;
 }
 
 export interface FormData {
