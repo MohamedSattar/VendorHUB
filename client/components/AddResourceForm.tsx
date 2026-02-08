@@ -37,7 +37,18 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     useImperativeHandle(ref, () => ({
       getFormData: () => formData,
       getUAEResident: () => formData.uaeResident,
-    }), [formData]);
+      isFormValid: () => {
+        // All required fields must be filled
+        return (
+          formData.fullName.trim() !== "" &&
+          formData.email.trim() !== "" &&
+          formData.phoneNumber.trim() !== "" &&
+          formData.uaeResident !== false && // Must explicitly select Yes or No
+          photoUrl !== null // Personal Photo is mandatory
+        );
+      },
+      getPhotoUrl: () => photoUrl,
+    }), [formData, photoUrl]);
 
     // Bind form fields from API data when in edit mode
     useEffect(() => {
