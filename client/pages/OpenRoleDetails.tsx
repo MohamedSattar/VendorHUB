@@ -119,13 +119,6 @@ export default function OpenRoleDetails() {
     setIsEditMode(false);
   };
 
-  const handleCandidateSave = () => {
-    toast({
-      title: "Success",
-      description: "Candidate details have been saved successfully.",
-    });
-    setShowCandidateForm(false);
-  };
 
   const handleCancel = () => {
     if (openRole) {
