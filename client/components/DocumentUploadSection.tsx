@@ -81,7 +81,7 @@ const documents: DocumentConfigExtended[] = [
   },
 ];
 
-export default function DocumentUploadSection({ contactId, documentData, uaeResident }: DocumentUploadSectionProps) {
+export default function DocumentUploadSection({ contactId, documentData, uaeResident, hideHeader = false }: DocumentUploadSectionProps) {
   // Create refs for file inputs
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
