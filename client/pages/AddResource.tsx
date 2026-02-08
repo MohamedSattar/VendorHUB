@@ -100,7 +100,7 @@ export default function AddResource() {
 
           {/* Form */}
           <div className="mb-8">
-            <AddResourceForm />
+            <AddResourceForm mode="new" />
           </div>
 
           {/* Document Upload Section */}
