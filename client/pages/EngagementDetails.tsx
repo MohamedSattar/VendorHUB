@@ -411,31 +411,11 @@ export default function EngagementDetails() {
 
               {/* Open Roles Section */}
               <div className="mb-8 pb-8 border-b border-gray-200">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-navy">Open Roles {openRoles.length > 0 && `(${openRoles.length})`}</h3>
-                    {allRolesReady && (
-                      <p className="text-sm text-green-600 mt-2">✓ All roles are ready for submission</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {isLoadingRoles && (
-                      <div className="flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4 text-primary animate-spin" />
-                        <span className="text-sm text-gray-600">Loading...</span>
-                      </div>
-                    )}
-                    {!isLoadingRoles && (
-                      <button
-                        onClick={() => refetchRoles()}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-primary border border-primary rounded-lg hover:bg-primary/5 transition"
-                        title="Refresh open roles data"
-                      >
-                        <RefreshCw className="w-4 h-4" />
-                        Refresh
-                      </button>
-                    )}
-                  </div>
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-navy">Open Roles {openRoles.length > 0 && `(${openRoles.length})`}</h3>
+                  {allRolesReady && (
+                    <p className="text-sm text-green-600 mt-2">✓ All roles are ready for submission</p>
+                  )}
                 </div>
 
                 {rolesError && (
