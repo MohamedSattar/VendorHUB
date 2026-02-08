@@ -36,14 +36,14 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     // Expose form data through ref
     useImperativeHandle(ref, () => ({
       getFormData: () => formData,
-      getUAEResident: () => formData.uaeResident,
+      getUAEResident: () => formData.uaeResident || false,
       isFormValid: () => {
         // All required fields must be filled
         return (
           formData.fullName.trim() !== "" &&
           formData.email.trim() !== "" &&
           formData.phoneNumber.trim() !== "" &&
-          formData.uaeResident !== false && // Must explicitly select Yes or No
+          formData.uaeResident !== null && // Must explicitly select Yes or No
           photoUrl !== null // Personal Photo is mandatory
         );
       },
