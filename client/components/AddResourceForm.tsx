@@ -37,9 +37,15 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isCollapsedLocal, setIsCollapsedLocal] = useState(false);
 
-    // Use prop if provided, otherwise use local state
-    const isCollapsed = isCollapsedProp !== undefined ? isCollapsedProp : isCollapsedLocal;
-    const setIsCollapsed = isCollapsedProp !== undefined ? () => {} : setIsCollapsedLocal;
+    // When isCollapsed prop is provided, it's controlled by parent
+    // Otherwise, manage it locally
+    const isControlled = isCollapsedProp !== undefined;
+    const isCollapsed = isControlled ? isCollapsedProp : isCollapsedLocal;
+    const setIsCollapsed = (value: boolean | ((prev: boolean) => boolean)) => {
+      if (!isControlled) {
+        setIsCollapsedLocal(typeof value === 'function' ? value(isCollapsedLocal) : value);
+      }
+    };
 
     // Validation functions
     const validateEmail = (email: string): boolean => {
