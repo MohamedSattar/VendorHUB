@@ -178,12 +178,32 @@ export default function AddResource() {
 
           {/* Candidate Details and Documents Combined */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-12">
-            <AddResourceForm ref={formRef} mode="new" />
+            {/* Collapsible Header for Candidate Details and Documents */}
+            <button
+              type="button"
+              onClick={() => setIsDetailsCollapsed(!isDetailsCollapsed)}
+              className="flex items-center gap-3 w-full text-left mb-6 hover:opacity-75 transition"
+              aria-expanded={!isDetailsCollapsed}
+            >
+              <ChevronDown
+                className={`w-5 h-5 text-navy transition-transform duration-200 flex-shrink-0 ${
+                  isDetailsCollapsed ? "-rotate-90" : ""
+                }`}
+              />
+              <h3 className="text-lg font-semibold text-navy">Candidate Details & Documents</h3>
+            </button>
 
-            {/* Documents Section */}
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <DocumentUploadSection ref={docsRef} hideHeader={true} />
-            </div>
+            {/* Collapsible Content */}
+            {!isDetailsCollapsed && (
+              <>
+                <AddResourceForm ref={formRef} mode="new" isCollapsed={isDetailsCollapsed} />
+
+                {/* Documents Section */}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <DocumentUploadSection ref={docsRef} hideHeader={true} isCollapsed={isDetailsCollapsed} />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Action buttons */}
