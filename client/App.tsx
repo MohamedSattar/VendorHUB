@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Resources from "./pages/Resources";
+import ResourcePool from "./pages/ResourcePool";
 import AddResource from "./pages/AddResource";
 import Engagements from "./pages/Engagements";
 import EngagementDetails from "./pages/EngagementDetails";
@@ -55,6 +56,7 @@ export default function App() {
                 <Route path="/engagement/:id" element={<EngagementDetails />} />
                 <Route path="/open-role/:id" element={<OpenRoleDetails />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/resource-pool" element={<ResourcePool />} />
                 <Route path="/add-resource" element={<AddResource />} />
                 <Route path="/profile" element={<Profile />} />
 
