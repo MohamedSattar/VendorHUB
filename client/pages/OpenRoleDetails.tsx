@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, X, RefreshCw, ChevronDown, Flag, Search, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
-import AddResourceForm from "@/components/AddResourceForm";
+import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
 import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOpenRoleDetails } from "@/hooks/useOpenRoleDetails";
 import { useCandidateDetails } from "@/hooks/useCandidateDetails";
 import { OpenRole, CandidateDetail, fetchEngagementContacts } from "@/services/odata";
-import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
 
 interface OpenRoleDetailsData extends OpenRole {}
 
