@@ -26,7 +26,7 @@ const documents: DocumentConfig[] = [
   { id: "police", label: "Police Clearance", apiField: "policeClearance", downloadField: "prmtk_policeclearance" },
 ];
 
-export default function DocumentUploadSection({ contactId, documentData }: DocumentUploadSectionProps) {
+export default function DocumentUploadSection({ contactId, documentData, uaeResident }: DocumentUploadSectionProps) {
   // Create refs for file inputs
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
