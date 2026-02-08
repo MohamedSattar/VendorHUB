@@ -496,23 +496,6 @@ export default function EngagementDetails() {
                     <p className="text-gray-500">No open roles found for this engagement</p>
                   </div>
                 )}
-
-                {/* Submit Engagement Button */}
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={() => setShowSubmitConfirm(true)}
-                    disabled={!allRolesReady || isSubmitting}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg transition font-medium shadow-md ${
-                      allRolesReady && !isSubmitting
-                        ? "bg-green-600 text-white hover:bg-green-700 hover:shadow-lg cursor-pointer"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
-                    }`}
-                    title={allRolesReady ? "Submit engagement to ECA" : "All roles must be ready for submission"}
-                  >
-                    <Flag className="w-5 h-5" />
-                    {isSubmitting ? "Submitting..." : "Submit Engagement"}
-                  </button>
-                </div>
               </div>
 
               {/* Metadata section */}
