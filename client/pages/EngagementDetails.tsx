@@ -115,6 +115,8 @@ export default function EngagementDetails() {
     (id && mockEngagements[id] ? mockEngagements[id] : null);
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editData, setEditData] = useState<Partial<EngagementDetailsData>>({
     name: engagement?.name,
     description: engagement?.description,
