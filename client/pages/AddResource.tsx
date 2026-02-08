@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
-import AddResourceForm from "@/components/AddResourceForm";
-import DocumentUploadSection from "@/components/DocumentUploadSection";
+import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
+import DocumentUploadSection, { DocumentUploadHandle } from "@/components/DocumentUploadSection";
 import ImportCVModal from "@/components/ImportCVModal";
 import { Plus } from "lucide-react";
 
 export default function AddResource() {
   const navigate = useNavigate();
+  const formRef = useRef<AddResourceFormHandle>(null);
+  const docsRef = useRef<DocumentUploadHandle>(null);
   const [activeResource, setActiveResource] = useState(1);
   const [resources, setResources] = useState([1]);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const handleAddResource = () => {
     const newResourceNum = Math.max(...resources) + 1;
