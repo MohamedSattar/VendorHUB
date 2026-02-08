@@ -329,10 +329,25 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
                     onClick={() => triggerFileInput(doc.id)}
                     className="px-3 py-2 border border-navy text-navy text-xs rounded hover:bg-navy/5 transition"
                   >
-                    {isUploaded ? "Update" : "Upload"}
+                    {hasLocalFile ? "Change" : isUploaded ? "Update" : "Upload"}
                   </button>
                 </div>
-                {isUploaded && (
+                {hasLocalFile && (
+                  <button
+                    onClick={() => {
+                      setUpdatedFiles((prev) => {
+                        const newFiles = { ...prev };
+                        delete newFiles[doc.id];
+                        return newFiles;
+                      });
+                    }}
+                    className="p-2 text-orange-600 hover:bg-orange-50 rounded transition"
+                    title="Remove selected file"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                {isUploaded && !hasLocalFile && (
                   <button
                     onClick={() => {
                       setUpdatedFiles((prev) => {
@@ -342,7 +357,7 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
                       });
                     }}
                     className="p-2 text-red-600 hover:bg-red-50 rounded transition"
-                    title="Delete"
+                    title="Delete uploaded file"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
