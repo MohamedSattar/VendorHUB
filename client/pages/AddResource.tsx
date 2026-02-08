@@ -47,6 +47,15 @@ export default function AddResource() {
     setIsFormValid(validateForm());
   };
 
+  // Set up interval to check form validity frequently
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsFormValid(validateForm());
+    }, 500); // Check every 500ms
+
+    return () => clearInterval(interval);
+  }, [formRef, docsRef]);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <DashboardHeader />
