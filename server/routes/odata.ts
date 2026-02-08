@@ -373,6 +373,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
       `$orderby=prmtk_id%20asc`;
 
     console.log("[OData Proxy] Fetching all Engagement Contacts from Power Apps");
+    console.log("[OData Proxy] URL:", url);
 
     const response = await fetch(url, {
       method: "GET",
@@ -383,6 +384,9 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
     });
 
     if (!response.ok) {
+      console.error(`[OData Proxy] API returned status ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error("[OData Proxy] Error response:", errorText);
       throw new Error(
         `OData API returned ${response.status}: ${response.statusText}`
       );
@@ -394,6 +398,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
       status: response.status,
       hasValue: !!data.value,
       itemCount: data.value ? data.value.length : 0,
+      firstItem: data.value && data.value.length > 0 ? data.value[0] : null,
     });
 
     // Add cache headers for performance
