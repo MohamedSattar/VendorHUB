@@ -162,10 +162,7 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-navy mb-6">Documents</h3>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {documents.map((doc) => {
           // Check if document has a value from API
           const isUploaded = documentData && documentData[doc.apiField];
@@ -282,7 +279,6 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
             </div>
           );
         })}
-      </div>
     </div>
   );
 }
