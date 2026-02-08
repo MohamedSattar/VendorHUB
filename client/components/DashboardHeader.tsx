@@ -25,6 +25,12 @@ export default function DashboardHeader() {
               Engagements
             </Link>
             <Link
+              to="/resource-pool"
+              className="text-navy font-medium hover:text-primary transition"
+            >
+              Resource Pool
+            </Link>
+            <Link
               to="/resources"
               className="text-navy font-medium hover:text-primary transition"
             >
