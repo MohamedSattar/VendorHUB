@@ -818,24 +818,34 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
 
     const data: { value: ODataEngagementContact[] } = await response.json();
 
+    console.log("[OData] Raw API response:", {
+      hasValue: !!data.value,
+      itemCount: data.value?.length || 0,
+      firstItem: data.value?.[0],
+    });
+
     // Transform OData response to our EngagementContact format
     const contacts: EngagementContact[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
-      .map((item: any) => ({
-        id: item.prmtk_engagementcontactid,
-        name: item.prmtk_id,
-        email: item.prmtk_email,
-        phoneNumber: item.prmtk_phonenumber,
-        // Construct photo URL to fetch the actual image via backend proxy
-        personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
-        // If engagement ID is present, contact is assigned; otherwise not assigned
-        status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
-        engagementId: item._prmtk_engagement_value,
-        createdOn: item.createdon,
-        modifiedOn: item.modifiedon,
-      }));
+      .map((item: any) => {
+        const transformed = {
+          id: item.prmtk_engagementcontactid,
+          name: item.prmtk_id,
+          email: item.prmtk_email,
+          phoneNumber: item.prmtk_phonenumber,
+          // Construct photo URL to fetch the actual image via backend proxy
+          personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
+          // If engagement ID is present, contact is assigned; otherwise not assigned
+          status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
+          engagementId: item._prmtk_engagement_value,
+          createdOn: item.createdon,
+          modifiedOn: item.modifiedon,
+        };
+        console.log("[OData] Transformed contact:", transformed);
+        return transformed;
+      });
 
-    console.log("[OData] Fetched Engagement Contacts:", contacts.length);
+    console.log("[OData] Fetched Engagement Contacts:", contacts.length, contacts);
 
     return contacts;
   } catch (error) {
