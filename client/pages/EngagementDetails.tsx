@@ -428,19 +428,6 @@ export default function EngagementDetails() {
                   </div>
                 </div>
               </div>
-
-              {/* Action buttons */}
-              <div className="flex gap-4 mt-8 pt-8 border-t border-gray-200">
-                <button
-                  onClick={() => setIsEditMode(true)}
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
-                >
-                  Edit Engagement
-                </button>
-                <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
-                  Close Engagement
-                </button>
-              </div>
             </div>
           ) : (
             /* EDIT MODE */
