@@ -64,6 +64,7 @@ export function createServer() {
   app.get("/api/odata/engagement-contacts", handleGetEngagementContacts);
   app.get("/api/odata/engagement-contact-photo/:id", handleGetEngagementContactPhoto);
   app.get("/api/odata/candidate-contact/:id", handleGetCandidateContact);
+  app.patch("/api/odata/candidate-contact/:id", handleUpdateCandidateContact);
   app.get("/api/odata/candidate-contact-photo/:id", handleGetCandidateContactPhoto);
   // Route for document download: /api/odata/engagement-contact/{id}/{fieldName}/$value
   // Using regex to handle the $value part
