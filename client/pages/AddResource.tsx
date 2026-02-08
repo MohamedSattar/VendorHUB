@@ -188,7 +188,13 @@ export default function AddResource() {
           <div className="flex justify-between items-center gap-4 mb-8">
             <div className="flex gap-4">
               <button
-                onClick={() => navigate("/resources")}
+                onClick={() => {
+                  if (hasUnsavedChanges) {
+                    setShowCancelConfirm(true);
+                  } else {
+                    navigate("/resources");
+                  }
+                }}
                 className="px-6 py-3 border border-navy text-navy rounded-lg font-medium hover:bg-navy/5 transition"
               >
                 Cancel
