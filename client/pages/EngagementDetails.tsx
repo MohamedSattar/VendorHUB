@@ -669,6 +669,25 @@ export default function EngagementDetails() {
             </div>
           )}
 
+          {/* Submit Engagement Button - Outside the engagement details box */}
+          {!isEditMode && openRoles.length > 0 && (
+            <div className="mt-8">
+              <button
+                onClick={() => setShowSubmitConfirm(true)}
+                disabled={!allRolesReady || isSubmitting}
+                className={`w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg transition font-medium shadow-md text-lg ${
+                  allRolesReady && !isSubmitting
+                    ? "bg-green-600 text-white hover:bg-green-700 hover:shadow-lg cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                }`}
+                title={allRolesReady ? "Submit engagement to ECA" : "All roles must be ready for submission"}
+              >
+                <Flag className="w-6 h-6" />
+                {isSubmitting ? "Submitting..." : "Submit Engagement"}
+              </button>
+            </div>
+          )}
+
           {/* Submit Confirmation Modal */}
           {showSubmitConfirm && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
