@@ -34,6 +34,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     // Expose form data through ref
     useImperativeHandle(ref, () => ({
       getFormData: () => formData,
+      getUAEResident: () => formData.uaeResident,
     }), [formData]);
 
     // Bind form fields from API data when in edit mode
