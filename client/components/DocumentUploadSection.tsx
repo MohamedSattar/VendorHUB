@@ -146,6 +146,7 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
         return allMandatoryUploaded && emiratesIdValid;
       },
       getMandatoryDocuments: () => mandatoryDocIds,
+      getUpdatedFiles: () => updatedFiles,
     }), [documentData, updatedFiles]);
 
   const handleDownload = (downloadField: string) => {
