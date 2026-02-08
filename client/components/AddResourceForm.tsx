@@ -76,8 +76,6 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         {/* Candidate Details Section */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-navy mb-6">Candidate Details</h3>
-
           {/* Personal Photo */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-navy mb-3">
