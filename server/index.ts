@@ -64,6 +64,7 @@ export function createServer() {
   app.get("/api/odata/engagement-contact-photo/:id", handleGetEngagementContactPhoto);
   app.get("/api/odata/candidate-contact/:id", handleGetCandidateContact);
   app.get("/api/odata/candidate-contact-photo/:id", handleGetCandidateContactPhoto);
+  app.get("/api/odata/engagement-contact/:id/:fieldName/*", handleGetEngagementContactDocument);
 
   return app;
 }
