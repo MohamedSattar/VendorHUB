@@ -4,6 +4,7 @@ import { CandidateDetail } from "@/services/odata";
 interface AddResourceFormProps {
   mode?: "new" | "edit";
   resourceData?: CandidateDetail | null;
+  contactId?: string;
 }
 
 interface FormData {
