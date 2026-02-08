@@ -44,7 +44,7 @@ export default function EditResource() {
     );
   }
 
-  if (error || !resource) {
+  if (error || !contactDetails) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <DashboardHeader />
