@@ -96,13 +96,42 @@ export default function DocumentUploadSection({ contactId, documentData }: Docum
                     <Download className="w-4 h-4" />
                   </button>
                 )}
-                <button
-                  className="px-3 py-2 border border-navy text-navy text-xs rounded hover:bg-navy/5 transition cursor-not-allowed opacity-50"
-                  disabled
-                  title="Upload via API"
-                >
-                  {isUploaded ? "Update" : "Upload"}
-                </button>
+                <div className="relative">
+                  <input
+                    ref={(el) => {
+                      if (el) fileInputRefs.current[doc.id] = el;
+                    }}
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleFileSelect(doc.id, file);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => triggerFileInput(doc.id)}
+                    className="px-3 py-2 border border-navy text-navy text-xs rounded hover:bg-navy/5 transition"
+                  >
+                    {isUploaded ? "Update" : "Upload"}
+                  </button>
+                </div>
+                {isUploaded && (
+                  <button
+                    onClick={() => {
+                      setUpdatedFiles((prev) => {
+                        const newFiles = { ...prev };
+                        delete newFiles[doc.id];
+                        return newFiles;
+                      });
+                    }}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded transition"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           );
