@@ -134,17 +134,7 @@ export default function OpenRoleDetails() {
         proposedSalary: openRole.proposedSalary,
       });
     }
-    if (candidateDetails) {
-      setEditCandidateData({
-        name: candidateDetails.name,
-        email: candidateDetails.email,
-        phoneNumber: candidateDetails.phoneNumber,
-        status: candidateDetails.status,
-        uaeResident: candidateDetails.uaeResident,
-      });
-    }
     setIsEditMode(false);
-    setShowCandidateForm(false);
   };
 
   if (!openRole && !isLoading) {
