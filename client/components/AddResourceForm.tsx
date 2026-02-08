@@ -27,7 +27,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
       fullName: "",
       email: "",
       phoneNumber: "",
-      uaeResident: false,
+      uaeResident: null,
     });
 
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
