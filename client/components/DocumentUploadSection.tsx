@@ -88,12 +88,36 @@ const documents: DocumentConfigExtended[] = [
   },
 ];
 
-export default function DocumentUploadSection({ contactId, documentData, uaeResident, hideHeader = false }: DocumentUploadSectionProps) {
-  // Create refs for file inputs
-  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
-  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
-  const [templateLoading, setTemplateLoading] = useState(false);
+const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSectionProps>(
+  function DocumentUploadSection({ contactId, documentData, uaeResident, hideHeader = false }, ref) {
+    // Create refs for file inputs
+    const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+    const [updatedFiles, setUpdatedFiles] = useState<Record<string, File>>({});
+    const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
+    const [templateLoading, setTemplateLoading] = useState(false);
+
+    // Mandatory documents
+    const mandatoryDocIds = ["cv", "introduction", "passport", "education"];
+
+    // Expose validation through ref
+    useImperativeHandle(ref, () => ({
+      areDocumentsValid: (uaeResidentValue: boolean | null) => {
+        // All mandatory documents must be uploaded
+        const allMandatoryUploaded = mandatoryDocIds.every(docId => {
+          const doc = documents.find(d => d.id === docId);
+          if (!doc) return false;
+          return documentData && documentData[doc.apiField];
+        });
+
+        // If UAE Resident is Yes, Emirates ID must also be uploaded
+        const emiratesIdValid = uaeResidentValue === true
+          ? documentData && documentData.eid
+          : true;
+
+        return allMandatoryUploaded && emiratesIdValid;
+      },
+      getMandatoryDocuments: () => mandatoryDocIds,
+    }), [documentData]);
 
   const handleDownload = (downloadField: string) => {
     if (!contactId) return;
@@ -288,4 +312,7 @@ export default function DocumentUploadSection({ contactId, documentData, uaeResi
         })}
     </div>
   );
-}
+  }
+);
+
+export default DocumentUploadSection;
