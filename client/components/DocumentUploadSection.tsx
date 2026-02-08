@@ -203,7 +203,7 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
           const bgColor = isRequired && !isUploaded
             ? "bg-red-50"
             : isUploaded
-            ? "bg-white"
+            ? "bg-green-50"
             : "bg-yellow-50";
           const borderColor = isRequired && !isUploaded
             ? "border-red-300"
