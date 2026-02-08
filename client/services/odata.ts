@@ -825,7 +825,8 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
         name: item.prmtk_id,
         email: item.prmtk_email,
         phoneNumber: item.prmtk_phonenumber,
-        personalPhoto: item.prmtk_personalphoto,
+        // Construct photo URL to fetch the actual image via backend proxy
+        personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
         // If engagement ID is present, contact is assigned; otherwise not assigned
         status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
         engagementId: item._prmtk_engagement_value,
