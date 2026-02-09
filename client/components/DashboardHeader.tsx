@@ -2,10 +2,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Bell, Settings } from "lucide-react";
 import ECALogo from "@/components/ECALogo";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
   const { language, setLanguage, isArabic } = useLanguage();
+  const { data: notifications = [] } = useNotifications();
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
