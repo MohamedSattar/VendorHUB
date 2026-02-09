@@ -32,6 +32,27 @@ const parseDate = (dateString: string): string => {
   return dateString;
 };
 
+const getStatusColor = (status: string): { bg: string; text: string; border: string } => {
+  if (!status) return { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" };
+
+  const statusLower = status.toLowerCase();
+
+  if (statusLower.includes("active") || statusLower.includes("in progress")) {
+    return { bg: "bg-green-100", text: "text-green-700", border: "border-green-300" };
+  }
+  if (statusLower.includes("pending") || statusLower.includes("draft")) {
+    return { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-300" };
+  }
+  if (statusLower.includes("completed") || statusLower.includes("closed")) {
+    return { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-300" };
+  }
+  if (statusLower.includes("canceled") || statusLower.includes("cancelled") || statusLower.includes("reject")) {
+    return { bg: "bg-red-100", text: "text-red-700", border: "border-red-300" };
+  }
+
+  return { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-300" };
+};
+
 const formatDateOnly = (dateString: string): string => {
   if (!dateString) return "N/A";
   try {
