@@ -290,9 +290,12 @@ const DocumentUploadSection = forwardRef<DocumentUploadHandle, DocumentUploadSec
                     {hasLocalFile.name} (pending upload)
                   </p>
                 ) : isUploaded ? (
-                  <p className="text-xs text-blue-600 break-words">
+                  <button
+                    onClick={() => handleDownload(doc.downloadField)}
+                    className="text-xs text-blue-600 break-words hover:underline cursor-pointer font-medium hover:text-blue-800 transition"
+                  >
                     {fileName}
-                  </p>
+                  </button>
                 ) : isRequired ? (
                   <p className="text-xs text-red-600 font-medium">Required - Not uploaded</p>
                 ) : (
