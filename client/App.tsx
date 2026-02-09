@@ -58,6 +58,7 @@ export default function App() {
                 <Route path="/add-resource" element={<AddResource />} />
                 <Route path="/edit-resource/:id" element={<EditResource />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/notifications" element={<Notifications />} />
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
