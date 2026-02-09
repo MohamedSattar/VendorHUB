@@ -853,3 +853,45 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
     throw error;
   }
 }
+
+/**
+ * Update an open role with a selected candidate assignment
+ */
+export async function assignCandidateToOpenRole(
+  openRoleId: string,
+  candidateId: string,
+  candidateName: string,
+  formData?: {
+    fullName?: string;
+    email?: string;
+    phoneNumber?: string;
+    uaeResident?: boolean | null;
+  }
+): Promise<OpenRole> {
+  try {
+    const response = await fetch(`/api/odata/open-role/${openRoleId}/assign-candidate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        candidateId,
+        candidateName,
+        candidateContactId: candidateId,
+        formData,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to assign candidate");
+    }
+
+    const data = await response.json();
+    console.log("[OData] Successfully assigned candidate to open role:", data);
+    return data;
+  } catch (error) {
+    console.error("[OData] Error assigning candidate:", error);
+    throw error;
+  }
+}
