@@ -32,6 +32,27 @@ const parseDate = (dateString: string): string => {
   return dateString;
 };
 
+const formatReadableDate = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 export default function OpenRoleDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
