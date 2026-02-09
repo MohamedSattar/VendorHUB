@@ -316,24 +316,37 @@ export default function OpenRoleDetails() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
               {/* Header section */}
               <div className="mb-8 pb-8 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-navy mb-4">{openRole.name}</h2>
+                <div className="flex items-start justify-between gap-4 mb-6">
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-navy">{openRole.name}</h2>
+                  </div>
+                  {/* Status Badge - Prominent Position */}
+                  {openRole.status && (
+                    <div className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm whitespace-nowrap ${getStatusColor(openRole.status).bg} ${getStatusColor(openRole.status).text} ${getStatusColor(openRole.status).border}`}>
+                      {openRole.status}
+                    </div>
+                  )}
+                </div>
+
+                {/* Ready for Submission Badge - Also prominent */}
+                <div className="mb-6">
+                  <span className={`inline-block px-4 py-2 rounded-lg font-semibold text-sm ${
+                    openRole.readyForSubmission
+                      ? "bg-green-100 text-green-700 border-2 border-green-300"
+                      : "bg-orange-100 text-orange-700 border-2 border-orange-300"
+                  }`}>
+                    {openRole.readyForSubmission ? "✓ Ready for Submission" : "⟳ Not Ready for Submission"}
+                  </span>
+                </div>
+
                 <div className={`space-y-2 ${isArabic ? "text-right" : "text-left"}`}>
                   {openRole.candidateName && (
                     <p className="text-gray-700">
-                      <span className="font-medium">Candidate:</span> {openRole.candidateName}
+                      <span className="font-medium">Assigned Candidate:</span> {openRole.candidateName}
                     </p>
                   )}
                   <p className="text-gray-700">
                     <span className="font-medium">Expected Start Date:</span> {formatDateOnly(openRole.expectedStartDate)}
-                  </p>
-                  <p className="text-gray-700">
-                    <span className="font-medium">Status:</span> {openRole.status}
-                  </p>
-                  <p className="text-gray-700">
-                    <span className="font-medium">Ready for Submission:</span>{" "}
-                    <span className={openRole.readyForSubmission ? "text-green-600 font-semibold" : "text-amber-600 font-semibold"}>
-                      {openRole.readyForSubmission ? "Yes" : "No"}
-                    </span>
                   </p>
                 </div>
               </div>
