@@ -23,6 +23,7 @@ import FAQ from "./pages/FAQ";
 import Manuals from "./pages/Manuals";
 import SupplierApplication from "./pages/SupplierApplication";
 import DebugAPI from "./pages/DebugAPI";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
