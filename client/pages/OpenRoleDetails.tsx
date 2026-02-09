@@ -32,6 +32,22 @@ const parseDate = (dateString: string): string => {
   return dateString;
 };
 
+const formatDateOnly = (dateString: string): string => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 const formatReadableDate = (dateString: string): string => {
   if (!dateString) return "N/A";
   try {
