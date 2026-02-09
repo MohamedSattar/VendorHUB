@@ -25,6 +25,7 @@ import {
   handleGetEngagementContactDocument,
   handleCreateEngagementContact,
   handleUpdateCandidateContact,
+  handleAssignCandidateToOpenRole,
 } from "./routes/odata";
 
 export function createServer() {
