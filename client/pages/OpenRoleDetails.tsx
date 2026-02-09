@@ -760,27 +760,51 @@ export default function OpenRoleDetails() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => {
+                                onClick={async () => {
                                   // Get updated form data and assign the resource
-                                  if (selectedResourceRef.current) {
-                                    const formData = selectedResourceRef.current.getFormData();
-                                    console.log("Assigning resource with updated data:", {
-                                      ...selectedResource,
-                                      ...formData
+                                  if (!selectedResourceRef.current || !selectedResource) {
+                                    toast({
+                                      title: "Error",
+                                      description: "No candidate selected",
+                                      variant: "destructive",
                                     });
+                                    return;
+                                  }
+
+                                  try {
+                                    const formData = selectedResourceRef.current.getFormData();
+
+                                    // Call API to assign candidate
+                                    await assignCandidateToOpenRole(
+                                      openRole.id,
+                                      selectedResource.id,
+                                      selectedResource.name,
+                                      formData
+                                    );
+
+                                    toast({
+                                      title: "Success",
+                                      description: "Candidate assigned successfully!",
+                                    });
+
+                                    // Refetch the data to reload the form
+                                    await refetch();
 
                                     // Close the search and return to form
                                     setSelectedResource(null);
                                     setSearchQuery("");
                                     setAssignResourceMode(null);
-
+                                  } catch (error) {
+                                    const errorMessage = error instanceof Error ? error.message : "Failed to assign candidate";
                                     toast({
-                                      title: "Success",
-                                      description: "Resource assigned successfully.",
+                                      title: "Error",
+                                      description: errorMessage,
+                                      variant: "destructive",
                                     });
+                                    console.error("Assignment error:", error);
                                   }
                                 }}
-                                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+                                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Confirm & Assign
                               </button>
