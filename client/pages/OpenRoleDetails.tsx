@@ -303,7 +303,7 @@ export default function OpenRoleDetails() {
                     </p>
                   )}
                   <p className="text-gray-700">
-                    <span className="font-medium">Expected Start Date:</span> {openRole.expectedStartDate}
+                    <span className="font-medium">Expected Start Date:</span> {formatDateOnly(openRole.expectedStartDate)}
                   </p>
                   <p className="text-gray-700">
                     <span className="font-medium">Status:</span> {openRole.status}
