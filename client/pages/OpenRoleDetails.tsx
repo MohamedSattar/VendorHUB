@@ -9,7 +9,7 @@ import DocumentUploadSection from "@/components/DocumentUploadSection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOpenRoleDetails } from "@/hooks/useOpenRoleDetails";
 import { useCandidateDetails } from "@/hooks/useCandidateDetails";
-import { OpenRole, CandidateDetail, fetchEngagementContacts } from "@/services/odata";
+import { OpenRole, CandidateDetail, fetchEngagementContacts, assignCandidateToOpenRole } from "@/services/odata";
 
 interface OpenRoleDetailsData extends OpenRole {}
 
