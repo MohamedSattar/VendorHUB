@@ -102,15 +102,20 @@ export default function NotificationsList({
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
+    // For recent items, show relative time
     if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
 
+    // For older items, show full date
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
