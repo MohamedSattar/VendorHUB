@@ -428,11 +428,11 @@ export default function OpenRoleDetails() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Created On</p>
-                    <p className="text-gray-900 font-medium">{openRole.createdOn}</p>
+                    <p className="text-gray-900 font-medium">{formatReadableDate(openRole.createdOn)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Last Modified</p>
-                    <p className="text-gray-900 font-medium">{openRole.modifiedOn}</p>
+                    <p className="text-gray-900 font-medium">{formatReadableDate(openRole.modifiedOn)}</p>
                   </div>
                 </div>
               </div>
