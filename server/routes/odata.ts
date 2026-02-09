@@ -785,3 +785,75 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
     });
   }
 };
+
+/**
+ * Assign a candidate to an open role
+ * POST /api/odata/open-role/:id/assign-candidate
+ */
+export const handleAssignCandidateToOpenRole: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { candidateId, candidateName, candidateContactId, formData } = req.body;
+
+    if (!id || !candidateId) {
+      return res.status(400).json({
+        error: "Missing required fields: id and candidateId",
+      });
+    }
+
+    console.log("[OData Proxy] Assigning candidate to open role:", {
+      openRoleId: id,
+      candidateId,
+      candidateName,
+    });
+
+    // Update the open role with the assigned candidate
+    const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
+
+    const updatePayload: Record<string, any> = {
+      "_prmtk_candidate_value": candidateId,
+      "prmtk_name": candidateName,
+    };
+
+    // If form data is provided, update candidate contact with new information
+    if (formData) {
+      console.log("[OData Proxy] Form data provided for candidate update:", formData);
+      // Could add additional fields here if needed
+    }
+
+    const updateResponse = await fetch(updateUrl, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.error("[OData Proxy] Update failed:", updateResponse.status, errorText);
+      throw new Error(
+        `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`
+      );
+    }
+
+    console.log("[OData Proxy] Successfully assigned candidate to open role");
+
+    // Return the updated open role
+    res.json({
+      success: true,
+      message: "Candidate assigned successfully",
+      openRoleId: id,
+      candidateId: candidateId,
+      candidateName: candidateName,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Assign Candidate Error:", error);
+    res.status(500).json({
+      error: "Failed to assign candidate to open role",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
