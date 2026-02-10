@@ -1187,25 +1187,49 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 
     const updatedContact: any = await fetchResponse.json();
 
-    // Try to fetch related vendor information
+    // Try to fetch related vendor information using bridge table
+    // Query prmtk_vendorcontactses to find the vendor associated with this contact
     let vendorName = null;
     let vendorId = null;
 
     try {
-      const vendorQueryUrl = `${ODATA_BASE_URL}/prmtk_vendors?$filter=prmtk_contact eq ${id}&$select=prmtk_vendorid,prmtk_name&$top=1`;
+      // First, query the bridge table prmtk_vendorcontactses to find vendor contacts
+      // This table links contacts to vendors through the prmtk_engagement_VendorContactPerson_contact relationship
+      const bridgeQueryUrl = `${ODATA_BASE_URL}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${id}&$select=_prmtk_vendor_value&$top=1`;
 
-      const vendorResponse = await makeAuthenticatedRequest(vendorQueryUrl, {
+      console.log("[OData Proxy] Querying bridge table:", bridgeQueryUrl);
+
+      const bridgeResponse = await makeAuthenticatedRequest(bridgeQueryUrl, {
         method: "GET",
         headers: {
           Accept: "application/json",
         },
       });
 
-      if (vendorResponse.ok) {
-        const vendorData = await vendorResponse.json();
-        if (vendorData.value && vendorData.value.length > 0) {
-          vendorName = vendorData.value[0].prmtk_name;
-          vendorId = vendorData.value[0].prmtk_vendorid;
+      if (bridgeResponse.ok) {
+        const bridgeData = await bridgeResponse.json();
+        if (bridgeData.value && bridgeData.value.length > 0) {
+          const vendorLookupId = bridgeData.value[0]._prmtk_vendor_value;
+          console.log("[OData Proxy] Found vendor ID from bridge table:", vendorLookupId);
+
+          // Now query the vendor details using the vendor ID from bridge table
+          if (vendorLookupId) {
+            const vendorDetailUrl = `${ODATA_BASE_URL}/prmtk_vendors(${vendorLookupId})?$select=prmtk_vendorid,prmtk_name`;
+
+            const vendorDetailResponse = await makeAuthenticatedRequest(vendorDetailUrl, {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+              },
+            });
+
+            if (vendorDetailResponse.ok) {
+              const vendorDetail = await vendorDetailResponse.json();
+              vendorName = vendorDetail.prmtk_name;
+              vendorId = vendorDetail.prmtk_vendorid;
+              console.log("[OData Proxy] Vendor details retrieved:", { vendorId, vendorName });
+            }
+          }
         }
       }
     } catch (vendorError) {

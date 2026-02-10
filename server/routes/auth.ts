@@ -693,25 +693,45 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
 
     const contact: any = data.value[0];
 
-    // Try to fetch related vendor information
-    // Query for vendors where contact_prmtk_vendor_contact points to this contact
+    // Try to fetch related vendor information using bridge table
+    // Query prmtk_vendorcontactses to find the vendor associated with this contact
     let vendorName = null;
     let vendorId = null;
 
     try {
-      const vendorQueryUrl = `${API_ENDPOINT}/prmtk_vendors?$filter=prmtk_contact eq ${contact.contactid}&$select=prmtk_vendorid,prmtk_name&$top=1`;
+      // First, query the bridge table prmtk_vendorcontactses to find vendor contacts
+      // This table links contacts to vendors through the prmtk_engagement_VendorContactPerson_contact relationship
+      const bridgeQueryUrl = `${API_ENDPOINT}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${contact.contactid}&$select=_prmtk_vendor_value&$top=1`;
 
-      const vendorResponse = await fetch(vendorQueryUrl, {
+      console.log("[Auth] Querying bridge table:", bridgeQueryUrl);
+
+      const bridgeResponse = await fetch(bridgeQueryUrl, {
         method: "GET",
         headers: authHeaders,
       });
 
-      if (vendorResponse.ok) {
-        const vendorData = await vendorResponse.json();
-        if (vendorData.value && vendorData.value.length > 0) {
-          vendorName = vendorData.value[0].prmtk_name;
-          vendorId = vendorData.value[0].prmtk_vendorid;
-          console.log("[Auth] Vendor found:", { vendorId, vendorName });
+      if (bridgeResponse.ok) {
+        const bridgeData = await bridgeResponse.json();
+        if (bridgeData.value && bridgeData.value.length > 0) {
+          const vendorLookupId = bridgeData.value[0]._prmtk_vendor_value;
+          console.log("[Auth] Found vendor ID from bridge table:", vendorLookupId);
+
+          // Now query the vendor details using the vendor ID from bridge table
+          if (vendorLookupId) {
+            const vendorDetailUrl = `${API_ENDPOINT}/prmtk_vendors(${vendorLookupId})?$select=prmtk_vendorid,prmtk_name`;
+
+            const vendorDetailResponse = await fetch(vendorDetailUrl, {
+              method: "GET",
+              headers: authHeaders,
+            });
+
+            if (vendorDetailResponse.ok) {
+              const vendorDetail = await vendorDetailResponse.json();
+              vendorName = vendorDetail.prmtk_name;
+              vendorId = vendorDetail.prmtk_vendorid;
+              console.log("[Auth] Vendor details retrieved:", { vendorId, vendorName });
+            }
+          }
         }
       }
     } catch (vendorError) {
