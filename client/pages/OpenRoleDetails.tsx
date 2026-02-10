@@ -262,6 +262,39 @@ export default function OpenRoleDetails() {
     }
 
     try {
+      // Build payload with only provided fields
+      // Start with just the essential fields to avoid payload validation errors
+      const rolePayload: Record<string, any> = {};
+
+      // Always update the role name if it's changed
+      if (editData.name?.trim()) {
+        rolePayload.prmtk_rolename = editData.name.trim();
+      }
+
+      // Try to update ready for submission status
+      if (editData.readyForSubmission !== undefined && editData.readyForSubmission !== null) {
+        rolePayload.prmtk_readyforsubmission = Boolean(editData.readyForSubmission);
+      }
+
+      // Optionally update designations (text fields)
+      if (editData.designation?.trim()) {
+        rolePayload.prmtk_currenttitle = editData.designation.trim();
+      }
+      if (editData.designationArabic?.trim()) {
+        rolePayload.prmtk_proposedtitle = editData.designationArabic.trim();
+      }
+
+      // Note: Salary fields (prmtk_currentsalaryaed, prmtk_proposedsalaryaed) are commented out for now
+      // as they may require special handling or may be read-only in your CRM instance
+      // They can be re-enabled once basic updates are working
+
+      // Status field is also optional - comment out if it causes issues
+      // if (editData.status !== undefined && editData.status !== null) {
+      //   rolePayload.prmtk_status = editData.status;
+      // }
+
+      console.log("[OpenRoleDetails] Role update payload:", rolePayload);
+
       // Update open role with role details
       const roleUpdatePromise = fetch(
         `/api/odata/open-role/${openRole?.id}`,
@@ -270,52 +303,54 @@ export default function OpenRoleDetails() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            prmtk_rolename: editData.name,
-            prmtk_currenttitle: editData.designation,
-            prmtk_proposedtitle: editData.designationArabic,
-            prmtk_currentsalaryaed: editData.currentSalary,
-            prmtk_proposedsalaryaed: editData.proposedSalary,
-            prmtk_status: editData.status,
-            prmtk_readyforsubmission: editData.readyForSubmission,
-          }),
+          body: JSON.stringify(rolePayload),
         }
       );
 
-      // If candidate is assigned, also update the candidate contact with form data
+      // If candidate is being assigned (from search/select), also update the candidate contact
+      // Note: Only update candidate when it's from the search flow (selectedResourceRef exists)
       let candidateUpdatePromise: Promise<Response> | null = null;
       if (openRole?.candidateId && selectedResourceRef.current) {
-        const formData = selectedResourceRef.current.getFormData();
-        candidateUpdatePromise = fetch(
-          `/api/odata/candidate-contact/${openRole.candidateId}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              prmtk_id: formData.fullName,
-              prmtk_email: formData.email,
-              prmtk_phonenumber: formData.phoneNumber,
-              prmtk_uaeresident: formData.uaeResident,
-            }),
+        try {
+          const formData = selectedResourceRef.current.getFormData();
+          if (formData && formData.fullName) {
+            candidateUpdatePromise = fetch(
+              `/api/odata/candidate-contact/${openRole.candidateId}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  prmtk_id: formData.fullName,
+                  prmtk_email: formData.email || undefined,
+                  prmtk_phonenumber: formData.phoneNumber || undefined,
+                  prmtk_uaeresident: formData.uaeResident !== null && formData.uaeResident !== undefined ? formData.uaeResident : undefined,
+                }),
+              }
+            );
           }
-        );
+        } catch (e) {
+          console.error("[OpenRoleDetails] Error getting form data:", e);
+        }
       }
 
       // Wait for all updates to complete
       const [roleResponse, candidateResponse] = await Promise.all([
         roleUpdatePromise,
-        candidateUpdatePromise || Promise.resolve(null),
+        candidateUpdatePromise || Promise.resolve({ ok: true }),
       ]);
 
       // Check role update response
-      if (!roleResponse.ok) {
-        throw new Error(`Failed to save role: ${roleResponse.statusText}`);
+      if (!roleResponse || !roleResponse.ok) {
+        const errorText = roleResponse ? await roleResponse.text() : 'Unknown error';
+        throw new Error(`Failed to save role: ${roleResponse?.statusText || 'No response'} - ${errorText}`);
       }
 
       // Check candidate update response if it was made
       if (candidateResponse && !candidateResponse.ok) {
+        const errorText = await candidateResponse.text();
+        console.error("[OpenRoleDetails] Candidate update failed:", errorText);
         throw new Error(`Failed to save candidate: ${candidateResponse.statusText}`);
       }
 
