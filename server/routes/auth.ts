@@ -617,3 +617,277 @@ export const handleGetInvitation: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get contact information by email
+ * POST /api/auth/contact-by-email
+ * Fetches contact record from CRM using email address
+ */
+export const handleGetContactByEmail: RequestHandler = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Email is required",
+      });
+    }
+
+    console.log("[Auth] Fetching contact by email:", email);
+    console.log("[Auth] CRM API Endpoint:", API_ENDPOINT);
+
+    // Query CRM for contact using standard contact table
+    const authHeaders = await getAuthHeaders();
+    const queryUrl = `${API_ENDPOINT}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
+      email
+    )}'&$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
+
+    console.log("[Auth] Contact query URL:", queryUrl);
+
+    const response = await fetch(queryUrl, {
+      method: "GET",
+      headers: authHeaders,
+    });
+
+    console.log("[Auth] CRM response status:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      console.error("[Auth] CRM query failed:", response.status, response.statusText);
+      console.error("[Auth] CRM response body:", responseText);
+
+      // Return 404 if contact not found, but include helpful debug info
+      return res.status(404).json({
+        error: "Contact not found",
+        debug: {
+          email: email,
+          endpoint: API_ENDPOINT,
+          status: response.status,
+          details: responseText,
+        },
+      });
+    }
+
+    const data = await response.json();
+
+    console.log("[Auth] CRM response data:", {
+      hasValue: !!data.value,
+      itemCount: data.value?.length || 0,
+      firstItem: data.value?.[0],
+    });
+
+    if (!data.value || data.value.length === 0) {
+      console.warn("[Auth] No contacts found for email:", email);
+      console.log("[Auth] Full CRM response:", data);
+
+      return res.status(404).json({
+        error: "Contact not found",
+        message: `No contact record found in CRM for email: ${email}`,
+        debug: {
+          email: email,
+          endpoint: API_ENDPOINT,
+          searchFilter: `emailaddress1 eq '${email}'`,
+        },
+      });
+    }
+
+    const contact: any = data.value[0];
+
+    console.log("[Auth] Contact retrieved successfully:", {
+      id: contact.contactid,
+      email: contact.emailaddress1,
+      firstName: contact.firstname,
+      lastName: contact.lastname,
+    });
+
+    res.json({
+      prmtk_contactid: contact.contactid,
+      prmtk_firstname: contact.firstname,
+      prmtk_lastname: contact.lastname,
+      prmtk_email: contact.emailaddress1,
+      prmtk_phone: contact.telephone1,
+      prmtk_mobilenumber: contact.mobilephone,
+      prmtk_preferredcontactmethod: undefined,
+      createdon: contact.createdon,
+      statuscode: contact.statuscode,
+    });
+  } catch (error) {
+    console.error("[Auth] Get contact error:", error);
+    res.status(500).json({
+      error: "Failed to fetch contact",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+/**
+ * Update contact information
+ * POST /api/auth/contact-update
+ * Updates contact record in CRM based on email
+ */
+export const handleUpdateContact: RequestHandler = async (req, res) => {
+  try {
+    const { email, firstName, lastName, mobileNumber, contactPreference } =
+      req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Email is required",
+      });
+    }
+
+    console.log("[Auth] Updating contact for email:", email);
+
+    // First, get the contact ID using standard contact table
+    const authHeaders = await getAuthHeaders();
+    const queryUrl = `${API_ENDPOINT}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
+      email
+    )}'&$select=contactid`;
+
+    const queryResponse = await fetch(queryUrl, {
+      method: "GET",
+      headers: authHeaders,
+    });
+
+    if (!queryResponse.ok) {
+      console.error("[Auth] Contact lookup failed:", queryResponse.status);
+      return res.status(404).json({
+        error: "Contact not found",
+      });
+    }
+
+    const queryData = await queryResponse.json();
+
+    if (!queryData.value || queryData.value.length === 0) {
+      console.warn("[Auth] Contact not found for email:", email);
+      return res.status(404).json({
+        error: "Contact not found",
+      });
+    }
+
+    const contactId = queryData.value[0].contactid;
+
+    // Build update payload using standard contact table field names
+    const updatePayload: Record<string, any> = {};
+    if (firstName !== undefined) updatePayload.firstname = firstName;
+    if (lastName !== undefined) updatePayload.lastname = lastName;
+    if (mobileNumber !== undefined) updatePayload.mobilephone = mobileNumber;
+    // Note: contactPreference maps to custom field if it exists, otherwise ignore
+    if (contactPreference !== undefined) {
+      // Try to set custom field if available
+      updatePayload["new_preferredcontactmethod"] = contactPreference;
+    }
+
+    console.log("[Auth] Updating contact with payload:", updatePayload);
+
+    // Update contact in CRM
+    const updateUrl = `${API_ENDPOINT}/contacts(${contactId})`;
+
+    const updateResponse = await fetch(updateUrl, {
+      method: "PATCH",
+      headers: authHeaders,
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.error("[Auth] Contact update failed:", updateResponse.status, errorText);
+      return res.status(500).json({
+        error: "Failed to update contact",
+      });
+    }
+
+    console.log("[Auth] Contact updated successfully");
+
+    // Fetch updated contact to return
+    const fetchUrl = `${API_ENDPOINT}/contacts(${contactId})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
+
+    const fetchResponse = await fetch(fetchUrl, {
+      method: "GET",
+      headers: authHeaders,
+    });
+
+    if (!fetchResponse.ok) {
+      console.error("[Auth] Failed to fetch updated contact:", fetchResponse.status);
+      return res.status(500).json({
+        error: "Failed to fetch updated contact",
+      });
+    }
+
+    const updatedContact: any = await fetchResponse.json();
+
+    res.json({
+      prmtk_contactid: updatedContact.contactid,
+      prmtk_firstname: updatedContact.firstname,
+      prmtk_lastname: updatedContact.lastname,
+      prmtk_email: updatedContact.emailaddress1,
+      prmtk_phone: updatedContact.telephone1,
+      prmtk_mobilenumber: updatedContact.mobilephone,
+      prmtk_preferredcontactmethod: undefined,
+      createdon: updatedContact.createdon,
+      statuscode: updatedContact.statuscode,
+    });
+  } catch (error) {
+    console.error("[Auth] Update contact error:", error);
+    res.status(500).json({
+      error: "Failed to update contact",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+/**
+ * Debug: Get all contacts from CRM
+ * GET /api/auth/debug/contacts
+ * Lists all contact records in CRM (development only)
+ */
+export const handleGetAllContacts: RequestHandler = async (req, res) => {
+  try {
+    console.log("[Auth Debug] Fetching all contacts from CRM standard contact table");
+
+    const authHeaders = await getAuthHeaders();
+    const queryUrl = `${API_ENDPOINT}/contacts?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode&$top=100`;
+
+    console.log("[Auth Debug] Query URL:", queryUrl);
+
+    const response = await fetch(queryUrl, {
+      method: "GET",
+      headers: authHeaders,
+    });
+
+    console.log("[Auth Debug] CRM response status:", response.status);
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      console.error("[Auth Debug] CRM query failed:", response.status, responseText);
+      return res.status(500).json({
+        error: "Failed to fetch contacts",
+        details: responseText,
+      });
+    }
+
+    const data = await response.json();
+
+    console.log("[Auth Debug] CRM returned", data.value?.length || 0, "contacts");
+
+    res.json({
+      totalCount: data.value?.length || 0,
+      contacts: data.value?.map((contact: any) => ({
+        id: contact.contactid,
+        firstName: contact.firstname,
+        lastName: contact.lastname,
+        email: contact.emailaddress1,
+        phone: contact.telephone1,
+        mobileNumber: contact.mobilephone,
+        createdOn: contact.createdon,
+        status: contact.statuscode,
+      })) || [],
+    });
+  } catch (error) {
+    console.error("[Auth Debug] Error fetching all contacts:", error);
+    res.status(500).json({
+      error: "Failed to fetch contacts",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};

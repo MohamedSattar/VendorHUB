@@ -12,6 +12,9 @@ import {
   handleGetInvitation,
   handleForgotPassword,
   handleResetPassword,
+  handleGetContactByEmail,
+  handleUpdateContact,
+  handleGetAllContacts,
 } from "./routes/auth";
 import { requireAuth } from "./middleware/auth";
 import {
@@ -66,6 +69,11 @@ export function createServer() {
   app.get("/api/auth/invitations/:code", handleGetInvitation);
   app.post("/api/auth/forgot-password", handleForgotPassword);
   app.post("/api/auth/reset-password", handleResetPassword);
+  app.post("/api/auth/contact-by-email", handleGetContactByEmail);
+  app.post("/api/auth/contact-update", handleUpdateContact);
+
+  // Debug routes (development only)
+  app.get("/api/auth/debug/contacts", handleGetAllContacts);
 
   // Protected user routes (require authentication)
   app.get("/api/user/profile", requireAuth, handleGetProfile);

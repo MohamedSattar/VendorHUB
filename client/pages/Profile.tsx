@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileFormData {
+  id: string;
   firstName: string;
   lastName: string;
   mobileNumber: string;
@@ -12,17 +14,98 @@ interface ProfileFormData {
   email: string;
 }
 
+interface CrmContact {
+  prmtk_contactid: string;
+  prmtk_firstname: string;
+  prmtk_lastname: string;
+  prmtk_email: string;
+  prmtk_phone?: string;
+  prmtk_mobilenumber?: string;
+  prmtk_preferredcontactmethod?: number;
+  createdon: string;
+  statuscode: number;
+}
+
 export default function Profile() {
   const { toast } = useToast();
   const { t, isArabic } = useLanguage();
+  const { loggedInEmail } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [contactData, setContactData] = useState<CrmContact | null>(null);
   const [formData, setFormData] = useState<ProfileFormData>({
-    firstName: "Ahmed",
-    lastName: "Abdullah",
-    mobileNumber: "+971 50 123 4567",
+    id: "",
+    firstName: "",
+    lastName: "",
+    mobileNumber: "",
     contactPreference: "email",
-    email: "ahmed.abdullah@eca.gov.ae",
+    email: "",
   });
+
+  // Load contact data from CRM based on logged-in email
+  useEffect(() => {
+    const loadContactData = async () => {
+      if (!loggedInEmail) {
+        console.warn("[Profile] No logged-in email available");
+        setIsLoadingData(false);
+        return;
+      }
+
+      try {
+        setIsLoadingData(true);
+        console.log("[Profile] Loading contact data for email:", loggedInEmail);
+
+        // Fetch contact from CRM via backend API
+        const response = await fetch("/api/auth/contact-by-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: loggedInEmail }),
+        });
+
+        if (!response.ok) {
+          console.warn("[Profile] Failed to load contact data:", response.status);
+          toast({
+            title: "Info",
+            description: "Could not load existing profile data. Please fill in your information.",
+          });
+          setIsLoadingData(false);
+          return;
+        }
+
+        const contact: CrmContact = await response.json();
+        console.log("[Profile] Contact data loaded:", contact);
+
+        setContactData(contact);
+
+        // Map CRM data to form data
+        const mappedPreference = contact.prmtk_preferredcontactmethod
+          ? (["email", "phone", "sms"][contact.prmtk_preferredcontactmethod - 1] as "email" | "phone" | "sms")
+          : "email";
+
+        setFormData({
+          id: contact.prmtk_contactid,
+          firstName: contact.prmtk_firstname || "",
+          lastName: contact.prmtk_lastname || "",
+          mobileNumber: contact.prmtk_mobilenumber || contact.prmtk_phone || "",
+          contactPreference: mappedPreference,
+          email: contact.prmtk_email || loggedInEmail,
+        });
+      } catch (error) {
+        console.error("[Profile] Error loading contact data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    loadContactData();
+  }, [loggedInEmail, toast]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -36,7 +119,7 @@ export default function Profile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
       toast({
@@ -59,21 +142,53 @@ export default function Profile() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Determine preference code (1 = email, 2 = phone, 3 = sms)
+      const preferenceCode: Record<string, number> = {
+        email: 1,
+        phone: 2,
+        sms: 3,
+      };
+
+      console.log("[Profile] Updating contact data for email:", loggedInEmail);
+
+      // Call API to update contact in CRM
+      const response = await fetch("/api/auth/contact-update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: loggedInEmail,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          mobileNumber: formData.mobileNumber.trim(),
+          contactPreference: preferenceCode[formData.contactPreference],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update profile");
+      }
+
+      const updatedContact: CrmContact = await response.json();
+      setContactData(updatedContact);
+
+      console.log("[Profile] Contact updated successfully");
 
       toast({
         title: "Success",
         description: "Your profile has been updated successfully.",
       });
-
-      setIsLoading(false);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update profile. Please try again.";
+      console.error("[Profile] Update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -94,6 +209,21 @@ export default function Profile() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8">
             <h2 className="text-2xl font-semibold text-navy mb-8">{t("profile.updateProfile")}</h2>
 
+            {/* Loading State */}
+            {isLoadingData && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800">Loading your profile information...</p>
+              </div>
+            )}
+
+            {/* Email Display Info */}
+            {loggedInEmail && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-600">Logged in as:</p>
+                <p className="text-lg font-semibold text-navy">{loggedInEmail}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* First Name */}
               <div>
@@ -109,8 +239,9 @@ export default function Profile() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
+                  disabled={isLoadingData}
                   placeholder="Enter your first name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -128,8 +259,9 @@ export default function Profile() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
+                  disabled={isLoadingData}
                   placeholder="Enter your last name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -147,8 +279,9 @@ export default function Profile() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  disabled={true}
                   placeholder="Enter your email address"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -166,8 +299,9 @@ export default function Profile() {
                   name="mobileNumber"
                   value={formData.mobileNumber}
                   onChange={handleChange}
+                  disabled={isLoadingData}
                   placeholder="Enter your mobile number"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />
               </div>
 
@@ -184,7 +318,8 @@ export default function Profile() {
                   name="contactPreference"
                   value={formData.contactPreference}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                  disabled={isLoadingData}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="email">Email</option>
                   <option value="phone">Phone</option>
@@ -196,14 +331,15 @@ export default function Profile() {
               <div className="flex gap-4 pt-6 border-t border-gray-200">
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || isLoadingData}
                   className="px-8 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Saving..." : "Save Changes"}
                 </button>
                 <button
                   type="button"
-                  className="px-8 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                  disabled={isLoading || isLoadingData}
+                  className="px-8 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
@@ -216,15 +352,23 @@ export default function Profile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">Account Status</p>
-                  <p className="text-lg font-semibold text-navy">Active</p>
+                  <p className="text-lg font-semibold text-navy">
+                    {contactData?.statuscode === 1 ? "Active" : "Inactive"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">Member Since</p>
-                  <p className="text-lg font-semibold text-navy">Jan 15, 2024</p>
+                  <p className="text-lg font-semibold text-navy">
+                    {contactData?.createdon
+                      ? new Date(contactData.createdon).toLocaleDateString()
+                      : "N/A"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-600 mb-1">Last Updated</p>
-                  <p className="text-lg font-semibold text-navy">Mar 10, 2025</p>
+                  <p className="text-sm text-gray-600 mb-1">Contact ID</p>
+                  <p className="text-lg font-semibold text-navy font-mono text-sm">
+                    {contactData?.prmtk_contactid || "N/A"}
+                  </p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">User Role</p>
