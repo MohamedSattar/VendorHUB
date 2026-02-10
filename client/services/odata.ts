@@ -7,6 +7,68 @@
 // Use backend proxy instead of direct API calls to avoid CORS issues
 const ODATA_PROXY_URL = "/api/odata";
 
+/**
+ * Get the Dataverse organization URL from environment or build from common patterns
+ * This is used to construct direct image URLs
+ */
+function getDataverseOrgUrl(): string {
+  // Try to get from environment variable (would need to be exposed via Vite)
+  const envUrl = import.meta.env.VITE_DATAVERSE_ORG_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+
+  // Fallback to known organization URL
+  return "https://org2a23f983.crm15.dynamics.com";
+}
+
+/**
+ * Build a Dynamics image download URL for entity attributes
+ * Format: https://org.crm.dynamics.com/Image/download.aspx?Entity={entity}&Attribute={attribute}&Id={id}&Timestamp={timestamp}&full=true
+ */
+function buildDynamicsImageUrl(
+  entity: string,
+  attribute: string,
+  id: string,
+  modifiedOn?: string
+): string {
+  const orgUrl = getDataverseOrgUrl();
+
+  // Convert modifiedOn date to Windows FileTime format timestamp
+  // If modifiedOn is not provided, use current time
+  let timestamp = "";
+  if (modifiedOn) {
+    try {
+      const date = new Date(modifiedOn);
+      // Windows FileTime is 100-nanosecond intervals since 1601-01-01
+      // JavaScript dates are milliseconds since 1970-01-01
+      // Difference: 11644473600000 milliseconds
+      const fileTime = BigInt(date.getTime() + 11644473600000) * BigInt(10000);
+      timestamp = fileTime.toString();
+    } catch {
+      // If date parsing fails, use current time
+      const now = new Date();
+      const fileTime = BigInt(now.getTime() + 11644473600000) * BigInt(10000);
+      timestamp = fileTime.toString();
+    }
+  } else {
+    // Use current time if modifiedOn not provided
+    const now = new Date();
+    const fileTime = BigInt(now.getTime() + 11644473600000) * BigInt(10000);
+    timestamp = fileTime.toString();
+  }
+
+  const params = new URLSearchParams({
+    Entity: entity,
+    Attribute: attribute,
+    Id: id,
+    Timestamp: timestamp,
+    full: "true",
+  });
+
+  return `${orgUrl}/Image/download.aspx?${params.toString()}`;
+}
+
 export interface FAQItem {
   id: string;
   question: string;
@@ -744,6 +806,14 @@ export async function fetchCandidateContactById(
       rawData: item,
     });
 
+    // Build the Dynamics image download URL for the personal photo
+    const personalPhotoUrl = buildDynamicsImageUrl(
+      "prmtk_engagementcontact",
+      "prmtk_personalphoto",
+      item.prmtk_engagementcontactid,
+      item.modifiedon
+    );
+
     // Transform OData response to our CandidateDetail format
     const candidateDetail: CandidateDetail = {
       id: item.prmtk_engagementcontactid,
@@ -753,8 +823,8 @@ export async function fetchCandidateContactById(
       status:
         item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
         "Unknown",
-      // Construct photo URL to fetch the actual image via backend proxy
-      personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
+      // Construct photo URL using Dynamics Image/download.aspx endpoint
+      personalPhoto: personalPhotoUrl,
       uaeResident: item.prmtk_uaeresident,
       cvFile: item.prmtk_cvfile_name,
       introductionDocument: item.prmtk_introductiondocument_name,
@@ -892,13 +962,21 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
     const contacts: EngagementContact[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
+        // Build the Dynamics image download URL for the personal photo
+        const personalPhotoUrl = buildDynamicsImageUrl(
+          "prmtk_engagementcontact",
+          "prmtk_personalphoto",
+          item.prmtk_engagementcontactid,
+          item.modifiedon
+        );
+
         const transformed = {
           id: item.prmtk_engagementcontactid,
           name: item.prmtk_id,
           email: item.prmtk_email,
           phoneNumber: item.prmtk_phonenumber,
-          // Construct photo URL to fetch the actual image via backend proxy
-          personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
+          // Construct photo URL using Dynamics Image/download.aspx endpoint
+          personalPhoto: personalPhotoUrl,
           // If engagement ID is present, contact is assigned; otherwise not assigned
           status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
           engagementId: item._prmtk_engagement_value,
