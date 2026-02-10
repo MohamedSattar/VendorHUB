@@ -24,6 +24,8 @@ interface CrmContact {
   prmtk_preferredcontactmethod?: number;
   createdon: string;
   statuscode: number;
+  prmtk_vendor_name?: string;
+  prmtk_vendor_id?: string;
 }
 
 export default function Profile() {
@@ -406,6 +408,12 @@ export default function Profile() {
                   <p className="text-sm text-gray-600 mb-1">Contact ID</p>
                   <p className="text-lg font-semibold text-navy font-mono text-sm">
                     {contactData?.prmtk_contactid || "N/A"}
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-600 mb-1">Vendor Name</p>
+                  <p className="text-lg font-semibold text-navy">
+                    {contactData?.prmtk_vendor_name || "Not Assigned"}
                   </p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">

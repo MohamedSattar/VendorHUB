@@ -1167,7 +1167,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 
     console.log("[OData Proxy] Contact updated successfully, fetching updated record");
 
-    // Fetch the updated contact record to return
+    // Fetch the updated contact record
     const fetchUrl = `${ODATA_BASE_URL}/contacts(${id})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
 
     const fetchResponse = await makeAuthenticatedRequest(fetchUrl, {
@@ -1187,11 +1187,37 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 
     const updatedContact: any = await fetchResponse.json();
 
+    // Try to fetch related vendor information
+    let vendorName = null;
+    let vendorId = null;
+
+    try {
+      const vendorQueryUrl = `${ODATA_BASE_URL}/prmtk_vendors?$filter=prmtk_contact eq ${id}&$select=prmtk_vendorid,prmtk_name&$top=1`;
+
+      const vendorResponse = await makeAuthenticatedRequest(vendorQueryUrl, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (vendorResponse.ok) {
+        const vendorData = await vendorResponse.json();
+        if (vendorData.value && vendorData.value.length > 0) {
+          vendorName = vendorData.value[0].prmtk_name;
+          vendorId = vendorData.value[0].prmtk_vendorid;
+        }
+      }
+    } catch (vendorError) {
+      console.warn("[OData Proxy] Could not fetch vendor information:", vendorError);
+    }
+
     console.log("[OData Proxy] Updated contact retrieved:", {
       id: updatedContact.contactid,
       firstName: updatedContact.firstname,
       lastName: updatedContact.lastname,
       mobilePhone: updatedContact.mobilephone,
+      vendorName: vendorName,
     });
 
     // Return the updated contact in the expected format
@@ -1205,6 +1231,8 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
       prmtk_preferredcontactmethod: undefined,
       createdon: updatedContact.createdon,
       statuscode: updatedContact.statuscode,
+      prmtk_vendor_name: vendorName,
+      prmtk_vendor_id: vendorId,
     });
   } catch (error) {
     console.error("[OData Proxy] Contact Update Error:", error);

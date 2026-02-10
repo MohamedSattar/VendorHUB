@@ -693,11 +693,37 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
 
     const contact: any = data.value[0];
 
+    // Try to fetch related vendor information
+    // Query for vendors where contact_prmtk_vendor_contact points to this contact
+    let vendorName = null;
+    let vendorId = null;
+
+    try {
+      const vendorQueryUrl = `${API_ENDPOINT}/prmtk_vendors?$filter=prmtk_contact eq ${contact.contactid}&$select=prmtk_vendorid,prmtk_name&$top=1`;
+
+      const vendorResponse = await fetch(vendorQueryUrl, {
+        method: "GET",
+        headers: authHeaders,
+      });
+
+      if (vendorResponse.ok) {
+        const vendorData = await vendorResponse.json();
+        if (vendorData.value && vendorData.value.length > 0) {
+          vendorName = vendorData.value[0].prmtk_name;
+          vendorId = vendorData.value[0].prmtk_vendorid;
+          console.log("[Auth] Vendor found:", { vendorId, vendorName });
+        }
+      }
+    } catch (vendorError) {
+      console.warn("[Auth] Could not fetch vendor information:", vendorError);
+    }
+
     console.log("[Auth] Contact retrieved successfully:", {
       id: contact.contactid,
       email: contact.emailaddress1,
       firstName: contact.firstname,
       lastName: contact.lastname,
+      vendorName: vendorName,
     });
 
     res.json({
@@ -710,6 +736,8 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
       prmtk_preferredcontactmethod: undefined,
       createdon: contact.createdon,
       statuscode: contact.statuscode,
+      prmtk_vendor_name: vendorName,
+      prmtk_vendor_id: vendorId,
     });
   } catch (error) {
     console.error("[Auth] Get contact error:", error);
