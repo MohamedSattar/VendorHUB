@@ -1,9 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 export default function AuthButtons() {
-  const navigate = useNavigate();
   const { isAuthenticated, user, logout, isLoading } = useAuth();
 
   if (isLoading) {
@@ -26,12 +24,8 @@ export default function AuthButtons() {
   }
 
   return (
-    <button
-      onClick={() => navigate("/login")}
-      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-    >
-      <LogIn size={18} />
-      Login
-    </button>
+    <div className="text-sm text-gray-600">
+      <span className="font-medium">Sign-up by invitation only</span>
+    </div>
   );
 }
