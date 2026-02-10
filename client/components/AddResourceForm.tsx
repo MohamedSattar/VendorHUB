@@ -224,7 +224,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           {/* Personal Photo */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-navy mb-3">
-              Personal Photo
+              Personal Photo <span className="text-red-600">*</span>
             </label>
             <div className="flex flex-col gap-4">
               {/* Photo Display */}
@@ -293,7 +293,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-navy mb-2">
-                Full Name
+                Full Name <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
@@ -308,7 +308,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-navy mb-2">
-                Email
+                Email <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
@@ -350,7 +350,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium text-navy mb-2">
-                Phone Number
+                Phone Number <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
@@ -394,7 +394,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-navy mb-4">
-              UAE Resident
+              UAE Resident <span className="text-red-600">*</span>
             </label>
             <div className="flex items-center gap-3">
               <button
