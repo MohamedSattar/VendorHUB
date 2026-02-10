@@ -443,11 +443,22 @@ export default function OpenRoleDetails() {
         }
       );
 
-      // Reset modal state and refetch data
+      console.log("[OpenRoleDetails] Candidate assignment successful, refetching data...");
+
+      // Refetch the open role data first to get the updated candidateId
+      const updatedOpenRole = await refetch();
+      console.log("[OpenRoleDetails] Refetched open role:", updatedOpenRole);
+
+      // Add a small delay to ensure state updates properly
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Then refetch candidate details with the new candidateId
+      await refetchCandidateDetails();
+      console.log("[OpenRoleDetails] Refetched candidate details");
+
+      // Reset modal state
       setIsChangeCandidateModalOpen(false);
       setChangeCandidatePreview(null);
-      await refetch();
-      await refetchCandidateDetails();
 
       toast({
         title: "Success",
