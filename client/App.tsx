@@ -24,6 +24,7 @@ import Manuals from "./pages/Manuals";
 import SupplierApplication from "./pages/SupplierApplication";
 import DebugAPI from "./pages/DebugAPI";
 import Notifications from "./pages/Notifications";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,13 +42,11 @@ export default function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<About />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/index" element={<Index />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/manuals" element={<Manuals />} />
-                <Route
-                  path="/supplier-application"
-                  element={<SupplierApplication />}
-                />
+                <Route path="/supplier-application" element={<SupplierApplication />} />
                 <Route path="/debug-api" element={<DebugAPI />} />
 
                 {/* All Routes */}

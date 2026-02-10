@@ -6,6 +6,10 @@ import {
   handleExchangeToken,
   handleRefreshToken,
   handleGetUserInfo,
+  handleLogin,
+  handleRegister,
+  handleVerifyInvitation,
+  handleGetInvitation,
 } from "./routes/auth";
 import { requireAuth } from "./middleware/auth";
 import {
@@ -52,6 +56,12 @@ export function createServer() {
   app.post("/api/auth/exchange-token", handleExchangeToken);
   app.post("/api/auth/refresh-token", handleRefreshToken);
   app.post("/api/auth/user-info", handleGetUserInfo);
+
+  // Email/Password Authentication Routes
+  app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/register", handleRegister);
+  app.post("/api/auth/invitations/verify", handleVerifyInvitation);
+  app.get("/api/auth/invitations/:code", handleGetInvitation);
 
   // Protected user routes (require authentication)
   app.get("/api/user/profile", requireAuth, handleGetProfile);
