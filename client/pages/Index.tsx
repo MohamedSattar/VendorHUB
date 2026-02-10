@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Clipboard, DecorativeWaveLines } from "@/components/DecorativeElements";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AuthMode = "signin" | "redeem" | "forgot-password";
 
@@ -19,16 +20,61 @@ export default function Index() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { toast } = useToast();
+  const { setUserFromLogin } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate login request
-    setTimeout(() => {
-      setIsLoading(false);
+
+    if (!email.trim() || !password.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter your email and password",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log("[Login] Attempting login for email:", email);
+
+      // Call login API
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("[Login] Login failed:", errorData);
+        throw new Error(errorData.error || "Login failed");
+      }
+
+      const data = await response.json();
+      console.log("[Login] Login successful for email:", email);
+
+      // Store user info and token in global context
+      setUserFromLogin(data.user, data.accessToken);
+
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+      });
+
       // Redirect to dashboard after successful login
       navigate("/dashboard");
-    }, 1000);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Login failed";
+      console.error("[Login] Error:", errorMessage);
+      toast({
+        title: "Login Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRedeemInvitation = async (e: React.FormEvent) => {

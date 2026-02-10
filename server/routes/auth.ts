@@ -216,6 +216,7 @@ const API_ENDPOINT = `${ODATA_BASE_URL}/api/data/v9.2`;
 /**
  * Login with email and password
  * POST /api/auth/login
+ * Validates credentials against CRM Contact table
  */
 export const handleLogin: RequestHandler = async (req, res) => {
   try {
@@ -229,11 +230,11 @@ export const handleLogin: RequestHandler = async (req, res) => {
 
     console.log("[Auth] Login attempt for email:", email);
 
-    // Query CRM for user by email
+    // Query CRM for user by email (including password hash field)
     const authHeaders = await getAuthHeaders();
     const queryUrl = `${API_ENDPOINT}/prmtk_contacts?$filter=prmtk_email%20eq%20'${encodeURIComponent(
       email
-    )}'&$select=prmtk_contactid,prmtk_email,prmtk_firstname,prmtk_lastname,prmtk_organizationname,statuscode`;
+    )}'&$select=prmtk_contactid,prmtk_email,prmtk_firstname,prmtk_lastname,prmtk_organizationname,statuscode,prmtk_passwordhash`;
 
     const response = await fetch(queryUrl, {
       method: "GET",
@@ -256,11 +257,28 @@ export const handleLogin: RequestHandler = async (req, res) => {
       });
     }
 
-    const user: CrmUser = data.value[0];
+    const user: CrmUser & { prmtk_passwordhash?: string } = data.value[0];
 
-    // In production, verify password hash stored in CRM
-    // For now, we'll accept any password and store it securely in CRM
-    console.log("[Auth] User found:", user.prmtk_email);
+    // Validate password against stored hash
+    if (!user.prmtk_passwordhash) {
+      console.warn("[Auth] No password hash found for user:", email);
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    // Compare password (currently using base64, in production use bcrypt)
+    const providedPasswordHash = Buffer.from(password).toString("base64");
+    const storedPasswordHash = user.prmtk_passwordhash;
+
+    if (providedPasswordHash !== storedPasswordHash) {
+      console.warn("[Auth] Password validation failed for user:", email);
+      return res.status(401).json({
+        error: "Invalid email or password",
+      });
+    }
+
+    console.log("[Auth] Password validated successfully for user:", user.prmtk_email);
 
     // Generate access token (in production, use JWT)
     const accessToken = Buffer.from(

@@ -40,11 +40,14 @@ export interface InvitationInfo {
 
 /**
  * Login with email and password
+ * Validates credentials against CRM Contact table
  */
 export async function loginWithEmailPassword(
   credentials: UserCredentials
 ): Promise<LoginResponse> {
   try {
+    console.log("[Auth Service] Attempting login for email:", credentials.email);
+
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
@@ -55,20 +58,24 @@ export async function loginWithEmailPassword(
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("[Auth Service] Login failed:", errorData.error);
       throw new Error(errorData.error || "Login failed");
     }
 
     const data = await response.json();
+    console.log("[Auth Service] Login successful for email:", credentials.email);
 
     // Store authentication data locally
     if (data.accessToken) {
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("loggedInEmail", data.user.email);
+      console.log("[Auth Service] Stored logged-in email:", data.user.email);
     }
 
     return data;
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("[Auth Service] Login error:", error);
     throw error;
   }
 }

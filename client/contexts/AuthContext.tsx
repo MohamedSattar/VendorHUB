@@ -3,6 +3,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 export interface User {
   id: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  organizationName?: string;
   name?: string;
   [key: string]: unknown;
 }
@@ -13,9 +16,11 @@ interface AuthContextType {
   isAuthenticated: boolean;
   accessToken: string | null;
   error: string | null;
+  loggedInEmail: string | null; // Global variable for logged-in email
   login: () => void;
   logout: () => void;
   refreshToken: () => Promise<void>;
+  setUserFromLogin: (user: User, token: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +34,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loggedInEmail, setLoggedInEmail] = useState<string | null>(null);
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
@@ -41,11 +47,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         const storedToken = localStorage.getItem("accessToken");
         const storedUser = localStorage.getItem("user");
+        const storedEmail = localStorage.getItem("loggedInEmail");
 
         if (storedToken && storedUser) {
           setAccessToken(storedToken);
           try {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+            // Restore logged-in email from localStorage
+            if (storedEmail) {
+              setLoggedInEmail(storedEmail);
+            } else if (parsedUser.email) {
+              setLoggedInEmail(parsedUser.email);
+            }
           } catch (parseErr) {
             console.error("Failed to parse stored user:", parseErr);
             setUser(null);
@@ -77,9 +91,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     setUser(null);
     setAccessToken(null);
+    setLoggedInEmail(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("loggedInEmail");
   };
 
   const refreshToken = async () => {
@@ -103,15 +119,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const setUserFromLogin = (user: User, token: string) => {
+    setUser(user);
+    setAccessToken(token);
+    setLoggedInEmail(user.email);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("loggedInEmail", user.email);
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated: !!user && !!accessToken,
     accessToken,
     error,
+    loggedInEmail,
     login,
     logout,
     refreshToken,
+    setUserFromLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
