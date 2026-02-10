@@ -1229,14 +1229,14 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     // Option 2: Using the singular form of the related entity
     // Option 3: Direct field reference without @odata.bind
 
-    // Since prmtk_candidate didn't work, let's try with the entity name:
-    // The lookup might be called "prmtk_engagementcontact" (singular, the related table)
-    const navigationPropertyName = "prmtk_engagementcontact"; // Try the related entity singular form
+    // Bind the prmtk_candidate lookup field directly
+    // The lookup field is prmtk_candidate and we bind it to the engagement contact
+    const navigationPropertyName = "prmtk_candidate";
 
     bindPayload[`${navigationPropertyName}@odata.bind`] = relativePath;
 
-    console.log("[OData Proxy] Attempting to patch lookup field...")
-    console.log("[OData Proxy] Using navigation property:", navigationPropertyName);
+    console.log("[OData Proxy] Binding candidate to prmtk_candidate lookup field...")
+    console.log("[OData Proxy] Navigation property:", navigationPropertyName);
     console.log("[OData Proxy] Binding format:", `${navigationPropertyName}@odata.bind`);
     console.log("[OData Proxy] Payload:", JSON.stringify(bindPayload, null, 2));
     console.log("[OData Proxy] Candidate ID:", candidateId);
