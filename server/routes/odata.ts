@@ -492,31 +492,29 @@ export const handleUpdateOpenRole: RequestHandler = async (req, res) => {
       updatePayload.prmtk_readyforsubmission = prmtk_readyforsubmission;
     }
 
-    // Numeric fields are commented out for now as they may need special handling
-    // TODO: Re-enable after confirming the update works with text fields
+    // Numeric fields - now enabled
+    if (prmtk_currentsalaryaed !== undefined && prmtk_currentsalaryaed !== null) {
+      const numValue = typeof prmtk_currentsalaryaed === 'number'
+        ? prmtk_currentsalaryaed
+        : parseFloat(String(prmtk_currentsalaryaed));
+      if (!isNaN(numValue)) {
+        updatePayload.prmtk_currentsalaryaed = numValue;
+      }
+    }
 
-    // if (prmtk_currentsalaryaed !== undefined && prmtk_currentsalaryaed !== null) {
-    //   const numValue = typeof prmtk_currentsalaryaed === 'number'
-    //     ? prmtk_currentsalaryaed
-    //     : parseFloat(String(prmtk_currentsalaryaed));
-    //   if (!isNaN(numValue)) {
-    //     updatePayload.prmtk_currentsalaryaed = numValue;
-    //   }
-    // }
+    if (prmtk_proposedsalaryaed !== undefined && prmtk_proposedsalaryaed !== null) {
+      const numValue = typeof prmtk_proposedsalaryaed === 'number'
+        ? prmtk_proposedsalaryaed
+        : parseFloat(String(prmtk_proposedsalaryaed));
+      if (!isNaN(numValue)) {
+        updatePayload.prmtk_proposedsalaryaed = numValue;
+      }
+    }
 
-    // if (prmtk_proposedsalaryaed !== undefined && prmtk_proposedsalaryaed !== null) {
-    //   const numValue = typeof prmtk_proposedsalaryaed === 'number'
-    //     ? prmtk_proposedsalaryaed
-    //     : parseFloat(String(prmtk_proposedsalaryaed));
-    //   if (!isNaN(numValue)) {
-    //     updatePayload.prmtk_proposedsalaryaed = numValue;
-    //   }
-    // }
-
-    // Status field commented out for now
-    // if (prmtk_status !== undefined && prmtk_status !== null && prmtk_status !== '') {
-    //   updatePayload.prmtk_status = String(prmtk_status).trim();
-    // }
+    // Status field - now enabled
+    if (prmtk_status !== undefined && prmtk_status !== null && prmtk_status !== '') {
+      updatePayload.prmtk_status = String(prmtk_status).trim();
+    }
 
     console.log("[OData Proxy] Final update payload:", JSON.stringify(updatePayload, null, 2));
     console.log("[OData Proxy] Payload has fields:", Object.keys(updatePayload).length > 0, "Fields:", Object.keys(updatePayload));

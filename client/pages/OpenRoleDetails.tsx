@@ -284,14 +284,18 @@ export default function OpenRoleDetails() {
         rolePayload.prmtk_proposedtitle = editData.designationArabic.trim();
       }
 
-      // Note: Salary fields (prmtk_currentsalaryaed, prmtk_proposedsalaryaed) are commented out for now
-      // as they may require special handling or may be read-only in your CRM instance
-      // They can be re-enabled once basic updates are working
+      // Include salary fields if they have values
+      if (editData.currentSalary !== undefined && editData.currentSalary !== null && editData.currentSalary > 0) {
+        rolePayload.prmtk_currentsalaryaed = editData.currentSalary;
+      }
+      if (editData.proposedSalary !== undefined && editData.proposedSalary !== null && editData.proposedSalary > 0) {
+        rolePayload.prmtk_proposedsalaryaed = editData.proposedSalary;
+      }
 
-      // Status field is also optional - comment out if it causes issues
-      // if (editData.status !== undefined && editData.status !== null) {
-      //   rolePayload.prmtk_status = editData.status;
-      // }
+      // Include status if provided
+      if (editData.status !== undefined && editData.status !== null) {
+        rolePayload.prmtk_status = editData.status;
+      }
 
       console.log("[OpenRoleDetails] Role update payload:", rolePayload);
 
