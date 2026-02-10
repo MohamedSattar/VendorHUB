@@ -22,11 +22,25 @@ interface CrmContact {
   prmtk_phone?: string;
   prmtk_mobilenumber?: string;
   prmtk_preferredcontactmethod?: number;
+  preferredcontactmethodcode?: number;
   createdon: string;
   statuscode: number;
   prmtk_vendor_name?: string;
   prmtk_vendor_id?: string;
 }
+
+// Map between CRM numeric codes and form string values for preferred contact method
+const CONTACT_METHOD_MAP: Record<number, "email" | "phone" | "sms"> = {
+  1: "email",
+  2: "phone",
+  3: "sms",
+};
+
+const CONTACT_METHOD_REVERSE_MAP: Record<"email" | "phone" | "sms", number> = {
+  email: 1,
+  phone: 2,
+  sms: 3,
+};
 
 export default function Profile() {
   const { toast } = useToast();
@@ -82,10 +96,14 @@ export default function Profile() {
         setContactData(contact);
 
         // Map CRM data to form data
-        // Note: Preferred Contact Method defaults to "email" (no standard CRM field for this)
-        // If a custom field exists, update the mapping accordingly
+        // Map preferredcontactmethodcode (numeric) to form value (string)
+        const preferredMethod = contact.preferredcontactmethodcode
+          ? CONTACT_METHOD_MAP[contact.preferredcontactmethodcode] || "email"
+          : "email";
+
         console.log("[Profile] Contact preference field:", {
-          prmtk_preferredcontactmethod: contact.prmtk_preferredcontactmethod,
+          preferredcontactmethodcode: contact.preferredcontactmethodcode,
+          mappedValue: preferredMethod,
         });
 
         setFormData({
@@ -93,7 +111,7 @@ export default function Profile() {
           firstName: contact.prmtk_firstname || "",
           lastName: contact.prmtk_lastname || "",
           mobileNumber: contact.prmtk_mobilenumber || contact.prmtk_phone || "",
-          contactPreference: "email", // Default to email - can be updated if custom field exists
+          contactPreference: preferredMethod,
           email: contact.prmtk_email || loggedInEmail,
         });
       } catch (error) {
@@ -155,10 +173,14 @@ export default function Profile() {
       });
 
       // Build update payload with trimmed values
+      // Convert contactPreference string to numeric code for CRM
+      const preferredMethodCode = CONTACT_METHOD_REVERSE_MAP[formData.contactPreference];
+
       const updatePayload = {
         firstname: formData.firstName.trim(),
         lastname: formData.lastName.trim(),
         mobilephone: formData.mobileNumber.trim(),
+        preferredcontactmethodcode: preferredMethodCode,
       };
 
       // Call API to PATCH contact record in CRM using contact ID
@@ -195,13 +217,17 @@ export default function Profile() {
       });
 
       // Update local state with new data
+      const updatedPreferredMethod = updatedContact.preferredcontactmethodcode
+        ? CONTACT_METHOD_MAP[updatedContact.preferredcontactmethodcode] || "email"
+        : formData.contactPreference;
+
       setContactData(updatedContact);
       setFormData({
         id: updatedContact.prmtk_contactid,
         firstName: updatedContact.prmtk_firstname || "",
         lastName: updatedContact.prmtk_lastname || "",
         mobileNumber: updatedContact.prmtk_mobilenumber || "",
-        contactPreference: formData.contactPreference,
+        contactPreference: updatedPreferredMethod,
         email: loggedInEmail,
       });
 
@@ -335,8 +361,7 @@ export default function Profile() {
               </div>
 
               {/* Contact Preference
-                Note: This field displays for user reference but is not currently saved.
-                To enable saving, configure the correct CRM custom field name and update the backend endpoint.
+                Bound to preferredcontactmethodcode field in CRM
               */}
               <div>
                 <label
@@ -344,7 +369,6 @@ export default function Profile() {
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Preferred Contact Method
-                  <span className="text-xs text-gray-500 ml-2">(for reference)</span>
                 </label>
                 <select
                   id="contactPreference"
@@ -358,9 +382,6 @@ export default function Profile() {
                   <option value="phone">Phone</option>
                   <option value="sms">SMS</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Currently set to Email. To change this preference, contact your administrator.
-                </p>
               </div>
 
               {/* Action Buttons */}

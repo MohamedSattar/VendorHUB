@@ -1115,7 +1115,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
 export const handleUpdateContactById: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstname, lastname, mobilephone } = req.body;
+    const { firstname, lastname, mobilephone, preferredcontactmethodcode } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -1128,6 +1128,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
       firstName: firstname,
       lastName: lastname,
       mobilePhone: mobilephone,
+      preferredContactMethodCode: preferredcontactmethodcode,
     });
 
     // Get authentication headers
@@ -1138,6 +1139,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
     if (firstname !== undefined) updatePayload.firstname = firstname;
     if (lastname !== undefined) updatePayload.lastname = lastname;
     if (mobilephone !== undefined) updatePayload.mobilephone = mobilephone;
+    if (preferredcontactmethodcode !== undefined) updatePayload.preferredcontactmethodcode = preferredcontactmethodcode;
 
     // Update contact in CRM using PATCH
     const updateUrl = `${ODATA_BASE_URL}/contacts(${id})`;
@@ -1168,7 +1170,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
     console.log("[OData Proxy] Contact updated successfully, fetching updated record");
 
     // Fetch the updated contact record
-    const fetchUrl = `${ODATA_BASE_URL}/contacts(${id})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
+    const fetchUrl = `${ODATA_BASE_URL}/contacts(${id})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
 
     const fetchResponse = await makeAuthenticatedRequest(fetchUrl, {
       method: "GET",
@@ -1242,6 +1244,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
       firstName: updatedContact.firstname,
       lastName: updatedContact.lastname,
       mobilePhone: updatedContact.mobilephone,
+      preferredContactMethodCode: updatedContact.preferredcontactmethodcode,
       vendorName: vendorName,
     });
 
@@ -1254,6 +1257,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
       prmtk_phone: updatedContact.telephone1,
       prmtk_mobilenumber: updatedContact.mobilephone,
       prmtk_preferredcontactmethod: undefined,
+      preferredcontactmethodcode: updatedContact.preferredcontactmethodcode,
       createdon: updatedContact.createdon,
       statuscode: updatedContact.statuscode,
       prmtk_vendor_name: vendorName,

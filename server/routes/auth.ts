@@ -640,7 +640,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
     const authHeaders = await getAuthHeaders();
     const queryUrl = `${API_ENDPOINT}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
       email
-    )}'&$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
+    )}'&$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
 
     console.log("[Auth] Contact query URL:", queryUrl);
 
@@ -755,6 +755,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
       prmtk_phone: contact.telephone1,
       prmtk_mobilenumber: contact.mobilephone,
       prmtk_preferredcontactmethod: undefined,
+      preferredcontactmethodcode: contact.preferredcontactmethodcode,
       createdon: contact.createdon,
       statuscode: contact.statuscode,
       prmtk_vendor_name: vendorName,
@@ -849,7 +850,7 @@ export const handleUpdateContact: RequestHandler = async (req, res) => {
     console.log("[Auth] Contact updated successfully");
 
     // Fetch updated contact to return
-    const fetchUrl = `${API_ENDPOINT}/contacts(${contactId})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
+    const fetchUrl = `${API_ENDPOINT}/contacts(${contactId})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
 
     const fetchResponse = await fetch(fetchUrl, {
       method: "GET",
@@ -873,6 +874,7 @@ export const handleUpdateContact: RequestHandler = async (req, res) => {
       prmtk_phone: updatedContact.telephone1,
       prmtk_mobilenumber: updatedContact.mobilephone,
       prmtk_preferredcontactmethod: undefined,
+      preferredcontactmethodcode: updatedContact.preferredcontactmethodcode,
       createdon: updatedContact.createdon,
       statuscode: updatedContact.statuscode,
     });
