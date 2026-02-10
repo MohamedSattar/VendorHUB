@@ -208,6 +208,16 @@ interface InvitationRecord {
   prmtk_status: number; // 1 = pending, 2 = accepted, 3 = expired
 }
 
+interface AdxInvitationRecord {
+  adx_invitationid: string;
+  adx_invitationemail: string;
+  adx_invitationcode: string;
+  createdon: string;
+  adx_expirationdate: string;
+  statecode: number; // 0 = inactive, 1 = active
+  statuscode: number;
+}
+
 const ODATA_BASE_URL =
   process.env.DATAVERSE_RESOURCE?.replace(/\/$/, "")
     .replace(/\/\.default$/, "") || "https://ecavendorhubspa.crm15.dynamics.com";
@@ -413,6 +423,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
 /**
  * Verify an invitation code
  * POST /api/auth/invitations/verify
+ * Uses standard Microsoft CRM adx_invitation table
  */
 export const handleVerifyInvitation: RequestHandler = async (req, res) => {
   try {
@@ -424,13 +435,15 @@ export const handleVerifyInvitation: RequestHandler = async (req, res) => {
       });
     }
 
-    console.log("[Auth] Verifying invitation code:", invitationCode);
+    console.log("[Auth] Verifying invitation code from adx_invitation:", invitationCode);
 
-    // Query CRM for invitation
+    // Query CRM for invitation using standard adx_invitation table
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/prmtk_invitations?$filter=prmtk_invitationcode%20eq%20'${encodeURIComponent(
+    const queryUrl = `${API_ENDPOINT}/adx_invitations?$filter=adx_invitationcode%20eq%20'${encodeURIComponent(
       invitationCode
-    )}'&$select=prmtk_invitationid,prmtk_email,prmtk_organizationname,prmtk_invitedby,createdon,prmtk_expiresat,prmtk_status`;
+    )}'&$select=adx_invitationid,adx_invitationemail,adx_invitationcode,createdon,adx_expirationdate,statecode,statuscode`;
+
+    console.log("[Auth] Querying adx_invitation table:", queryUrl);
 
     const response = await fetch(queryUrl, {
       method: "GET",
@@ -447,41 +460,43 @@ export const handleVerifyInvitation: RequestHandler = async (req, res) => {
     const data = await response.json();
 
     if (!data.value || data.value.length === 0) {
-      console.warn("[Auth] Invitation not found:", invitationCode);
+      console.warn("[Auth] Invitation not found in adx_invitation:", invitationCode);
       return res.status(400).json({
         error: "Invitation not found",
       });
     }
 
-    const invitation: InvitationRecord = data.value[0];
+    const invitation: AdxInvitationRecord = data.value[0];
+
+    // Check if invitation is active (statecode = 1)
+    if (invitation.statecode !== 1) {
+      console.warn("[Auth] Invitation is inactive:", invitationCode);
+      return res.status(400).json({
+        error: "Invitation is not active",
+      });
+    }
 
     // Check if invitation is expired
-    const expiryDate = new Date(invitation.prmtk_expiresat);
-    if (expiryDate < new Date()) {
-      console.warn("[Auth] Invitation expired:", invitationCode);
-      return res.status(400).json({
-        error: "Invitation has expired",
-      });
+    if (invitation.adx_expirationdate) {
+      const expiryDate = new Date(invitation.adx_expirationdate);
+      if (expiryDate < new Date()) {
+        console.warn("[Auth] Invitation expired:", invitationCode);
+        return res.status(400).json({
+          error: "Invitation has expired",
+        });
+      }
     }
 
-    // Check if invitation is already accepted
-    if (invitation.prmtk_status === 2) {
-      console.warn("[Auth] Invitation already accepted:", invitationCode);
-      return res.status(400).json({
-        error: "Invitation already accepted",
-      });
-    }
-
-    console.log("[Auth] Invitation verified successfully");
+    console.log("[Auth] Invitation verified successfully from adx_invitation");
 
     res.json({
-      id: invitation.prmtk_invitationid,
-      email: invitation.prmtk_email,
-      organizationName: invitation.prmtk_organizationname,
-      invitedBy: invitation.prmtk_invitedby || "Administrator",
+      id: invitation.adx_invitationid,
+      email: invitation.adx_invitationemail,
+      organizationName: "Portal User", // Default since adx_invitation doesn't have org field
+      invitedBy: "Administrator",
       invitedAt: invitation.createdon,
-      status: invitation.prmtk_status === 1 ? "pending" : "expired",
-      expiresAt: invitation.prmtk_expiresat,
+      status: invitation.statecode === 1 ? "pending" : "inactive",
+      expiresAt: invitation.adx_expirationdate,
     });
   } catch (error) {
     console.error("[Auth] Invitation verification error:", error);
@@ -495,6 +510,7 @@ export const handleVerifyInvitation: RequestHandler = async (req, res) => {
 /**
  * Get invitation details
  * GET /api/auth/invitations/:code
+ * Uses standard Microsoft CRM adx_invitation table
  */
 export const handleGetInvitation: RequestHandler = async (req, res) => {
   try {
@@ -506,13 +522,15 @@ export const handleGetInvitation: RequestHandler = async (req, res) => {
       });
     }
 
-    console.log("[Auth] Fetching invitation details for code:", code);
+    console.log("[Auth] Fetching invitation details from adx_invitation for code:", code);
 
-    // Query CRM for invitation
+    // Query CRM for invitation using standard adx_invitation table
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/prmtk_invitations?$filter=prmtk_invitationcode%20eq%20'${encodeURIComponent(
+    const queryUrl = `${API_ENDPOINT}/adx_invitations?$filter=adx_invitationcode%20eq%20'${encodeURIComponent(
       code
-    )}'&$select=prmtk_invitationid,prmtk_email,prmtk_organizationname,prmtk_invitedby,createdon,prmtk_expiresat,prmtk_status`;
+    )}'&$select=adx_invitationid,adx_invitationemail,adx_invitationcode,createdon,adx_expirationdate,statecode,statuscode`;
+
+    console.log("[Auth] Querying adx_invitation table:", queryUrl);
 
     const response = await fetch(queryUrl, {
       method: "GET",
@@ -529,39 +547,43 @@ export const handleGetInvitation: RequestHandler = async (req, res) => {
     const data = await response.json();
 
     if (!data.value || data.value.length === 0) {
-      console.warn("[Auth] Invitation not found:", code);
+      console.warn("[Auth] Invitation not found in adx_invitation:", code);
       return res.status(400).json({
         error: "Invitation not found",
       });
     }
 
-    const invitation: InvitationRecord = data.value[0];
+    const invitation: AdxInvitationRecord = data.value[0];
+
+    // Check if invitation is active (statecode = 1)
+    if (invitation.statecode !== 1) {
+      console.warn("[Auth] Invitation is inactive:", code);
+      return res.status(400).json({
+        error: "Invitation is not active",
+      });
+    }
 
     // Check if invitation is expired
-    const expiryDate = new Date(invitation.prmtk_expiresat);
-    if (expiryDate < new Date()) {
-      console.warn("[Auth] Invitation expired:", code);
-      return res.status(400).json({
-        error: "Invitation has expired",
-      });
+    if (invitation.adx_expirationdate) {
+      const expiryDate = new Date(invitation.adx_expirationdate);
+      if (expiryDate < new Date()) {
+        console.warn("[Auth] Invitation expired:", code);
+        return res.status(400).json({
+          error: "Invitation has expired",
+        });
+      }
     }
 
-    // Check if invitation is already accepted
-    if (invitation.prmtk_status === 2) {
-      console.warn("[Auth] Invitation already accepted:", code);
-      return res.status(400).json({
-        error: "Invitation already accepted",
-      });
-    }
+    console.log("[Auth] Invitation retrieved successfully from adx_invitation");
 
     res.json({
-      id: invitation.prmtk_invitationid,
-      email: invitation.prmtk_email,
-      organizationName: invitation.prmtk_organizationname,
-      invitedBy: invitation.prmtk_invitedby || "Administrator",
+      id: invitation.adx_invitationid,
+      email: invitation.adx_invitationemail,
+      organizationName: "Portal User", // Default since adx_invitation doesn't have org field
+      invitedBy: "Administrator",
       invitedAt: invitation.createdon,
-      status: invitation.prmtk_status === 1 ? "pending" : "expired",
-      expiresAt: invitation.prmtk_expiresat,
+      status: invitation.statecode === 1 ? "pending" : "inactive",
+      expiresAt: invitation.adx_expirationdate,
     });
   } catch (error) {
     console.error("[Auth] Get invitation error:", error);
