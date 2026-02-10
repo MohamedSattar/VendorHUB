@@ -1061,11 +1061,12 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     });
 
     // Update the open role with the assigned candidate
-    // For prmtk_candidateengagementnames, the key is prmtk_candidateengagementnameid (GUID format)
+    // Note: Cannot directly update Entity Reference properties (_prmtk_candidate_value)
+    // Must use navigation properties instead
     const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
+    // First, update the non-reference fields (prmtk_name)
     const updatePayload: Record<string, any> = {
-      _prmtk_candidate_value: candidateId,
       prmtk_name: candidateName,
     };
 
@@ -1096,31 +1097,40 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         updateResponse.status,
         errorText,
       );
+      throw new Error(
+        `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`,
+      );
+    }
 
-      // Try alternative: If primary key requires quotes, attempt with quotes
-      if (updateResponse.status === 400) {
-        console.log("[OData Proxy] Trying alternate URL format with quotes...");
-        const updateUrlWithQuotes = `${ODATA_BASE_URL}/prmtk_candidateengagementnames('${id}')`;
-        const retryResponse = await makeAuthenticatedRequest(updateUrlWithQuotes, {
-          method: "PATCH",
-          headers: {
-            Accept: "application/json",
-          },
-          body: JSON.stringify(updatePayload),
-        });
+    // Now set the candidate reference using navigation property
+    // For Dynamics, Entity Reference updates must use the /ref navigation
+    const refUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})/prmtk_Candidate/$ref`;
+    const refPayload = {
+      "@odata.id": `${ODATA_BASE_URL}/prmtk_engagementcontacts(${candidateId})`,
+    };
 
-        if (!retryResponse.ok) {
-          const retryErrorText = await retryResponse.text();
-          console.error("[OData Proxy] Retry also failed:", retryResponse.status, retryErrorText);
-          throw new Error(
-            `Failed to update open role: ${retryResponse.status} ${retryResponse.statusText}`,
-          );
-        }
-      } else {
-        throw new Error(
-          `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`,
-        );
-      }
+    console.log("[OData Proxy] Setting candidate reference via navigation property");
+    console.log("[OData Proxy] Reference URL:", refUrl);
+    console.log("[OData Proxy] Reference Payload:", JSON.stringify(refPayload, null, 2));
+
+    const refResponse = await makeAuthenticatedRequest(refUrl, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+      },
+      body: JSON.stringify(refPayload),
+    });
+
+    if (!refResponse.ok) {
+      const refErrorText = await refResponse.text();
+      console.error(
+        "[OData Proxy] Reference update failed:",
+        refResponse.status,
+        refErrorText,
+      );
+      throw new Error(
+        `Failed to set candidate reference: ${refResponse.status} ${refResponse.statusText}`,
+      );
     }
 
     console.log("[OData Proxy] Successfully assigned candidate to open role");
