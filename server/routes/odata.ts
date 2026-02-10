@@ -1193,11 +1193,12 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
     let vendorId = null;
 
     try {
-      // First, query the bridge table prmtk_vendorcontactses to find vendor contacts
+      // First, query the bridge table prmtk_vendorcontactses to find the first assigned vendor
       // This table links contacts to vendors through the prmtk_engagement_VendorContactPerson_contact relationship
-      const bridgeQueryUrl = `${ODATA_BASE_URL}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${id}&$select=_prmtk_vendor_value&$top=1`;
+      // Order by createdon to get the first assigned vendor, then get just the first result
+      const bridgeQueryUrl = `${ODATA_BASE_URL}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${id}&$select=_prmtk_vendor_value,createdon&$orderby=createdon asc&$top=1`;
 
-      console.log("[OData Proxy] Querying bridge table:", bridgeQueryUrl);
+      console.log("[OData Proxy] Querying bridge table for first assigned vendor:", bridgeQueryUrl);
 
       const bridgeResponse = await makeAuthenticatedRequest(bridgeQueryUrl, {
         method: "GET",
@@ -1210,7 +1211,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
         const bridgeData = await bridgeResponse.json();
         if (bridgeData.value && bridgeData.value.length > 0) {
           const vendorLookupId = bridgeData.value[0]._prmtk_vendor_value;
-          console.log("[OData Proxy] Found vendor ID from bridge table:", vendorLookupId);
+          console.log("[OData Proxy] Found first assigned vendor ID from bridge table:", vendorLookupId);
 
           // Now query the vendor details using the vendor ID from bridge table
           if (vendorLookupId) {
@@ -1227,7 +1228,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
               const vendorDetail = await vendorDetailResponse.json();
               vendorName = vendorDetail.prmtk_name;
               vendorId = vendorDetail.prmtk_vendorid;
-              console.log("[OData Proxy] Vendor details retrieved:", { vendorId, vendorName });
+              console.log("[OData Proxy] First assigned vendor details retrieved:", { vendorId, vendorName });
             }
           }
         }

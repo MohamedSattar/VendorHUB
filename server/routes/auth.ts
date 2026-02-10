@@ -699,11 +699,12 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
     let vendorId = null;
 
     try {
-      // First, query the bridge table prmtk_vendorcontactses to find vendor contacts
+      // First, query the bridge table prmtk_vendorcontactses to find the first assigned vendor
       // This table links contacts to vendors through the prmtk_engagement_VendorContactPerson_contact relationship
-      const bridgeQueryUrl = `${API_ENDPOINT}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${contact.contactid}&$select=_prmtk_vendor_value&$top=1`;
+      // Order by createdon to get the first assigned vendor, then get just the first result
+      const bridgeQueryUrl = `${API_ENDPOINT}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${contact.contactid}&$select=_prmtk_vendor_value,createdon&$orderby=createdon asc&$top=1`;
 
-      console.log("[Auth] Querying bridge table:", bridgeQueryUrl);
+      console.log("[Auth] Querying bridge table for first assigned vendor:", bridgeQueryUrl);
 
       const bridgeResponse = await fetch(bridgeQueryUrl, {
         method: "GET",
@@ -714,7 +715,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
         const bridgeData = await bridgeResponse.json();
         if (bridgeData.value && bridgeData.value.length > 0) {
           const vendorLookupId = bridgeData.value[0]._prmtk_vendor_value;
-          console.log("[Auth] Found vendor ID from bridge table:", vendorLookupId);
+          console.log("[Auth] Found first assigned vendor ID from bridge table:", vendorLookupId);
 
           // Now query the vendor details using the vendor ID from bridge table
           if (vendorLookupId) {
@@ -729,7 +730,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
               const vendorDetail = await vendorDetailResponse.json();
               vendorName = vendorDetail.prmtk_name;
               vendorId = vendorDetail.prmtk_vendorid;
-              console.log("[Auth] Vendor details retrieved:", { vendorId, vendorName });
+              console.log("[Auth] First assigned vendor details retrieved:", { vendorId, vendorName });
             }
           }
         }
