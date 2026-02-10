@@ -999,22 +999,14 @@ export const handleUpdateCandidateContact: RequestHandler = async (
     if (prmtk_uaeresident !== undefined)
       updateData.prmtk_uaeresident = prmtk_uaeresident;
 
-    const headers: Record<string, string> = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    };
+    console.log("[OData Proxy] Update Payload:", JSON.stringify(updateData, null, 2));
 
-    // Add authentication if available from environment
-    if (process.env.POWER_APPS_USERNAME && process.env.POWER_APPS_PASSWORD) {
-      const credentials = Buffer.from(
-        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`,
-      ).toString("base64");
-      headers["Authorization"] = `Basic ${credentials}`;
-    }
-
-    const response = await fetch(url, {
+    // Use authenticated request with OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "PATCH",
-      headers,
+      headers: {
+        Accept: "application/json",
+      },
       body: JSON.stringify(updateData),
     });
 
