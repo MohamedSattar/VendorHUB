@@ -292,10 +292,11 @@ export default function OpenRoleDetails() {
         rolePayload.prmtk_proposedsalaryaed = editData.proposedSalary;
       }
 
-      // Include status if provided
-      if (editData.status !== undefined && editData.status !== null) {
-        rolePayload.prmtk_status = editData.status;
-      }
+      // Note: Status field (prmtk_status) expects numeric option set code, not string
+      // Commenting out for now - we can add proper code mapping later if needed
+      // if (editData.status !== undefined && editData.status !== null) {
+      //   rolePayload.prmtk_status = editData.status;
+      // }
 
       console.log("[OpenRoleDetails] Role update payload:", rolePayload);
 

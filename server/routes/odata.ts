@@ -511,10 +511,12 @@ export const handleUpdateOpenRole: RequestHandler = async (req, res) => {
       }
     }
 
-    // Status field - now enabled
-    if (prmtk_status !== undefined && prmtk_status !== null && prmtk_status !== '') {
-      updatePayload.prmtk_status = String(prmtk_status).trim();
-    }
+    // Status field - requires numeric code, commenting out for now
+    // The prmtk_status field expects a numeric option set code, not the string "Open"
+    // TODO: Map string status values to numeric codes in the future
+    // if (prmtk_status !== undefined && prmtk_status !== null && prmtk_status !== '') {
+    //   updatePayload.prmtk_status = String(prmtk_status).trim();
+    // }
 
     console.log("[OData Proxy] Final update payload:", JSON.stringify(updatePayload, null, 2));
     console.log("[OData Proxy] Payload has fields:", Object.keys(updatePayload).length > 0, "Fields:", Object.keys(updatePayload));
