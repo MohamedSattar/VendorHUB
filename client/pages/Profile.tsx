@@ -360,7 +360,11 @@ export default function Profile() {
                   <p className="text-sm text-gray-600 mb-1">Member Since</p>
                   <p className="text-lg font-semibold text-navy">
                     {contactData?.createdon
-                      ? new Date(contactData.createdon).toLocaleDateString()
+                      ? new Date(contactData.createdon).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
                       : "N/A"}
                   </p>
                 </div>
