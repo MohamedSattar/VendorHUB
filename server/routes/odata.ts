@@ -1,6 +1,33 @@
 import { RequestHandler } from "express";
+import { getAuthHeaders, invalidateTokenCache } from "../services/azureAuth";
 
-const ODATA_BASE_URL = "https://ecavendorhubspa.powerappsportals.com/_api";
+/**
+ * Build the OData base URL from Dataverse resource
+ * The DATAVERSE_RESOURCE env var contains the organization endpoint
+ * Examples:
+ * - https://org2a23f983.crm15.dynamics.com/.default (with /.default for OAuth v2.0)
+ * - https://org2a23f983.crm15.dynamics.com/ (without suffix)
+ */
+function getODataBaseUrl(): string {
+  const resource = process.env.DATAVERSE_RESOURCE;
+
+  if (resource && resource.includes("dynamics.com")) {
+    // Remove /.default or trailing slash if present to get the clean endpoint
+    const cleanResource = resource
+      .replace(/\/\.default\/?$/, "") // Remove /.default suffix
+      .replace(/\/$/, ""); // Remove trailing slash
+
+    // Construct the API endpoint
+    // Dataverse v9.2 API: https://[org].crm[region].dynamics.com/api/data/v9.2
+    return `${cleanResource}/api/data/v9.2`;
+  }
+
+  // Fallback to public portal endpoint (for non-Dataverse scenarios)
+  console.warn("[OData] DATAVERSE_RESOURCE not properly configured, using fallback portal endpoint");
+  return "https://ecavendorhubspa.powerappsportals.com/_api";
+}
+
+const ODATA_BASE_URL = getODataBaseUrl();
 
 interface ODataQuery {
   filter?: string;
@@ -8,6 +35,55 @@ interface ODataQuery {
   orderby?: string;
   top?: number;
   skip?: number;
+}
+
+/**
+ * Make an authenticated request to the OData API
+ * Handles token retrieval and error scenarios
+ */
+async function makeAuthenticatedRequest(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  try {
+    // Get authentication headers with access token
+    const authHeaders = await getAuthHeaders();
+
+    // Merge with existing headers
+    const headers = {
+      ...authHeaders,
+      ...options.headers,
+    };
+
+    console.log("[OData] Making authenticated request to:", url);
+
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    // If we get a 401, invalidate the cache and retry once
+    if (response.status === 401) {
+      console.warn("[OData] Got 401 Unauthorized, invalidating token cache and retrying...");
+      invalidateTokenCache();
+
+      const retryAuthHeaders = await getAuthHeaders();
+      const retryHeaders = {
+        ...retryAuthHeaders,
+        ...options.headers,
+      };
+
+      return fetch(url, {
+        ...options,
+        headers: retryHeaders,
+      });
+    }
+
+    return response;
+  } catch (error) {
+    console.error("[OData] Authentication error:", error);
+    throw error;
+  }
 }
 
 /**
@@ -47,11 +123,10 @@ export const handleGetWebsiteContents: RequestHandler = async (req, res) => {
 
     console.log("[OData Proxy] Fetching from:", url);
 
-    const response = await fetch(url, {
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
@@ -90,11 +165,10 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
 
     console.log("[OData Proxy] Fetching FAQ from Power Apps");
 
-    const response = await fetch(url, {
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
@@ -177,11 +251,10 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
 
     console.log("[OData Proxy] Fetching Engagements from Power Apps");
 
-    const response = await fetch(url, {
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
