@@ -431,17 +431,17 @@ export default function OpenRoleDetails() {
 
     setIsConfirmingChange(true);
     try {
-      await assignCandidateToOpenRole(openRole.id, {
-        candidateId: changeCandidatePreview.id,
-        candidateName: changeCandidatePreview.name,
-        candidateContactId: changeCandidatePreview.id,
-        formData: {
+      await assignCandidateToOpenRole(
+        openRole.id,
+        changeCandidatePreview.id,
+        changeCandidatePreview.name,
+        {
           fullName: changeCandidatePreview.name,
           email: changeCandidatePreview.email,
           phoneNumber: changeCandidatePreview.phoneNumber,
           uaeResident: changeCandidatePreview.uaeResident,
-        },
-      });
+        }
+      );
 
       // Reset modal state and refetch data
       setIsChangeCandidateModalOpen(false);
