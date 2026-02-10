@@ -294,17 +294,13 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
         // The backend has already transformed the category value to a formatted label
-        // It's now in item.prmtk_category (which was replaced by the backend)
-        // Also available as item.prmtk_category_formatted as a fallback
-        const categoryLabel = item.prmtk_category_formatted || item.prmtk_category || "General";
+        // Use the transformed prmtk_category or prmtk_category_formatted
+        const categoryLabel = item.prmtk_category || item.prmtk_category_formatted || "General";
 
-        console.log("[OData] Manual item:", {
+        console.log("[OData] Processing manual:", {
           id: item.prmtk_websitecontentid,
           title: item.prmtk_header,
-          category: categoryLabel,
-          prmtk_category: item.prmtk_category,
-          prmtk_category_formatted: item.prmtk_category_formatted,
-          prmtk_category_raw: item.prmtk_category_raw,
+          categoryLabel: categoryLabel,
         });
 
         return {

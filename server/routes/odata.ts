@@ -229,7 +229,7 @@ const CATEGORY_LABELS: Record<string, string> = {
  */
 export const handleGetManuals: RequestHandler = async (req, res) => {
   try {
-    // Request includes the formatted value annotation for category field
+    // Request to get formatted values from OData
     const url =
       `${ODATA_BASE_URL}/prmtk_websitecontents?` +
       `$filter=prmtk_section%20eq%203&` +
@@ -237,12 +237,15 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
       `$orderby=importsequencenumber%20asc`;
 
     console.log("[OData Proxy] Fetching Manuals from CRM Dataverse");
+    console.log("[OData Proxy] URL:", url);
 
-    // Use authenticated request to get CRM data with proper OAuth token
+    // Use authenticated request with Prefer header to get formatted values
     const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
+        // Request formatted values from OData API
+        "Prefer": "odata.include-annotations=\"*\"",
       },
     });
 
@@ -265,29 +268,36 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
 
     // Log first item to debug category values
     if (data.value && data.value.length > 0) {
+      const firstItem = data.value[0];
       console.log("[OData Proxy] First manual item:", {
-        id: data.value[0].prmtk_websitecontentid,
-        title: data.value[0].prmtk_header,
-        categoryRaw: data.value[0].prmtk_category,
-        allFields: Object.keys(data.value[0]),
+        id: firstItem.prmtk_websitecontentid,
+        title: firstItem.prmtk_header,
+        categoryRaw: firstItem.prmtk_category,
+        categoryFormatted: firstItem["prmtk_category@OData.Community.Display.V1.FormattedValue"],
+        allFields: Object.keys(firstItem).filter(k => k.includes("category")),
       });
     }
 
-    // Transform category values using the mapping and OData formatted values
+    // Transform category values using the OData formatted values
     if (data.value) {
       data.value = data.value.map((item: any) => {
-        // Get the raw category value (might be string or number)
-        const categoryValue = item.prmtk_category;
-        const categoryKey = String(categoryValue); // Convert to string for lookup
+        // Try to get OData formatted value first (most reliable from CRM)
+        const odataFormatted = item["prmtk_category@OData.Community.Display.V1.FormattedValue"];
 
-        // Get formatted value from our mapping (most reliable)
-        const formattedLabel = CATEGORY_LABELS[categoryKey] || "Unknown";
+        // Fallback to manual mapping if OData doesn't provide formatted value
+        const categoryValue = item.prmtk_category;
+        const categoryKey = String(categoryValue);
+        const mappedLabel = CATEGORY_LABELS[categoryKey];
+
+        // Use whichever is available (prefer OData formatted)
+        const formattedLabel = odataFormatted || mappedLabel || "Unknown";
 
         console.log("[OData] Category transformation:", {
           title: item.prmtk_header,
           rawValue: categoryValue,
-          categoryKey: categoryKey,
-          formattedLabel: formattedLabel,
+          odataFormatted: odataFormatted,
+          mappedLabel: mappedLabel,
+          finalLabel: formattedLabel,
         });
 
         return {
@@ -295,13 +305,14 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
           // Replace the numeric category with the formatted label
           prmtk_category: formattedLabel,
           prmtk_category_formatted: formattedLabel,
-          prmtk_category_raw: categoryValue,
         };
       });
     }
 
-    // Add cache headers for performance
-    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    // Don't cache to ensure fresh data is always fetched
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
     res.json(data);
   } catch (error) {
     console.error("[OData Proxy] Manuals Error:", error);
