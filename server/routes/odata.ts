@@ -1208,32 +1208,36 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
       candidateName,
     });
 
-    // Update the open role with the assigned candidate
-    // Note: Cannot directly update Entity Reference properties (_prmtk_candidate_value)
-    // Must use navigation properties instead
+    // Update the prmtk_candidateengagementname record with the candidate lookup value
+    // The lookup field is stored as _prmtk_candidate_value in Dynamics CRM
     const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
-    // First, update the non-reference fields (prmtk_name)
+    // Build the update payload with both the name and the lookup reference
     const updatePayload: Record<string, any> = {
+      // Set the name field
       prmtk_name: candidateName,
+      // Set the lookup value directly - this is the key to saving it to the database
+      // In Dynamics CRM, we reference the related record using the @odata.bind syntax
+      "prmtk_candidate@odata.bind": `/prmtk_engagementcontacts(${candidateId})`,
     };
 
-    // If form data is provided, update candidate contact with new information
+    // If form data is provided, we can add more candidate details
     if (formData) {
       console.log(
         "[OData Proxy] Form data provided for candidate update:",
         formData,
       );
-      // Could add additional fields here if needed
     }
 
     console.log("[OData Proxy] Update URL:", updateUrl);
     console.log("[OData Proxy] Update Payload:", JSON.stringify(updatePayload, null, 2));
 
+    // Make the PATCH request to update the open role with the candidate
     const updateResponse = await makeAuthenticatedRequest(updateUrl, {
       method: "PATCH",
       headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(updatePayload),
     });
@@ -1246,63 +1250,11 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         errorText,
       );
       throw new Error(
-        `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`,
+        `Failed to update open role with candidate: ${updateResponse.status} ${updateResponse.statusText}`,
       );
     }
 
-    // Now set the candidate reference
-    // Try updating through the field directly first
-    // Note: For lookup fields in Dynamics CRM, we need to find the correct way to set the reference
-    // The lookup field appears to be _prmtk_candidate_value based on the GET response
-
-    // First, let's try to clear the reference if it exists (DELETE)
-    const refUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})/prmtk_candidate/$ref`;
-
-    console.log("[OData Proxy] Attempting to clear existing candidate reference...");
-
-    // Try DELETE first to clear
-    try {
-      await makeAuthenticatedRequest(refUrl, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-      console.log("[OData Proxy] Cleared existing reference");
-    } catch (e) {
-      console.log("[OData Proxy] No existing reference to clear, continuing...");
-    }
-
-    // Now set the new reference using POST
-    const refPayload = {
-      "@odata.id": `${ODATA_BASE_URL}/prmtk_engagementcontacts(${candidateId})`,
-    };
-
-    console.log("[OData Proxy] Setting candidate reference via navigation property");
-    console.log("[OData Proxy] Reference URL:", refUrl);
-    console.log("[OData Proxy] Reference Payload:", JSON.stringify(refPayload, null, 2));
-
-    const refResponse = await makeAuthenticatedRequest(refUrl, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
-      body: JSON.stringify(refPayload),
-    });
-
-    if (!refResponse.ok) {
-      const refErrorText = await refResponse.text();
-      console.error(
-        "[OData Proxy] Reference update failed:",
-        refResponse.status,
-        refErrorText,
-      );
-      // Don't throw here - log the error but continue
-      console.warn("[OData Proxy] Failed to set reference through standard method, may need manual setup");
-      // Continue anyway as the main record update succeeded
-    } else {
-      console.log("[OData Proxy] Successfully set candidate reference");
-    }
+    console.log("[OData Proxy] Successfully patched candidate reference to open role record");
 
     console.log("[OData Proxy] Successfully assigned candidate to open role");
 
