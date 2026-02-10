@@ -209,26 +209,27 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
  * Category choice mapping from Dataverse numeric values to labels
  * This corresponds to the choice values configured in the CRM
  */
-const CATEGORY_LABELS: Record<number | string, string> = {
-  0: "N/A",
-  1: "Getting Started",
-  2: "Engagements",
-  3: "Contracts",
-  4: "Resources",
-  5: "Account",
-  6: "Support",
-  7: "Key Features",
-  8: "Contact & Support",
+const CATEGORY_LABELS: Record<string, string> = {
+  "0": "N/A",
+  "1": "Getting Started",
+  "2": "Engagements",
+  "3": "Contracts",
+  "4": "Resources",
+  "5": "Account",
+  "6": "Support",
+  "7": "Key Features",
+  "8": "Contact & Support",
 };
 
 /**
  * Get Manuals content (prmtk_section eq 3)
  * GET /api/odata/manuals
  * Uses authenticated requests to fetch from CRM Dataverse
- * Transforms numeric category values to display labels
+ * Includes formatted category values from OData
  */
 export const handleGetManuals: RequestHandler = async (req, res) => {
   try {
+    // Request includes the formatted value annotation for category field
     const url =
       `${ODATA_BASE_URL}/prmtk_websitecontents?` +
       `$filter=prmtk_section%20eq%203&` +
@@ -236,7 +237,6 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
       `$orderby=importsequencenumber%20asc`;
 
     console.log("[OData Proxy] Fetching Manuals from CRM Dataverse");
-    console.log("[OData Proxy] Manuals URL:", url);
 
     // Use authenticated request to get CRM data with proper OAuth token
     const response = await makeAuthenticatedRequest(url, {
@@ -260,17 +260,45 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
 
     const data = await response.json();
 
-    // Transform category values to labels
-    if (data.value) {
-      data.value = data.value.map((item: any) => ({
-        ...item,
-        // Store the numeric value and add the formatted label
-        prmtk_category_formatted: CATEGORY_LABELS[item.prmtk_category] || "Unknown",
-      }));
-    }
-
     console.log("[OData Proxy] Successfully fetched Manuals from CRM");
     console.log("[OData Proxy] Manuals count:", data.value ? data.value.length : 0);
+
+    // Log first item to debug category values
+    if (data.value && data.value.length > 0) {
+      console.log("[OData Proxy] First manual item:", {
+        id: data.value[0].prmtk_websitecontentid,
+        title: data.value[0].prmtk_header,
+        categoryRaw: data.value[0].prmtk_category,
+        allFields: Object.keys(data.value[0]),
+      });
+    }
+
+    // Transform category values using the mapping and OData formatted values
+    if (data.value) {
+      data.value = data.value.map((item: any) => {
+        // Get the raw category value (might be string or number)
+        const categoryValue = item.prmtk_category;
+        const categoryKey = String(categoryValue); // Convert to string for lookup
+
+        // Get formatted value from our mapping (most reliable)
+        const formattedLabel = CATEGORY_LABELS[categoryKey] || "Unknown";
+
+        console.log("[OData] Category transformation:", {
+          title: item.prmtk_header,
+          rawValue: categoryValue,
+          categoryKey: categoryKey,
+          formattedLabel: formattedLabel,
+        });
+
+        return {
+          ...item,
+          // Replace the numeric category with the formatted label
+          prmtk_category: formattedLabel,
+          prmtk_category_formatted: formattedLabel,
+          prmtk_category_raw: categoryValue,
+        };
+      });
+    }
 
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes

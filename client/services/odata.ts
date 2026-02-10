@@ -287,31 +287,32 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 
     const data: ODataResponse = await response.json();
 
+    console.log("[OData] Raw API response - First item:", data.value[0]);
+
     // Transform OData response to our Manuals format
     const manualItems: ManualItem[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
-        // Get formatted category from backend transformation (prmtk_category_formatted)
-        // This contains the human-readable label instead of numeric value
-        const formattedValue =
-          item.prmtk_category_formatted ||
-          item["prmtk_category@OData.Community.Display.V1.FormattedValue"] ||
-          item.prmtk_category ||
-          "General";
+        // The backend has already transformed the category value to a formatted label
+        // It's now in item.prmtk_category (which was replaced by the backend)
+        // Also available as item.prmtk_category_formatted as a fallback
+        const categoryLabel = item.prmtk_category_formatted || item.prmtk_category || "General";
 
-        console.log("[OData] Manual category:", {
+        console.log("[OData] Manual item:", {
           id: item.prmtk_websitecontentid,
           title: item.prmtk_header,
-          rawValue: item.prmtk_category,
-          formattedValue: formattedValue,
+          category: categoryLabel,
+          prmtk_category: item.prmtk_category,
+          prmtk_category_formatted: item.prmtk_category_formatted,
+          prmtk_category_raw: item.prmtk_category_raw,
         });
 
         return {
           id: item.prmtk_websitecontentid,
           title: item.prmtk_header,
           description: item.prmtk_description,
-          category: formattedValue,
-          categoryFormatted: formattedValue,
+          category: categoryLabel,
+          categoryFormatted: categoryLabel,
           createdOn: item.createdon,
           modifiedOn: item.modifiedon,
           section: item.prmtk_section,
