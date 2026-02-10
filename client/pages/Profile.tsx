@@ -80,16 +80,18 @@ export default function Profile() {
         setContactData(contact);
 
         // Map CRM data to form data
-        const mappedPreference = contact.prmtk_preferredcontactmethod
-          ? (["email", "phone", "sms"][contact.prmtk_preferredcontactmethod - 1] as "email" | "phone" | "sms")
-          : "email";
+        // Note: Preferred Contact Method defaults to "email" (no standard CRM field for this)
+        // If a custom field exists, update the mapping accordingly
+        console.log("[Profile] Contact preference field:", {
+          prmtk_preferredcontactmethod: contact.prmtk_preferredcontactmethod,
+        });
 
         setFormData({
           id: contact.prmtk_contactid,
           firstName: contact.prmtk_firstname || "",
           lastName: contact.prmtk_lastname || "",
           mobileNumber: contact.prmtk_mobilenumber || contact.prmtk_phone || "",
-          contactPreference: mappedPreference,
+          contactPreference: "email", // Default to email - can be updated if custom field exists
           email: contact.prmtk_email || loggedInEmail,
         });
       } catch (error) {
@@ -330,13 +332,17 @@ export default function Profile() {
                 />
               </div>
 
-              {/* Contact Preference */}
+              {/* Contact Preference
+                Note: This field displays for user reference but is not currently saved.
+                To enable saving, configure the correct CRM custom field name and update the backend endpoint.
+              */}
               <div>
                 <label
                   htmlFor="contactPreference"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Preferred Contact Method
+                  <span className="text-xs text-gray-500 ml-2">(for reference)</span>
                 </label>
                 <select
                   id="contactPreference"
@@ -350,6 +356,9 @@ export default function Profile() {
                   <option value="phone">Phone</option>
                   <option value="sms">SMS</option>
                 </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Currently set to Email. To change this preference, contact your administrator.
+                </p>
               </div>
 
               {/* Action Buttons */}
