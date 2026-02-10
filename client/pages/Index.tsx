@@ -4,13 +4,19 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Clipboard, DecorativeWaveLines } from "@/components/DecorativeElements";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/components/ui/use-toast";
+
+type AuthMode = "signin" | "redeem";
 
 export default function Index() {
+  const [authMode, setAuthMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [invitationCode, setInvitationCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +27,23 @@ export default function Index() {
       // Redirect to dashboard after successful login
       navigate("/dashboard");
     }, 1000);
+  };
+
+  const handleRedeemInvitation = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!invitationCode.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter an invitation code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    // Navigate to invitation page with the code
+    navigate(`/invitation?invitation=${encodeURIComponent(invitationCode)}`);
   };
 
   return (
@@ -116,44 +139,98 @@ export default function Index() {
 
             {/* Login Card */}
             <div className="bg-navy rounded-xl p-8 w-full max-w-sm relative z-20 shadow-2xl">
-              <form onSubmit={handleLogin} className="space-y-6">
-                <div>
-                  <input
-                    type="email"
-                    placeholder={t("index.email")}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
-                  />
-                </div>
-
-                <div>
-                  <input
-                    type="password"
-                    placeholder={t("index.password")}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
-                  />
-                </div>
-
+              {/* Tabs */}
+              <div className="flex gap-6 mb-8 border-b border-gray-600">
                 <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full px-5 py-3 bg-cyan-300 text-navy font-bold rounded-lg hover:bg-cyan-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base tracking-wide"
+                  onClick={() => {
+                    setAuthMode("signin");
+                    setInvitationCode("");
+                  }}
+                  className={`pb-3 font-semibold transition ${
+                    authMode === "signin"
+                      ? "text-cyan-300 border-b-2 border-cyan-300"
+                      : "text-gray-400 hover:text-gray-300"
+                  }`}
                 >
-                  {isLoading ? (language === "ar" ? "جاري الدخول..." : "LOGGING IN...") : t("index.loginBtn")}
+                  Sign in
                 </button>
-              </form>
-
-              <div className={`mt-8 border-t border-navy/20 pt-6 ${language === "ar" ? "text-right" : "text-center"}`}>
-                <p className="text-cyan-100 text-xs mb-3">{t("index.registerText")}</p>
-                <a href="#" className="text-cyan-300 text-sm font-semibold hover:text-cyan-200 transition duration-200 inline-block">
-                  {t("index.register")}
-                </a>
+                <button
+                  onClick={() => {
+                    setAuthMode("redeem");
+                    setEmail("");
+                    setPassword("");
+                  }}
+                  className={`pb-3 font-semibold transition ${
+                    authMode === "redeem"
+                      ? "text-cyan-300 border-b-2 border-cyan-300"
+                      : "text-gray-400 hover:text-gray-300"
+                  }`}
+                >
+                  Redeem invitation
+                </button>
               </div>
+
+              {/* Sign in Form */}
+              {authMode === "signin" && (
+                <form onSubmit={handleLogin} className="space-y-6">
+                  <div>
+                    <input
+                      type="email"
+                      placeholder={t("index.email")}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
+                    />
+                  </div>
+
+                  <div>
+                    <input
+                      type="password"
+                      placeholder={t("index.password")}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full px-5 py-3 bg-cyan-300 text-navy font-bold rounded-lg hover:bg-cyan-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base tracking-wide"
+                  >
+                    {isLoading ? (language === "ar" ? "جاري الدخول..." : "LOGGING IN...") : t("index.loginBtn")}
+                  </button>
+                </form>
+              )}
+
+              {/* Redeem Invitation Form */}
+              {authMode === "redeem" && (
+                <form onSubmit={handleRedeemInvitation} className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-cyan-100 mb-2">
+                      * Invitation code
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your invitation code"
+                      value={invitationCode}
+                      onChange={(e) => setInvitationCode(e.target.value)}
+                      required
+                      className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full px-5 py-3 bg-cyan-300 text-navy font-bold rounded-lg hover:bg-cyan-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base tracking-wide"
+                  >
+                    {isLoading ? "Processing..." : "Register"}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>
