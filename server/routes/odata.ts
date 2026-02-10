@@ -154,6 +154,7 @@ export const handleGetWebsiteContents: RequestHandler = async (req, res) => {
 /**
  * Get FAQ content (prmtk_section eq 2)
  * GET /api/odata/faq
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetFAQ: RequestHandler = async (req, res) => {
   try {
@@ -163,8 +164,10 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
       `$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode&` +
       `$orderby=importsequencenumber%20asc`;
 
-    console.log("[OData Proxy] Fetching FAQ from Power Apps");
+    console.log("[OData Proxy] Fetching FAQ from CRM Dataverse");
+    console.log("[OData Proxy] FAQ URL:", url);
 
+    // Use authenticated request to get CRM data with proper OAuth token
     const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
@@ -173,12 +176,21 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "[OData Proxy] CRM API returned error:",
+        response.status,
+        errorText,
+      );
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
     const data = await response.json();
+
+    console.log("[OData Proxy] Successfully fetched FAQ from CRM");
+    console.log("[OData Proxy] FAQ count:", data.value ? data.value.length : 0);
 
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
@@ -186,7 +198,7 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] FAQ Error:", error);
     res.status(500).json({
-      error: "Failed to fetch FAQ content",
+      error: "Failed to fetch FAQ content from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
@@ -196,6 +208,7 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
 /**
  * Get Manuals content (prmtk_section eq 3)
  * GET /api/odata/manuals
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetManuals: RequestHandler = async (req, res) => {
   try {
@@ -205,23 +218,33 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
       `$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_category,prmtk_section,createdon,modifiedon,statuscode&` +
       `$orderby=importsequencenumber%20asc`;
 
-    console.log("[OData Proxy] Fetching Manuals from Power Apps");
+    console.log("[OData Proxy] Fetching Manuals from CRM Dataverse");
+    console.log("[OData Proxy] Manuals URL:", url);
 
-    const response = await fetch(url, {
+    // Use authenticated request to get CRM data with proper OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "[OData Proxy] CRM API returned error:",
+        response.status,
+        errorText,
+      );
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
     const data = await response.json();
+
+    console.log("[OData Proxy] Successfully fetched Manuals from CRM");
+    console.log("[OData Proxy] Manuals count:", data.value ? data.value.length : 0);
 
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
@@ -229,7 +252,7 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] Manuals Error:", error);
     res.status(500).json({
-      error: "Failed to fetch Manuals content",
+      error: "Failed to fetch Manuals content from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
@@ -288,6 +311,7 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
 /**
  * Get single Open Role by ID
  * GET /api/odata/open-role/:id
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
   try {
@@ -304,11 +328,11 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
     console.log("[OData Proxy] Fetching Open Role by ID:", id);
     console.log("[OData Proxy] Full URL:", url);
 
-    const response = await fetch(url, {
+    // Use authenticated request to get CRM data with proper OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
@@ -322,7 +346,7 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
       const errorText = await response.text();
       console.log("[OData Proxy] Response Error Body:", errorText);
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -339,7 +363,7 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] Open Role by ID Error:", error);
     res.status(500).json({
-      error: "Failed to fetch Open Role",
+      error: "Failed to fetch Open Role from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
@@ -349,6 +373,7 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
 /**
  * Get Open Roles for an Engagement
  * GET /api/odata/open-roles/:engagementId
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetOpenRoles: RequestHandler = async (req, res) => {
   try {
@@ -369,17 +394,17 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
       engagementId,
     );
 
-    const response = await fetch(url, {
+    // Use authenticated request to get CRM data with proper OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -391,7 +416,7 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] Open Roles Error:", error);
     res.status(500).json({
-      error: "Failed to fetch Open Roles",
+      error: "Failed to fetch Open Roles from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
@@ -401,6 +426,7 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
 /**
  * Get single Engagement by ID
  * GET /api/odata/engagements/:id
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetEngagementById: RequestHandler = async (req, res) => {
   try {
@@ -416,17 +442,17 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
 
     console.log("[OData Proxy] Fetching Engagement by ID:", id);
 
-    const response = await fetch(url, {
+    // Use authenticated request to get CRM data with proper OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -438,7 +464,7 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] Engagement by ID Error:", error);
     res.status(500).json({
-      error: "Failed to fetch Engagement",
+      error: "Failed to fetch Engagement from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
@@ -448,6 +474,7 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
 /**
  * Get all Engagement Contacts
  * GET /api/odata/engagement-contacts
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
   try {
@@ -457,26 +484,26 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
       `$orderby=prmtk_id%20asc`;
 
     console.log(
-      "[OData Proxy] Fetching all Engagement Contacts from Power Apps",
+      "[OData Proxy] Fetching all Engagement Contacts from CRM Dataverse",
     );
     console.log("[OData Proxy] URL:", url);
 
-    const response = await fetch(url, {
+    // Use authenticated request to get CRM data with proper OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
       console.error(
-        `[OData Proxy] API returned status ${response.status}: ${response.statusText}`,
+        `[OData Proxy] CRM API returned status ${response.status}: ${response.statusText}`,
       );
       const errorText = await response.text();
       console.error("[OData Proxy] Error response:", errorText);
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -495,7 +522,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] Engagement Contacts Error:", error);
     res.status(500).json({
-      error: "Failed to fetch Engagement Contacts",
+      error: "Failed to fetch Engagement Contacts from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
@@ -567,6 +594,7 @@ export const handleGetEngagementContactPhoto: RequestHandler = async (
 /**
  * Get Candidate Contact by ID
  * GET /api/odata/candidate-contact/:id
+ * Uses authenticated requests to fetch from CRM Dataverse
  */
 export const handleGetCandidateContact: RequestHandler = async (req, res) => {
   try {
@@ -584,17 +612,17 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
 
     console.log("[OData Proxy] Fetching Candidate Contact by ID:", id);
 
-    const response = await fetch(url, {
+    // Use authenticated request to get CRM data with proper OAuth token
+    const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`,
+        `CRM API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -606,7 +634,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("[OData Proxy] Candidate Contact by ID Error:", error);
     res.status(500).json({
-      error: "Failed to fetch Candidate Contact",
+      error: "Failed to fetch Candidate Contact from CRM",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });
