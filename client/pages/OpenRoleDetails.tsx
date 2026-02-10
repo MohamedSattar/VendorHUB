@@ -985,52 +985,46 @@ export default function OpenRoleDetails() {
 
                     {/* Assignment Mode Selection */}
                     {!assignResourceMode ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Option 1: Search Existing Resource */}
+                      <div className="space-y-3">
+                        {/* Option 1: Select from Dropdown */}
                         <button
                           type="button"
-                          onClick={() => setAssignResourceMode("existing")}
-                          className="p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
+                          onClick={async () => {
+                            setAssignResourceMode("existing");
+                            // Load resources immediately
+                            try {
+                              setIsSearching(true);
+                              const resources = await fetchEngagementContacts();
+                              setAllResources(resources);
+                            } catch (error) {
+                              console.error("Error fetching resources:", error);
+                              setAllResources([]);
+                            } finally {
+                              setIsSearching(false);
+                            }
+                          }}
+                          className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
                         >
-                          <div className="flex items-center gap-3 mb-3">
-                            <Search className="w-6 h-6 text-primary" />
-                            <h4 className="font-semibold text-navy">
-                              Search Existing Resource
-                            </h4>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Find and assign a resource from the existing pool
-                            using email or name
-                          </p>
+                          Select Candidate from Dropdown
                         </button>
 
                         {/* Option 2: Add New Resource */}
                         <button
                           type="button"
                           onClick={() => navigate("/add-resource")}
-                          className="p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
+                          className="w-full px-6 py-3 border-2 border-gray-300 text-navy rounded-lg hover:bg-gray-50 transition font-medium"
                         >
-                          <div className="flex items-center gap-3 mb-3">
-                            <Plus className="w-6 h-6 text-primary" />
-                            <h4 className="font-semibold text-navy">
-                              Add New Resource
-                            </h4>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Create and add a new resource to the system
-                          </p>
+                          Add New Candidate
                         </button>
                       </div>
                     ) : assignResourceMode === "existing" ? (
-                      /* Search Existing Resource Mode */
+                      /* Dropdown Selection Mode */
                       <div className="space-y-4">
                         <div className="flex gap-2 mb-4">
                           <button
                             type="button"
                             onClick={() => {
                               setAssignResourceMode(null);
-                              setSearchQuery("");
-                              setSearchResults([]);
                               setSelectedResource(null);
                             }}
                             className="text-sm text-gray-600 hover:text-gray-800 underline"
@@ -1039,71 +1033,45 @@ export default function OpenRoleDetails() {
                           </button>
                         </div>
 
-                        {/* Search Input */}
+                        {/* Dropdown Select */}
                         <div className="space-y-2">
-                          <div className="relative">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            <input
-                              type="text"
-                              placeholder="Search by name, email, or phone..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            Select Candidate to Assign
+                          </label>
+                          <select
+                            value={selectedResource?.id || ""}
+                            onChange={(e) => {
+                              const resourceId = e.target.value;
+                              const resource = allResources.find(
+                                (r) => r.id === resourceId
+                              );
+                              setSelectedResource(resource || null);
+                            }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+                          >
+                            <option value="">-- Select a Candidate --</option>
+                            {isSearching ? (
+                              <option disabled>Loading candidates...</option>
+                            ) : allResources.length === 0 ? (
+                              <option disabled>No candidates available</option>
+                            ) : (
+                              allResources.map((resource) => (
+                                <option key={resource.id} value={resource.id}>
+                                  {resource.name} ({resource.email})
+                                </option>
+                              ))
+                            )}
+                          </select>
 
                           {/* Status Information */}
                           <div className="text-xs text-gray-500 p-2">
                             {isSearching
-                              ? "Loading resources..."
+                              ? "Loading candidates..."
                               : allResources.length === 0
-                                ? "No resources available in the system"
-                                : `${allResources.length} resource${allResources.length !== 1 ? "s" : ""} available`}
+                                ? "No candidates available in the system"
+                                : `${allResources.length} candidate${allResources.length !== 1 ? "s" : ""} available`}
                           </div>
                         </div>
-
-                        {/* Search Results */}
-                        {searchQuery && (
-                          <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto">
-                            {isSearching ? (
-                              <p className="text-center text-gray-500 py-8">
-                                Searching...
-                              </p>
-                            ) : searchResults.length > 0 ? (
-                              <div className="space-y-2">
-                                {searchResults.map((resource) => (
-                                  <button
-                                    key={resource.id}
-                                    type="button"
-                                    onClick={() =>
-                                      setSelectedResource(resource)
-                                    }
-                                    className={`w-full p-3 rounded-lg text-left transition ${
-                                      selectedResource?.id === resource.id
-                                        ? "bg-primary/10 border-primary border-2"
-                                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
-                                    }`}
-                                  >
-                                    <p className="font-medium text-gray-900">
-                                      {resource.name}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                      {resource.email}
-                                    </p>
-                                  </button>
-                                ))}
-                              </div>
-                            ) : allResources.length === 0 ? (
-                              <p className="text-center text-gray-500 py-8">
-                                No resources available in the system
-                              </p>
-                            ) : (
-                              <p className="text-center text-gray-500 py-8">
-                                No resources match "{searchQuery}"
-                              </p>
-                            )}
-                          </div>
-                        )}
 
                         {/* Selected Resource Edit Form */}
                         {selectedResource && (
@@ -1133,11 +1101,10 @@ export default function OpenRoleDetails() {
                                 type="button"
                                 onClick={() => {
                                   setSelectedResource(null);
-                                  setSearchQuery("");
                                 }}
                                 className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
                               >
-                                Back to Search
+                                Back to Dropdown
                               </button>
                               <button
                                 type="button"
