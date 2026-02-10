@@ -174,6 +174,9 @@ export default function OpenRoleDetails() {
   const [isSearching, setIsSearching] = useState(false);
   const [allResources, setAllResources] = useState<any[]>([]);
   const selectedResourceRef = useRef<AddResourceFormHandle>(null);
+  const [isChangeCandidateModalOpen, setIsChangeCandidateModalOpen] = useState(false);
+  const [changeCandidatePreview, setChangeCandidatePreview] = useState<any>(null);
+  const [isConfirmingChange, setIsConfirmingChange] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
@@ -398,6 +401,70 @@ export default function OpenRoleDetails() {
     setIsEditMode(false);
   };
 
+  const handleOpenChangeCandidate = async () => {
+    try {
+      setIsSearching(true);
+      const resources = await fetchEngagementContacts();
+      setAllResources(resources);
+      setIsChangeCandidateModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching resources:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load candidate list",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleConfirmChangeCandidate = async () => {
+    if (!changeCandidatePreview || !openRole) {
+      toast({
+        title: "Error",
+        description: "Please select a candidate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConfirmingChange(true);
+    try {
+      await assignCandidateToOpenRole(openRole.id, {
+        candidateId: changeCandidatePreview.id,
+        candidateName: changeCandidatePreview.name,
+        candidateContactId: changeCandidatePreview.id,
+        formData: {
+          fullName: changeCandidatePreview.name,
+          email: changeCandidatePreview.email,
+          phoneNumber: changeCandidatePreview.phoneNumber,
+          uaeResident: changeCandidatePreview.uaeResident,
+        },
+      });
+
+      // Reset modal state and refetch data
+      setIsChangeCandidateModalOpen(false);
+      setChangeCandidatePreview(null);
+      await refetch();
+      await refetchCandidateDetails();
+
+      toast({
+        title: "Success",
+        description: "Candidate assignment updated successfully",
+      });
+    } catch (error) {
+      console.error("Error changing candidate:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update candidate",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConfirmingChange(false);
+    }
+  };
+
   if (!openRole && !isLoading) {
     return (
       <div
@@ -587,9 +654,18 @@ export default function OpenRoleDetails() {
               {/* Assigned Candidate Section */}
               {candidateDetails && (
                 <div className="mb-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-lg font-semibold text-navy mb-6">
-                    Candidate Details
-                  </h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-navy">
+                      Candidate Details
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={handleOpenChangeCandidate}
+                      className="px-4 py-2 border border-navy text-navy rounded-lg hover:bg-navy/5 transition font-medium text-sm"
+                    >
+                      Change Candidate
+                    </button>
+                  </div>
 
                   {/* Photo and Details */}
                   <div className="flex gap-6 mb-6 items-start">
@@ -1311,6 +1387,125 @@ export default function OpenRoleDetails() {
           )}
         </div>
       </main>
+
+      {/* Change Candidate Modal */}
+      {isChangeCandidateModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-navy">Change Candidate</h2>
+              <button
+                onClick={() => {
+                  setIsChangeCandidateModalOpen(false);
+                  setChangeCandidatePreview(null);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
+              {/* Candidate List */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select a Candidate
+                </label>
+                <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                  {isSearching ? (
+                    <p className="text-gray-500 text-center py-4">Loading candidates...</p>
+                  ) : allResources.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No candidates available</p>
+                  ) : (
+                    allResources.map((resource) => (
+                      <button
+                        key={resource.id}
+                        onClick={() => setChangeCandidatePreview(resource)}
+                        className={`w-full p-3 text-left rounded-lg border-2 transition ${
+                          changeCandidatePreview?.id === resource.id
+                            ? "border-primary bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <p className="font-medium text-navy">{resource.name}</p>
+                        <p className="text-sm text-gray-600">{resource.email}</p>
+                        {resource.phoneNumber && (
+                          <p className="text-xs text-gray-500">{resource.phoneNumber}</p>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Preview Section */}
+              {changeCandidatePreview && (
+                <div className="mt-6 p-4 rounded-lg border border-blue-200 bg-blue-50">
+                  <h3 className="font-semibold text-navy mb-3">Candidate Preview</h3>
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-medium">Name:</span> {changeCandidatePreview.name}
+                    </p>
+                    <p>
+                      <span className="font-medium">Email:</span> {changeCandidatePreview.email}
+                    </p>
+                    {changeCandidatePreview.phoneNumber && (
+                      <p>
+                        <span className="font-medium">Phone:</span> {changeCandidatePreview.phoneNumber}
+                      </p>
+                    )}
+                    {changeCandidatePreview.status && (
+                      <p>
+                        <span className="font-medium">Status:</span> {changeCandidatePreview.status}
+                      </p>
+                    )}
+                    {changeCandidatePreview.uaeResident !== null &&
+                      changeCandidatePreview.uaeResident !== undefined && (
+                        <p>
+                          <span className="font-medium">UAE Resident:</span>{" "}
+                          {changeCandidatePreview.uaeResident ? "Yes" : "No"}
+                        </p>
+                      )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsChangeCandidateModalOpen(false);
+                  setChangeCandidatePreview(null);
+                }}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmChangeCandidate}
+                disabled={!changeCandidatePreview || isConfirmingChange}
+                className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition ${
+                  changeCandidatePreview && !isConfirmingChange
+                    ? "bg-primary text-white hover:opacity-90 cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
+                }`}
+              >
+                {isConfirmingChange ? (
+                  <>
+                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Updating...
+                  </>
+                ) : (
+                  "Confirm & Assign"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>
