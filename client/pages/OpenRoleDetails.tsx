@@ -118,16 +118,20 @@ const formatReadableDate = (dateString: string): string => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
 
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
+    // Format: "Jan 15, 2026 at 2:30 PM"
+    const dateFormatter = new Intl.DateTimeFormat("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
+    });
+
+    const timeFormatter = new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
       hour12: true,
     });
+
+    return `${dateFormatter.format(date)} at ${timeFormatter.format(date)}`;
   } catch {
     return dateString;
   }
