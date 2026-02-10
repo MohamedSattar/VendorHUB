@@ -147,7 +147,7 @@ export default function OpenRoleDetails() {
   const { data: openRole, isLoading, error, refetch } = useOpenRoleDetails(id);
 
   // Fetch candidate details from API using candidateId
-  const { data: candidateDetails, isLoading: isCandidateLoading } =
+  const { data: candidateDetails, isLoading: isCandidateLoading, refetch: refetchCandidateDetails } =
     useCandidateDetails(openRole?.candidateId);
 
   // Debug logging
@@ -251,7 +251,7 @@ export default function OpenRoleDetails() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editData.name?.trim()) {
       toast({
         title: "Validation Error",
@@ -261,11 +261,84 @@ export default function OpenRoleDetails() {
       return;
     }
 
-    toast({
-      title: "Success",
-      description: "Open role has been saved successfully.",
-    });
-    setIsEditMode(false);
+    try {
+      // Update open role with role details
+      const roleUpdatePromise = fetch(
+        `/api/odata/open-role/${openRole?.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prmtk_rolename: editData.name,
+            prmtk_currenttitle: editData.designation,
+            prmtk_proposedtitle: editData.designationArabic,
+            prmtk_currentsalaryaed: editData.currentSalary,
+            prmtk_proposedsalaryaed: editData.proposedSalary,
+            prmtk_status: editData.status,
+            prmtk_readyforsubmission: editData.readyForSubmission,
+          }),
+        }
+      );
+
+      // If candidate is assigned, also update the candidate contact with form data
+      let candidateUpdatePromise: Promise<Response> | null = null;
+      if (openRole?.candidateId && selectedResourceRef.current) {
+        const formData = selectedResourceRef.current.getFormData();
+        candidateUpdatePromise = fetch(
+          `/api/odata/candidate-contact/${openRole.candidateId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prmtk_id: formData.fullName,
+              prmtk_email: formData.email,
+              prmtk_phonenumber: formData.phoneNumber,
+              prmtk_uaeresident: formData.uaeResident,
+            }),
+          }
+        );
+      }
+
+      // Wait for all updates to complete
+      const [roleResponse, candidateResponse] = await Promise.all([
+        roleUpdatePromise,
+        candidateUpdatePromise || Promise.resolve(null),
+      ]);
+
+      // Check role update response
+      if (!roleResponse.ok) {
+        throw new Error(`Failed to save role: ${roleResponse.statusText}`);
+      }
+
+      // Check candidate update response if it was made
+      if (candidateResponse && !candidateResponse.ok) {
+        throw new Error(`Failed to save candidate: ${candidateResponse.statusText}`);
+      }
+
+      toast({
+        title: "Success",
+        description: "Open role and resource have been saved successfully.",
+      });
+
+      // Refetch the data to show updated values
+      await refetch();
+      if (openRole?.candidateId) {
+        await refetchCandidateDetails();
+      }
+
+      setIsEditMode(false);
+    } catch (error) {
+      console.error("Error saving:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save changes",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancel = () => {

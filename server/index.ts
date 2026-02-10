@@ -39,6 +39,7 @@ import {
   handleCreateEngagementContact,
   handleUpdateCandidateContact,
   handleAssignCandidateToOpenRole,
+  handleUpdateOpenRole,
   handleUpdateContactById,
 } from "./routes/odata";
 
@@ -98,6 +99,7 @@ export function createServer() {
     "/api/odata/open-role/:id/assign-candidate",
     handleAssignCandidateToOpenRole,
   );
+  app.patch("/api/odata/open-role/:id", handleUpdateOpenRole);
   app.get("/api/odata/engagement-contacts", handleGetEngagementContacts);
   app.get(
     "/api/odata/engagement-contact-photo/:id",

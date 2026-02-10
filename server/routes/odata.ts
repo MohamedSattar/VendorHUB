@@ -436,6 +436,78 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Update Open Role
+ * PATCH /api/odata/open-role/:id
+ * Updates open role fields like designation, salary, status, etc.
+ */
+export const handleUpdateOpenRole: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      prmtk_rolename,
+      prmtk_currenttitle,
+      prmtk_proposedtitle,
+      prmtk_currentsalaryaed,
+      prmtk_proposedsalaryaed,
+      prmtk_status,
+      prmtk_readyforsubmission,
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Open Role ID is required" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
+
+    console.log("[OData Proxy] Updating Open Role by ID:", id);
+
+    // Build update payload with only provided fields
+    const updatePayload: Record<string, any> = {};
+    if (prmtk_rolename !== undefined) updatePayload.prmtk_rolename = prmtk_rolename;
+    if (prmtk_currenttitle !== undefined) updatePayload.prmtk_currenttitle = prmtk_currenttitle;
+    if (prmtk_proposedtitle !== undefined) updatePayload.prmtk_proposedtitle = prmtk_proposedtitle;
+    if (prmtk_currentsalaryaed !== undefined) updatePayload.prmtk_currentsalaryaed = prmtk_currentsalaryaed;
+    if (prmtk_proposedsalaryaed !== undefined) updatePayload.prmtk_proposedsalaryaed = prmtk_proposedsalaryaed;
+    if (prmtk_status !== undefined) updatePayload.prmtk_status = prmtk_status;
+    if (prmtk_readyforsubmission !== undefined) updatePayload.prmtk_readyforsubmission = prmtk_readyforsubmission;
+
+    console.log("[OData Proxy] Update Payload:", JSON.stringify(updatePayload, null, 2));
+
+    // Use authenticated request
+    const response = await makeAuthenticatedRequest(url, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+      },
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData Proxy] Update failed:", response.status, errorText);
+      throw new Error(
+        `Failed to update open role: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    console.log("[OData Proxy] Successfully updated Open Role:", id);
+
+    res.json({
+      success: true,
+      message: "Open Role updated successfully",
+      id: id,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Update Open Role Error:", error);
+    res.status(500).json({
+      error: "Failed to update Open Role",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Get Open Roles for an Engagement
  * GET /api/odata/open-roles/:engagementId
  * Uses authenticated requests to fetch from CRM Dataverse
