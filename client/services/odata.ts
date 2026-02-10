@@ -927,13 +927,19 @@ export async function fetchOpenRoles(
  * Fetch all Engagement Contacts from Power Apps OData API via backend proxy
  * Returns all contacts with status (Assigned/Not Assigned) based on active engagements
  */
-export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
+export async function fetchEngagementContacts(vendorId?: string): Promise<EngagementContact[]> {
   try {
-    const url = `${ODATA_PROXY_URL}/engagement-contacts`;
+    const params = new URLSearchParams();
+    if (vendorId) {
+      params.append("vendorId", vendorId);
+    }
+
+    const url = `${ODATA_PROXY_URL}/engagement-contacts${params.toString() ? `?${params.toString()}` : ""}`;
 
     console.log(
-      "[OData] Fetching all Engagement Contacts via proxy from:",
+      "[OData] Fetching Engagement Contacts via proxy from:",
       url,
+      vendorId ? `for vendor: ${vendorId}` : "",
     );
 
     const response = await fetch(url, {

@@ -543,14 +543,20 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
  */
 export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
   try {
-    const url =
+    const vendorId = req.query.vendorId as string | undefined;
+
+    let url =
       `${ODATA_BASE_URL}/prmtk_engagementcontacts?` +
-      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,createdon,modifiedon,statuscode&` +
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,_prmtk_engagement_value@OData.Community.Display.V1.FormattedValue,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_id%20asc`;
 
-    console.log(
-      "[OData Proxy] Fetching all Engagement Contacts from CRM Dataverse",
-    );
+    let logMessage = "[OData Proxy] Fetching Engagement Contacts from CRM Dataverse";
+    if (vendorId) {
+      // If vendor ID provided, we'll filter on the client side after getting engagement data
+      logMessage += ` for vendor: ${vendorId}`;
+    }
+
+    console.log(logMessage);
     console.log("[OData Proxy] URL:", url);
 
     // Use authenticated request to get CRM data with proper OAuth token
