@@ -9,49 +9,64 @@ export function useEngagementContacts(vendorId?: string) {
 
       // If vendor ID is provided, filter contacts by vendor's engagements
       if (vendorId) {
-        // Fetch all engagements for the vendor
-        const engagements = await fetchEngagements(vendorId);
-        const vendorEngagementIds = new Set(engagements.map(e => e.id));
+        try {
+          // Fetch all engagements for the vendor
+          const engagements = await fetchEngagements(vendorId);
+          const vendorEngagementIds = new Set(engagements.map(e => e.id));
 
-        console.log("[useEngagementContacts] Found vendor engagements:", {
-          vendorId,
-          engagementCount: engagements.length,
-          engagementIds: Array.from(vendorEngagementIds),
-        });
+          console.log("[useEngagementContacts] Found vendor engagements:", {
+            vendorId,
+            engagementCount: engagements.length,
+            engagementIds: Array.from(vendorEngagementIds),
+          });
 
-        // Fetch contacts (passing vendorId for API logging/tracking)
-        const allContacts = await fetchEngagementContacts(vendorId);
+          // Fetch contacts (passing vendorId for API logging/tracking)
+          const allContacts = await fetchEngagementContacts(vendorId);
 
-        // Filter contacts to only those assigned to vendor's engagements
-        // Contacts can have status "Assigned" (with engagementId) or "Not Assigned"
-        const filteredContacts = allContacts.filter(contact => {
-          // Include if contact is assigned to one of the vendor's engagements
-          if (contact.engagementId && vendorEngagementIds.has(contact.engagementId)) {
-            return true;
-          }
-          // For now, also include unassigned contacts (status "Not Assigned")
-          // as they might be intended for this vendor
-          if (contact.status === "Not Assigned") {
-            return true;
-          }
-          return false;
-        });
+          console.log("[useEngagementContacts] All fetched contacts:", {
+            count: allContacts.length,
+            contacts: allContacts.map(c => ({
+              id: c.id,
+              name: c.name,
+              engagementId: c.engagementId,
+              status: c.status,
+            })),
+          });
 
-        console.log("[useEngagementContacts] Filtered contacts:", {
-          total: allContacts.length,
-          vendorEngagements: engagements.length,
-          filtered: filteredContacts.length,
-        });
+          // Filter contacts to only those assigned to vendor's engagements
+          const filteredContacts = allContacts.filter(contact => {
+            // Only include contacts that are assigned to the vendor's engagements
+            const isAssignedToVendorEngagement =
+              contact.engagementId && vendorEngagementIds.has(contact.engagementId);
 
-        return filteredContacts;
+            console.log(`[useEngagementContacts] Contact ${contact.name}:`, {
+              engagementId: contact.engagementId,
+              isInVendorEngagements: isAssignedToVendorEngagement,
+              included: isAssignedToVendorEngagement,
+            });
+
+            return isAssignedToVendorEngagement;
+          });
+
+          console.log("[useEngagementContacts] Filtered contacts:", {
+            total: allContacts.length,
+            vendorEngagements: engagements.length,
+            filtered: filteredContacts.length,
+            filteredList: filteredContacts.map(c => c.name),
+          });
+
+          return filteredContacts;
+        } catch (error) {
+          console.error("[useEngagementContacts] Error filtering contacts:", error);
+          throw error;
+        }
       } else {
-        // If no vendor ID, return all contacts (fallback)
-        console.log("[useEngagementContacts] No vendor ID provided, returning all contacts");
-        return fetchEngagementContacts();
+        // If no vendor ID, return empty array instead of all contacts
+        console.log("[useEngagementContacts] No vendor ID provided, returning empty array");
+        return [];
       }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
-    enabled: !!vendorId, // Only run query if vendorId is provided
   });
 }
