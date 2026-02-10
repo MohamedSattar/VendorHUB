@@ -16,7 +16,7 @@ export default function EditResource() {
   const { toast } = useToast();
 
   // Fetch full contact details for editing
-  const { data: contactDetails, isLoading, error } = useContactDetails(id);
+  const { data: contactDetails, isLoading, error, refetch } = useContactDetails(id);
 
   const handleSave = async () => {
     if (!id || !formRef.current) return;
@@ -46,6 +46,9 @@ export default function EditResource() {
         title: "Success",
         description: "Resource updated successfully",
       });
+
+      // Refetch the contact details to show updated data
+      await refetch();
 
       // Redirect back to resources after successful save
       setTimeout(() => {
