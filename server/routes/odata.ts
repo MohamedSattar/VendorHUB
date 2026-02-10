@@ -1223,10 +1223,11 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
 
     const updatePayload: Record<string, any> = {};
 
-    // Set the _prmtk_candidate_value field directly with the candidate ID (GUID)
-    updatePayload["_prmtk_candidate_value"] = candidateId;
+    // Use navigation property binding to set the candidate lookup field
+    // This is the correct way to update lookup fields in Dynamics CRM
+    updatePayload["prmtk_candidate@odata.bind"] = `/prmtk_engagementcontacts(${candidateId})`;
 
-    console.log("[OData Proxy] Setting _prmtk_candidate_value to candidate ID...")
+    console.log("[OData Proxy] Binding candidate using navigation property...")
     console.log("[OData Proxy] Candidate ID:", candidateId);
     console.log("[OData Proxy] Payload:", JSON.stringify(updatePayload, null, 2));
 
