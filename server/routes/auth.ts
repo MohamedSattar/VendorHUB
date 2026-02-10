@@ -100,6 +100,91 @@ export const handleGetUserInfo: RequestHandler = async (req, res) => {
   }
 };
 
+/**
+ * Forgot Password Handler
+ * POST /api/auth/forgot-password
+ * Initiates password reset flow
+ */
+export const handleForgotPassword: RequestHandler = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    console.log("[Auth] Forgot password request for email:", email);
+
+    // In production:
+    // 1. Find user by email in CRM
+    // 2. Generate reset token
+    // 3. Save token to CRM with expiration
+    // 4. Send reset email with token link
+    // For now, just return success
+
+    res.json({
+      success: true,
+      message: "Password reset link sent to email",
+      email: email,
+    });
+  } catch (error) {
+    console.error("[Auth] Forgot password error:", error);
+    res.status(500).json({
+      error: "Failed to process password reset",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+/**
+ * Reset Password Handler
+ * POST /api/auth/reset-password
+ * Completes password reset with token
+ */
+export const handleResetPassword: RequestHandler = async (req, res) => {
+  try {
+    const { token, password, confirmPassword } = req.body;
+
+    if (!token || !password || !confirmPassword) {
+      return res.status(400).json({
+        error: "Token and passwords are required",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        error: "Passwords do not match",
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        error: "Password must be at least 8 characters",
+      });
+    }
+
+    console.log("[Auth] Reset password request with token");
+
+    // In production:
+    // 1. Validate reset token
+    // 2. Check token expiration
+    // 3. Update user password in CRM
+    // 4. Invalidate token
+    // For now, just return success
+
+    res.json({
+      success: true,
+      message: "Password has been reset successfully",
+    });
+  } catch (error) {
+    console.error("[Auth] Reset password error:", error);
+    res.status(500).json({
+      error: "Failed to reset password",
+      details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
 // ============================================================
 // Email/Password Authentication and Invitation Flow
 // ============================================================

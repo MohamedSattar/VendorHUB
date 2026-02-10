@@ -6,14 +6,16 @@ import { Clipboard, DecorativeWaveLines } from "@/components/DecorativeElements"
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/components/ui/use-toast";
 
-type AuthMode = "signin" | "redeem";
+type AuthMode = "signin" | "redeem" | "forgot-password";
 
 export default function Index() {
   const [authMode, setAuthMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [invitationCode, setInvitationCode] = useState("");
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -44,6 +46,54 @@ export default function Index() {
     setIsLoading(true);
     // Navigate to invitation page with the code
     navigate(`/invitation?invitation=${encodeURIComponent(invitationCode)}`);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!forgotPasswordEmail.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter your email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Call forgot password API
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotPasswordEmail }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send reset email");
+      }
+
+      toast({
+        title: "Success",
+        description: "Password reset link sent to your email",
+      });
+
+      setResetEmailSent(true);
+      setTimeout(() => {
+        setAuthMode("signin");
+        setResetEmailSent(false);
+        setForgotPasswordEmail("");
+      }, 3000);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to process request";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -193,6 +243,17 @@ export default function Index() {
                       required
                       className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
                     />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMode("forgot-password");
+                        setEmail("");
+                        setPassword("");
+                      }}
+                      className="text-cyan-300 text-xs mt-2 hover:text-cyan-200 transition"
+                    >
+                      Forgot password?
+                    </button>
                   </div>
 
                   <button
@@ -228,6 +289,56 @@ export default function Index() {
                     className="w-full px-5 py-3 bg-cyan-300 text-navy font-bold rounded-lg hover:bg-cyan-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base tracking-wide"
                   >
                     {isLoading ? "Processing..." : "Register"}
+                  </button>
+                </form>
+              )}
+
+              {/* Forgot Password Form */}
+              {authMode === "forgot-password" && (
+                <form onSubmit={handleForgotPassword} className="space-y-6">
+                  {resetEmailSent ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                      <p className="text-green-700 font-medium mb-2">Check your email</p>
+                      <p className="text-green-600 text-sm">
+                        We've sent a password reset link to {forgotPasswordEmail}
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-cyan-100 mb-2">
+                          Email address
+                        </label>
+                        <input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={forgotPasswordEmail}
+                          onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                          required
+                          className={`w-full px-5 py-3 bg-white border border-gray-200 rounded-lg text-navy placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition duration-200 text-sm ${language === "ar" ? "text-right" : ""}`}
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full px-5 py-3 bg-cyan-300 text-navy font-bold rounded-lg hover:bg-cyan-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base tracking-wide"
+                      >
+                        {isLoading ? "Sending..." : "Send Reset Link"}
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode("signin");
+                      setResetEmailSent(false);
+                      setForgotPasswordEmail("");
+                    }}
+                    className="w-full text-cyan-300 text-sm font-medium hover:text-cyan-200 transition"
+                  >
+                    Back to Sign in
                   </button>
                 </form>
               )}

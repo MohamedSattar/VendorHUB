@@ -10,6 +10,8 @@ import {
   handleRegister,
   handleVerifyInvitation,
   handleGetInvitation,
+  handleForgotPassword,
+  handleResetPassword,
 } from "./routes/auth";
 import { requireAuth } from "./middleware/auth";
 import {
@@ -62,6 +64,8 @@ export function createServer() {
   app.post("/api/auth/register", handleRegister);
   app.post("/api/auth/invitations/verify", handleVerifyInvitation);
   app.get("/api/auth/invitations/:code", handleGetInvitation);
+  app.post("/api/auth/forgot-password", handleForgotPassword);
+  app.post("/api/auth/reset-password", handleResetPassword);
 
   // Protected user routes (require authentication)
   app.get("/api/user/profile", requireAuth, handleGetProfile);
