@@ -1061,7 +1061,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     });
 
     // Update the open role with the assigned candidate
-    const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
+    const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames('${id}')`;
 
     const updatePayload: Record<string, any> = {
       _prmtk_candidate_value: candidateId,
@@ -1077,11 +1077,13 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
       // Could add additional fields here if needed
     }
 
-    const updateResponse = await fetch(updateUrl, {
+    console.log("[OData Proxy] Update URL:", updateUrl);
+    console.log("[OData Proxy] Update Payload:", updatePayload);
+
+    const updateResponse = await makeAuthenticatedRequest(updateUrl, {
       method: "PATCH",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
       },
       body: JSON.stringify(updatePayload),
     });
