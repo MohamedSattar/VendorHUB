@@ -53,7 +53,7 @@ export default function NotificationsList({
       filtered = filtered.filter(
         (n) =>
           n.subject.toLowerCase().includes(query) ||
-          n.message.toLowerCase().includes(query)
+          n.message.toLowerCase().includes(query),
       );
     }
 
@@ -67,7 +67,7 @@ export default function NotificationsList({
     if (sortType === "created") {
       sorted.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
     } else if (sortType === "subject") {
       sorted.sort((a, b) => a.subject.localeCompare(b.subject));
@@ -78,7 +78,7 @@ export default function NotificationsList({
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.isRead).length,
-    [notifications]
+    [notifications],
   );
 
   const getNotificationIcon = (type?: string) => {

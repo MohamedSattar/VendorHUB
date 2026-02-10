@@ -53,7 +53,7 @@ export default function Notifications() {
     try {
       await markNotificationAsRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
       toast({
         title: "Success",
@@ -74,7 +74,7 @@ export default function Notifications() {
     try {
       await markNotificationAsUnread(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: false } : n))
+        prev.map((n) => (n.id === id ? { ...n, isRead: false } : n)),
       );
       toast({
         title: "Success",
@@ -115,7 +115,7 @@ export default function Notifications() {
 
     // Show confirmation
     const confirmed = window.confirm(
-      "Are you sure you want to dismiss all notifications? This action cannot be undone."
+      "Are you sure you want to dismiss all notifications? This action cannot be undone.",
     );
     if (!confirmed) return;
 
@@ -128,7 +128,9 @@ export default function Notifications() {
       });
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to dismiss all notifications";
+        err instanceof Error
+          ? err.message
+          : "Failed to dismiss all notifications";
       toast({
         title: "Error",
         description: errorMessage,

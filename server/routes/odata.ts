@@ -18,7 +18,8 @@ function buildODataQuery(query: ODataQuery): string {
 
   if (query.filter) params.push(`$filter=${encodeURIComponent(query.filter)}`);
   if (query.select) params.push(`$select=${encodeURIComponent(query.select)}`);
-  if (query.orderby) params.push(`$orderby=${encodeURIComponent(query.orderby)}`);
+  if (query.orderby)
+    params.push(`$orderby=${encodeURIComponent(query.orderby)}`);
   if (query.top) params.push(`$top=${query.top}`);
   if (query.skip) params.push(`$skip=${query.skip}`);
 
@@ -56,7 +57,7 @@ export const handleGetWebsiteContents: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -99,7 +100,7 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -142,7 +143,7 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -186,7 +187,7 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -238,19 +239,26 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
       },
     });
 
-    console.log("[OData Proxy] Response Status:", response.status, response.statusText);
+    console.log(
+      "[OData Proxy] Response Status:",
+      response.status,
+      response.statusText,
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
       console.log("[OData Proxy] Response Error Body:", errorText);
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
     const data = await response.json();
 
-    console.log("[OData Proxy] Successfully fetched Open Role, available fields:", Object.keys(data));
+    console.log(
+      "[OData Proxy] Successfully fetched Open Role, available fields:",
+      Object.keys(data),
+    );
 
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
@@ -283,7 +291,10 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
       `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,prmtk_currenttitle,prmtk_proposedtitle,prmtk_currentsalaryaed,prmtk_proposedsalaryaed,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_startdate%20asc`;
 
-    console.log("[OData Proxy] Fetching Open Roles for Engagement:", engagementId);
+    console.log(
+      "[OData Proxy] Fetching Open Roles for Engagement:",
+      engagementId,
+    );
 
     const response = await fetch(url, {
       method: "GET",
@@ -295,7 +306,7 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -342,7 +353,7 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -372,7 +383,9 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
       `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_id%20asc`;
 
-    console.log("[OData Proxy] Fetching all Engagement Contacts from Power Apps");
+    console.log(
+      "[OData Proxy] Fetching all Engagement Contacts from Power Apps",
+    );
     console.log("[OData Proxy] URL:", url);
 
     const response = await fetch(url, {
@@ -384,11 +397,13 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
     });
 
     if (!response.ok) {
-      console.error(`[OData Proxy] API returned status ${response.status}: ${response.statusText}`);
+      console.error(
+        `[OData Proxy] API returned status ${response.status}: ${response.statusText}`,
+      );
       const errorText = await response.text();
       console.error("[OData Proxy] Error response:", errorText);
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -418,7 +433,10 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
  * Get Engagement Contact Personal Photo
  * GET /api/odata/engagement-contact-photo/:id
  */
-export const handleGetEngagementContactPhoto: RequestHandler = async (req, res) => {
+export const handleGetEngagementContactPhoto: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { id } = req.params;
 
@@ -443,7 +461,7 @@ export const handleGetEngagementContactPhoto: RequestHandler = async (req, res) 
         return res.status(404).json({ error: "Photo not found" });
       }
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -453,7 +471,11 @@ export const handleGetEngagementContactPhoto: RequestHandler = async (req, res) 
     // Get content type from response headers
     const contentType = response.headers.get("content-type") || "image/jpeg";
 
-    console.log("[OData Proxy] Successfully fetched contact photo, size:", buffer.byteLength, "bytes");
+    console.log(
+      "[OData Proxy] Successfully fetched contact photo, size:",
+      buffer.byteLength,
+      "bytes",
+    );
 
     // Set appropriate headers for image response
     res.set("Content-Type", contentType);
@@ -478,7 +500,9 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ error: "Candidate Contact ID is required" });
+      return res
+        .status(400)
+        .json({ error: "Candidate Contact ID is required" });
     }
 
     const url =
@@ -497,7 +521,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
 
     if (!response.ok) {
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -520,7 +544,10 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
  * Get Candidate Contact Personal Photo
  * GET /api/odata/candidate-contact-photo/:id
  */
-export const handleGetCandidateContactPhoto: RequestHandler = async (req, res) => {
+export const handleGetCandidateContactPhoto: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { id } = req.params;
 
@@ -545,7 +572,7 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (req, res) =
         return res.status(404).json({ error: "Photo not found" });
       }
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -555,7 +582,11 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (req, res) =
     // Get content type from response headers
     const contentType = response.headers.get("content-type") || "image/jpeg";
 
-    console.log("[OData Proxy] Successfully fetched candidate contact photo, size:", buffer.byteLength, "bytes");
+    console.log(
+      "[OData Proxy] Successfully fetched candidate contact photo, size:",
+      buffer.byteLength,
+      "bytes",
+    );
 
     // Set appropriate headers for image response
     res.set("Content-Type", contentType);
@@ -576,12 +607,17 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (req, res) =
  * GET /api/odata/engagement-contact/:id/:fieldName/$value
  * Example: /api/odata/engagement-contact/123/prmtk_cvfile/$value
  */
-export const handleGetEngagementContactDocument: RequestHandler = async (req, res) => {
+export const handleGetEngagementContactDocument: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { id, fieldName } = req.params;
 
     if (!id || !fieldName) {
-      return res.status(400).json({ error: "Contact ID and field name are required" });
+      return res
+        .status(400)
+        .json({ error: "Contact ID and field name are required" });
     }
 
     // Validate field name to prevent injection attacks
@@ -602,7 +638,12 @@ export const handleGetEngagementContactDocument: RequestHandler = async (req, re
 
     const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/${fieldName}/$value`;
 
-    console.log("[OData Proxy] Fetching document for ID:", id, "Field:", fieldName);
+    console.log(
+      "[OData Proxy] Fetching document for ID:",
+      id,
+      "Field:",
+      fieldName,
+    );
 
     const response = await fetch(url, {
       method: "GET",
@@ -613,11 +654,16 @@ export const handleGetEngagementContactDocument: RequestHandler = async (req, re
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.log("[OData Proxy] Document not found for contact:", id, "Field:", fieldName);
+        console.log(
+          "[OData Proxy] Document not found for contact:",
+          id,
+          "Field:",
+          fieldName,
+        );
         return res.status(404).json({ error: "Document not found" });
       }
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}`
+        `OData API returned ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -625,12 +671,18 @@ export const handleGetEngagementContactDocument: RequestHandler = async (req, re
     const buffer = await response.arrayBuffer();
 
     // Get content type from response headers - for documents, often application/octet-stream
-    const contentType = response.headers.get("content-type") || "application/octet-stream";
+    const contentType =
+      response.headers.get("content-type") || "application/octet-stream";
 
     // Try to extract filename from Content-Disposition header if available
-    const contentDisposition = response.headers.get("content-disposition") || "";
+    const contentDisposition =
+      response.headers.get("content-disposition") || "";
 
-    console.log("[OData Proxy] Successfully fetched document, size:", buffer.byteLength, "bytes");
+    console.log(
+      "[OData Proxy] Successfully fetched document, size:",
+      buffer.byteLength,
+      "bytes",
+    );
 
     // Set appropriate headers for document response
     res.set("Content-Type", contentType);
@@ -652,9 +704,13 @@ export const handleGetEngagementContactDocument: RequestHandler = async (req, re
  * POST /api/odata/engagement-contact
  * Creates a new engagement contact record
  */
-export const handleCreateEngagementContact: RequestHandler = async (req, res) => {
+export const handleCreateEngagementContact: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
-    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident } = req.body;
+    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident } =
+      req.body;
 
     if (!prmtk_id) {
       return res.status(400).json({ error: "Name (prmtk_id) is required" });
@@ -669,8 +725,10 @@ export const handleCreateEngagementContact: RequestHandler = async (req, res) =>
       prmtk_id: prmtk_id,
     };
     if (prmtk_email !== undefined) createData.prmtk_email = prmtk_email;
-    if (prmtk_phonenumber !== undefined) createData.prmtk_phonenumber = prmtk_phonenumber;
-    if (prmtk_uaeresident !== undefined) createData.prmtk_uaeresident = prmtk_uaeresident;
+    if (prmtk_phonenumber !== undefined)
+      createData.prmtk_phonenumber = prmtk_phonenumber;
+    if (prmtk_uaeresident !== undefined)
+      createData.prmtk_uaeresident = prmtk_uaeresident;
 
     const headers: Record<string, string> = {
       Accept: "application/json",
@@ -680,7 +738,7 @@ export const handleCreateEngagementContact: RequestHandler = async (req, res) =>
     // Add authentication if available from environment
     if (process.env.POWER_APPS_USERNAME && process.env.POWER_APPS_PASSWORD) {
       const credentials = Buffer.from(
-        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`
+        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`,
       ).toString("base64");
       headers["Authorization"] = `Basic ${credentials}`;
     }
@@ -693,9 +751,13 @@ export const handleCreateEngagementContact: RequestHandler = async (req, res) =>
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[OData Proxy] Create Error Response:", response.status, errorText);
+      console.error(
+        "[OData Proxy] Create Error Response:",
+        response.status,
+        errorText,
+      );
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`,
       );
     }
 
@@ -722,10 +784,14 @@ export const handleCreateEngagementContact: RequestHandler = async (req, res) =>
  * PATCH /api/odata/candidate-contact/:id
  * Updates the existing engagement contact record with new values
  */
-export const handleUpdateCandidateContact: RequestHandler = async (req, res) => {
+export const handleUpdateCandidateContact: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { id } = req.params;
-    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident } = req.body;
+    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident } =
+      req.body;
 
     if (!id) {
       return res.status(400).json({ error: "Contact ID is required" });
@@ -739,8 +805,10 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
     const updateData: Record<string, any> = {};
     if (prmtk_id !== undefined) updateData.prmtk_id = prmtk_id;
     if (prmtk_email !== undefined) updateData.prmtk_email = prmtk_email;
-    if (prmtk_phonenumber !== undefined) updateData.prmtk_phonenumber = prmtk_phonenumber;
-    if (prmtk_uaeresident !== undefined) updateData.prmtk_uaeresident = prmtk_uaeresident;
+    if (prmtk_phonenumber !== undefined)
+      updateData.prmtk_phonenumber = prmtk_phonenumber;
+    if (prmtk_uaeresident !== undefined)
+      updateData.prmtk_uaeresident = prmtk_uaeresident;
 
     const headers: Record<string, string> = {
       Accept: "application/json",
@@ -750,7 +818,7 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
     // Add authentication if available from environment
     if (process.env.POWER_APPS_USERNAME && process.env.POWER_APPS_PASSWORD) {
       const credentials = Buffer.from(
-        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`
+        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`,
       ).toString("base64");
       headers["Authorization"] = `Basic ${credentials}`;
     }
@@ -763,9 +831,13 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[OData Proxy] Update Error Response:", response.status, errorText);
+      console.error(
+        "[OData Proxy] Update Error Response:",
+        response.status,
+        errorText,
+      );
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`,
       );
     }
 
@@ -790,10 +862,14 @@ export const handleUpdateCandidateContact: RequestHandler = async (req, res) => 
  * Assign a candidate to an open role
  * POST /api/odata/open-role/:id/assign-candidate
  */
-export const handleAssignCandidateToOpenRole: RequestHandler = async (req, res) => {
+export const handleAssignCandidateToOpenRole: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { id } = req.params;
-    const { candidateId, candidateName, candidateContactId, formData } = req.body;
+    const { candidateId, candidateName, candidateContactId, formData } =
+      req.body;
 
     if (!id || !candidateId) {
       return res.status(400).json({
@@ -811,13 +887,16 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (req, res) 
     const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
     const updatePayload: Record<string, any> = {
-      "_prmtk_candidate_value": candidateId,
-      "prmtk_name": candidateName,
+      _prmtk_candidate_value: candidateId,
+      prmtk_name: candidateName,
     };
 
     // If form data is provided, update candidate contact with new information
     if (formData) {
-      console.log("[OData Proxy] Form data provided for candidate update:", formData);
+      console.log(
+        "[OData Proxy] Form data provided for candidate update:",
+        formData,
+      );
       // Could add additional fields here if needed
     }
 
@@ -832,9 +911,13 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (req, res) 
 
     if (!updateResponse.ok) {
       const errorText = await updateResponse.text();
-      console.error("[OData Proxy] Update failed:", updateResponse.status, errorText);
+      console.error(
+        "[OData Proxy] Update failed:",
+        updateResponse.status,
+        errorText,
+      );
       throw new Error(
-        `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`
+        `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`,
       );
     }
 

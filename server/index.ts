@@ -2,7 +2,11 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { handleExchangeToken, handleRefreshToken, handleGetUserInfo } from "./routes/auth";
+import {
+  handleExchangeToken,
+  handleRefreshToken,
+  handleGetUserInfo,
+} from "./routes/auth";
 import { requireAuth } from "./middleware/auth";
 import {
   handleGetProfile,
@@ -53,7 +57,11 @@ export function createServer() {
   app.get("/api/user/profile", requireAuth, handleGetProfile);
   app.put("/api/user/profile", requireAuth, handleUpdateProfile);
   app.get("/api/user/resources", requireAuth, handleGetUserResources);
-  app.delete("/api/user/resources/:resourceId", requireAuth, handleDeleteResource);
+  app.delete(
+    "/api/user/resources/:resourceId",
+    requireAuth,
+    handleDeleteResource,
+  );
 
   // OData proxy routes (to avoid CORS issues)
   app.get("/api/odata/websitecontents", handleGetWebsiteContents);
@@ -63,24 +71,36 @@ export function createServer() {
   app.get("/api/odata/engagements/:id", handleGetEngagementById);
   app.get("/api/odata/open-roles/:engagementId", handleGetOpenRoles);
   app.get("/api/odata/open-role/:id", handleGetOpenRoleById);
-  app.post("/api/odata/open-role/:id/assign-candidate", handleAssignCandidateToOpenRole);
+  app.post(
+    "/api/odata/open-role/:id/assign-candidate",
+    handleAssignCandidateToOpenRole,
+  );
   app.get("/api/odata/engagement-contacts", handleGetEngagementContacts);
-  app.get("/api/odata/engagement-contact-photo/:id", handleGetEngagementContactPhoto);
+  app.get(
+    "/api/odata/engagement-contact-photo/:id",
+    handleGetEngagementContactPhoto,
+  );
   app.get("/api/odata/candidate-contact/:id", handleGetCandidateContact);
   app.post("/api/odata/engagement-contact", handleCreateEngagementContact);
   app.patch("/api/odata/candidate-contact/:id", handleUpdateCandidateContact);
-  app.get("/api/odata/candidate-contact-photo/:id", handleGetCandidateContactPhoto);
+  app.get(
+    "/api/odata/candidate-contact-photo/:id",
+    handleGetCandidateContactPhoto,
+  );
   // Route for document download: /api/odata/engagement-contact/{id}/{fieldName}/$value
   // Using regex to handle the $value part
-  app.get(/^\/api\/odata\/engagement-contact\/(.+?)\/(.+?)\/\$value$/, (req, res) => {
-    const id = req.params[0];
-    const fieldName = req.params[1];
-    const modifiedReq = {
-      ...req,
-      params: { id, fieldName },
-    } as any;
-    handleGetEngagementContactDocument(modifiedReq, res);
-  });
+  app.get(
+    /^\/api\/odata\/engagement-contact\/(.+?)\/(.+?)\/\$value$/,
+    (req, res) => {
+      const id = req.params[0];
+      const fieldName = req.params[1];
+      const modifiedReq = {
+        ...req,
+        params: { id, fieldName },
+      } as any;
+      handleGetEngagementContactDocument(modifiedReq, res);
+    },
+  );
 
   return app;
 }

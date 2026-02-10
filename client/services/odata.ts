@@ -232,7 +232,7 @@ export async function fetchFAQContent(): Promise<FAQItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`
+        `Failed to fetch FAQ content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -280,7 +280,7 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`
+        `Failed to fetch Manuals content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -291,8 +291,10 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
         // Try to get formatted category value, fallback to raw value or default
-        const formattedValue = item["prmtk_category@OData.Community.Display.V1.FormattedValue"];
-        const categoryValue = formattedValue || item.prmtk_category || "General";
+        const formattedValue =
+          item["prmtk_category@OData.Community.Display.V1.FormattedValue"];
+        const categoryValue =
+          formattedValue || item.prmtk_category || "General";
 
         return {
           id: item.prmtk_websitecontentid,
@@ -340,7 +342,7 @@ export async function fetchAboutPageContent(): Promise<AboutPageContent> {
     const params = new URLSearchParams();
     params.append(
       "select",
-      "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode"
+      "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode",
     );
 
     const url = `${ODATA_PROXY_URL}/websitecontents?${params.toString()}`;
@@ -357,7 +359,7 @@ export async function fetchAboutPageContent(): Promise<AboutPageContent> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch content: ${response.status} ${response.statusText}`
+        `Failed to fetch content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -368,7 +370,7 @@ export async function fetchAboutPageContent(): Promise<AboutPageContent> {
 
     const findByHeader = (headerName: string): WebsiteContentItem | null => {
       const item = activeItems.find(
-        (i) => i.prmtk_header.toLowerCase() === headerName.toLowerCase()
+        (i) => i.prmtk_header.toLowerCase() === headerName.toLowerCase(),
       );
       return item ? transformODataItem(item) : null;
     };
@@ -395,15 +397,18 @@ export async function fetchAboutPageContent(): Promise<AboutPageContent> {
  * Returns the first matching active record
  */
 export async function fetchContentByHeaderName(
-  headerName: string
+  headerName: string,
 ): Promise<WebsiteContentItem | null> {
   try {
     // Build query parameters for OData filter
     const params = new URLSearchParams();
-    params.append("filter", `prmtk_header eq '${headerName.replace(/'/g, "''")}'`);
+    params.append(
+      "filter",
+      `prmtk_header eq '${headerName.replace(/'/g, "''")}'`,
+    );
     params.append(
       "select",
-      "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode"
+      "prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode",
     );
     params.append("top", "1");
 
@@ -421,7 +426,7 @@ export async function fetchContentByHeaderName(
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch content: ${response.status} ${response.statusText}`
+        `Failed to fetch content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -451,7 +456,7 @@ export async function fetchContentByHeaderName(
  * Useful for fetching any section from Power Apps OData API
  */
 export async function fetchWebsiteContent(
-  sectionFilter?: number
+  sectionFilter?: number,
 ): Promise<ODataFAQItem[]> {
   try {
     let url = `${ODATA_PROXY_URL}/websitecontents`;
@@ -499,7 +504,7 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch Engagements content: ${response.status} ${response.statusText}`
+        `Failed to fetch Engagements content: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -515,13 +520,20 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
         startDate: item.prmtk_startdate,
         endDate: item.prmtk_enddate,
         // Use formatted status value from API
-        status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Pending",
+        status:
+          item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
+          "Pending",
         // Use formatted manager name from API
-        ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
-        vendorName: item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
+        ecaEngagementManager:
+          item[
+            "_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"
+          ] || "Not assigned",
+        vendorName:
+          item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
         contractNumber: item.prmtk_uniqueid,
         contractDescription: item.prmtk_description,
-        typeOfEngagement: item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
+        typeOfEngagement:
+          item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
       }));
@@ -540,7 +552,7 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
  * Returns detailed engagement information
  */
 export async function fetchEngagementById(
-  engagementId: string
+  engagementId: string,
 ): Promise<EngagementItem | null> {
   try {
     const url = `${ODATA_PROXY_URL}/engagements/${engagementId}`;
@@ -561,7 +573,7 @@ export async function fetchEngagementById(
         return null;
       }
       throw new Error(
-        `Failed to fetch Engagement: ${response.status} ${response.statusText}`
+        `Failed to fetch Engagement: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -574,12 +586,19 @@ export async function fetchEngagementById(
       description: item.prmtk_description,
       startDate: item.prmtk_startdate,
       endDate: item.prmtk_enddate,
-      status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Pending",
-      ecaEngagementManager: item["_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"] || "Not assigned",
-      vendorName: item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
+      status:
+        item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
+        "Pending",
+      ecaEngagementManager:
+        item[
+          "_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"
+        ] || "Not assigned",
+      vendorName:
+        item["_prmtk_vendor_value@OData.Community.Display.V1.FormattedValue"],
       contractNumber: item.prmtk_uniqueid,
       contractDescription: item.prmtk_description,
-      typeOfEngagement: item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
+      typeOfEngagement:
+        item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
       createdOn: item.createdon,
       modifiedOn: item.modifiedon,
     };
@@ -598,7 +617,7 @@ export async function fetchEngagementById(
  * Returns detailed open role information
  */
 export async function fetchOpenRoleById(
-  openRoleId: string
+  openRoleId: string,
 ): Promise<OpenRole | null> {
   try {
     const url = `${ODATA_PROXY_URL}/open-role/${openRoleId}`;
@@ -619,7 +638,7 @@ export async function fetchOpenRoleById(
         return null;
       }
       throw new Error(
-        `Failed to fetch Open Role: ${response.status} ${response.statusText}`
+        `Failed to fetch Open Role: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -629,9 +648,14 @@ export async function fetchOpenRoleById(
     const openRole: OpenRole = {
       id: item.prmtk_candidateengagementnameid,
       name: item.prmtk_rolename,
-      candidateName: item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"] || item.prmtk_name,
+      candidateName:
+        item[
+          "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"
+        ] || item.prmtk_name,
       expectedStartDate: item.prmtk_startdate,
-      status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
+      status:
+        item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
+        "Open",
       readyForSubmission: item.prmtk_readyforsubmission,
       candidateId: item._prmtk_candidate_value,
       candidateContactId: item._prmtk_engagementcontact_value,
@@ -643,7 +667,10 @@ export async function fetchOpenRoleById(
       modifiedOn: item.modifiedon,
     };
 
-    console.log("[OData] Fetched Open Role with candidateId:", openRole.candidateId);
+    console.log(
+      "[OData] Fetched Open Role with candidateId:",
+      openRole.candidateId,
+    );
 
     return openRole;
   } catch (error) {
@@ -657,7 +684,7 @@ export async function fetchOpenRoleById(
  * Returns candidate contact information
  */
 export async function fetchCandidateContactById(
-  contactId: string
+  contactId: string,
 ): Promise<CandidateDetail | null> {
   try {
     const url = `${ODATA_PROXY_URL}/candidate-contact/${contactId}`;
@@ -678,7 +705,7 @@ export async function fetchCandidateContactById(
         return null;
       }
       throw new Error(
-        `Failed to fetch Candidate Contact: ${response.status} ${response.statusText}`
+        `Failed to fetch Candidate Contact: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -696,7 +723,9 @@ export async function fetchCandidateContactById(
       name: item.prmtk_id,
       email: item.prmtk_email,
       phoneNumber: item.prmtk_phonenumber,
-      status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Unknown",
+      status:
+        item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
+        "Unknown",
       // Construct photo URL to fetch the actual image via backend proxy
       personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
       uaeResident: item.prmtk_uaeresident,
@@ -738,7 +767,7 @@ export async function fetchCandidateContactById(
  * Returns list of open roles/positions needed for the engagement
  */
 export async function fetchOpenRoles(
-  engagementId: string
+  engagementId: string,
 ): Promise<OpenRole[]> {
   try {
     const url = `${ODATA_PROXY_URL}/open-roles/${engagementId}`;
@@ -755,7 +784,7 @@ export async function fetchOpenRoles(
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch Open Roles: ${response.status} ${response.statusText}`
+        `Failed to fetch Open Roles: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -768,9 +797,14 @@ export async function fetchOpenRoles(
         return {
           id: item.prmtk_candidateengagementnameid,
           name: item.prmtk_rolename,
-          candidateName: item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"] || item.prmtk_name,
+          candidateName:
+            item[
+              "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"
+            ] || item.prmtk_name,
           expectedStartDate: item.prmtk_startdate,
-          status: item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Open",
+          status:
+            item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
+            "Open",
           readyForSubmission: item.prmtk_readyforsubmission,
           candidateId: item._prmtk_candidate_value,
           candidateContactId: item._prmtk_engagementcontact_value,
@@ -800,7 +834,10 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
   try {
     const url = `${ODATA_PROXY_URL}/engagement-contacts`;
 
-    console.log("[OData] Fetching all Engagement Contacts via proxy from:", url);
+    console.log(
+      "[OData] Fetching all Engagement Contacts via proxy from:",
+      url,
+    );
 
     const response = await fetch(url, {
       method: "GET",
@@ -812,7 +849,7 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch Engagement Contacts: ${response.status} ${response.statusText}`
+        `Failed to fetch Engagement Contacts: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -845,7 +882,11 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
         return transformed;
       });
 
-    console.log("[OData] Fetched Engagement Contacts:", contacts.length, contacts);
+    console.log(
+      "[OData] Fetched Engagement Contacts:",
+      contacts.length,
+      contacts,
+    );
 
     return contacts;
   } catch (error) {
@@ -866,21 +907,24 @@ export async function assignCandidateToOpenRole(
     email?: string;
     phoneNumber?: string;
     uaeResident?: boolean | null;
-  }
+  },
 ): Promise<OpenRole> {
   try {
-    const response = await fetch(`/api/odata/open-role/${openRoleId}/assign-candidate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `/api/odata/open-role/${openRoleId}/assign-candidate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          candidateId,
+          candidateName,
+          candidateContactId: candidateId,
+          formData,
+        }),
       },
-      body: JSON.stringify({
-        candidateId,
-        candidateName,
-        candidateContactId: candidateId,
-        formData,
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorData = await response.json();

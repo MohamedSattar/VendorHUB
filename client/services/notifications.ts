@@ -17,7 +17,8 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "1",
     subject: "Engagement Submitted Successfully",
-    message: "Your engagement 'UAE Resources - Q1 2024' has been submitted to ECA for processing.",
+    message:
+      "Your engagement 'UAE Resources - Q1 2024' has been submitted to ECA for processing.",
     isRead: false,
     createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     type: "success",
@@ -25,7 +26,8 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "2",
     subject: "New Open Role Available",
-    message: "A new open role 'Senior Developer' has been added to engagement 'Cloud Migration Project'.",
+    message:
+      "A new open role 'Senior Developer' has been added to engagement 'Cloud Migration Project'.",
     isRead: false,
     createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     type: "info",
@@ -33,7 +35,8 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "3",
     subject: "Document Upload Required",
-    message: "Please upload the required documents for candidate 'Ahmed Al-Mansouri' within 24 hours.",
+    message:
+      "Please upload the required documents for candidate 'Ahmed Al-Mansouri' within 24 hours.",
     isRead: true,
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     type: "warning",
@@ -41,7 +44,8 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "4",
     subject: "Candidate Assignment Confirmed",
-    message: "Sarah Johnson has been successfully assigned to role 'Business Analyst' in engagement 'Process Optimization'.",
+    message:
+      "Sarah Johnson has been successfully assigned to role 'Business Analyst' in engagement 'Process Optimization'.",
     isRead: true,
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     type: "success",
@@ -49,7 +53,8 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "5",
     subject: "Engagement Status Update",
-    message: "Engagement 'IT Support Services' status has been updated to 'In Progress'.",
+    message:
+      "Engagement 'IT Support Services' status has been updated to 'In Progress'.",
     isRead: true,
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     type: "info",
@@ -57,7 +62,8 @@ const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "6",
     subject: "Action Required: Missing Information",
-    message: "Please complete the missing designation information for open role 'Project Manager'.",
+    message:
+      "Please complete the missing designation information for open role 'Project Manager'.",
     isRead: false,
     createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     type: "warning",
@@ -89,7 +95,7 @@ export async function fetchNotifications(): Promise<Notification[]> {
  * TODO: Replace with actual API call to /api/notifications/:id/read
  */
 export async function markNotificationAsRead(
-  notificationId: string
+  notificationId: string,
 ): Promise<Notification> {
   try {
     // In production: PATCH /api/notifications/:id/read
@@ -100,12 +106,22 @@ export async function markNotificationAsRead(
     // if (!response.ok) throw new Error("Failed to mark as read");
     // return await response.json();
 
-    const notification = MOCK_NOTIFICATIONS.find((n) => n.id === notificationId);
+    const notification = MOCK_NOTIFICATIONS.find(
+      (n) => n.id === notificationId,
+    );
     if (notification) {
       notification.isRead = true;
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
-    return notification || { id: notificationId, subject: "", message: "", isRead: true, createdAt: "" };
+    return (
+      notification || {
+        id: notificationId,
+        subject: "",
+        message: "",
+        isRead: true,
+        createdAt: "",
+      }
+    );
   } catch (error) {
     console.error("Error marking notification as read:", error);
     throw error;
@@ -117,7 +133,7 @@ export async function markNotificationAsRead(
  * TODO: Replace with actual API call to /api/notifications/:id/unread
  */
 export async function markNotificationAsUnread(
-  notificationId: string
+  notificationId: string,
 ): Promise<Notification> {
   try {
     // In production: PATCH /api/notifications/:id/unread
@@ -128,12 +144,22 @@ export async function markNotificationAsUnread(
     // if (!response.ok) throw new Error("Failed to mark as unread");
     // return await response.json();
 
-    const notification = MOCK_NOTIFICATIONS.find((n) => n.id === notificationId);
+    const notification = MOCK_NOTIFICATIONS.find(
+      (n) => n.id === notificationId,
+    );
     if (notification) {
       notification.isRead = false;
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
-    return notification || { id: notificationId, subject: "", message: "", isRead: false, createdAt: "" };
+    return (
+      notification || {
+        id: notificationId,
+        subject: "",
+        message: "",
+        isRead: false,
+        createdAt: "",
+      }
+    );
   } catch (error) {
     console.error("Error marking notification as unread:", error);
     throw error;
@@ -167,7 +193,9 @@ export async function markAllNotificationsAsRead(): Promise<void> {
  * Dismiss (delete) a notification
  * TODO: Replace with actual API call to /api/notifications/:id
  */
-export async function dismissNotification(notificationId: string): Promise<void> {
+export async function dismissNotification(
+  notificationId: string,
+): Promise<void> {
   try {
     // In production: DELETE /api/notifications/:id
     // const response = await fetch(`/api/notifications/${notificationId}`, {

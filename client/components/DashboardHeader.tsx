@@ -13,7 +13,9 @@ export default function DashboardHeader() {
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex justify-between items-center h-16 ${isArabic ? "flex-row-reverse" : ""}`}>
+        <div
+          className={`flex justify-between items-center h-16 ${isArabic ? "flex-row-reverse" : ""}`}
+        >
           {/* Logo and brand */}
           <Link to="/dashboard" className="flex items-center flex-shrink-0">
             <ECALogo />
@@ -36,7 +38,9 @@ export default function DashboardHeader() {
           </nav>
 
           {/* Right section - Icons and profile */}
-          <div className={`flex items-center gap-4 ${isArabic ? "flex-row-reverse" : ""}`}>
+          <div
+            className={`flex items-center gap-4 ${isArabic ? "flex-row-reverse" : ""}`}
+          >
             <button
               onClick={() => navigate("/notifications")}
               className="relative p-2 text-navy hover:bg-gray-100 rounded-lg transition"
@@ -51,7 +55,8 @@ export default function DashboardHeader() {
             </button>
             <button
               onClick={() => navigate("/profile")}
-              className="p-2 text-navy hover:bg-gray-100 rounded-lg transition">
+              className="p-2 text-navy hover:bg-gray-100 rounded-lg transition"
+            >
               <Settings className="w-5 h-5" />
             </button>
             <button className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-90 transition">
