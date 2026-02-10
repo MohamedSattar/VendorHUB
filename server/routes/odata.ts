@@ -1223,9 +1223,9 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
 
     const updatePayload: Record<string, any> = {};
 
-    // Use navigation property binding to set the candidate lookup field
-    // This is the correct way to update lookup fields in Dynamics CRM
-    updatePayload["prmtk_candidate@odata.bind"] = `/prmtk_engagementcontacts(${candidateId})`;
+    // Use navigation property binding with proper schema name capitalization
+    // The navigation property is "prmtk_Candidate" (with capital C) as defined in metadata
+    updatePayload["prmtk_Candidate@odata.bind"] = `/prmtk_engagementcontacts(${candidateId})`;
 
     console.log("[OData Proxy] Binding candidate using navigation property...")
     console.log("[OData Proxy] Candidate ID:", candidateId);
