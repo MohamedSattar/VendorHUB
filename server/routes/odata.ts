@@ -624,9 +624,13 @@ export const handleGetEngagementContactPhoto: RequestHandler = async (
 
     console.log("[OData Proxy] Fetching contact photo for ID:", id);
 
+    // Get authentication headers for OAuth token
+    const authHeaders = await getAuthHeaders();
+
     const response = await fetch(url, {
       method: "GET",
       headers: {
+        ...authHeaders,
         Accept: "image/*",
       },
     });
@@ -736,9 +740,13 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (
 
     console.log("[OData Proxy] Fetching candidate contact photo for ID:", id);
 
+    // Get authentication headers for OAuth token
+    const authHeaders = await getAuthHeaders();
+
     const response = await fetch(url, {
       method: "GET",
       headers: {
+        ...authHeaders,
         Accept: "image/*",
       },
     });
@@ -822,9 +830,13 @@ export const handleGetEngagementContactDocument: RequestHandler = async (
       fieldName,
     );
 
+    // Get authentication headers for OAuth token
+    const authHeaders = await getAuthHeaders();
+
     const response = await fetch(url, {
       method: "GET",
       headers: {
+        ...authHeaders,
         Accept: "*/*",
       },
     });
