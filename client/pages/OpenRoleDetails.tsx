@@ -549,7 +549,15 @@ export default function OpenRoleDetails() {
                         {candidateDetails.cvFile && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">CV:</span>{" "}
-                            {candidateDetails.cvFile}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_cvfile/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.cvFile}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.introductionDocument && (
@@ -557,7 +565,15 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Introduction Document:
                             </span>{" "}
-                            {candidateDetails.introductionDocument}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_introductiondocument/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.introductionDocument}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.educationalCertificate && (
@@ -565,13 +581,29 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Educational Certificate:
                             </span>{" "}
-                            {candidateDetails.educationalCertificate}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_educationalcertificate/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.educationalCertificate}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.eid && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">EID:</span>{" "}
-                            {candidateDetails.eid}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_eid/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.eid}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.salaryCertificate && (
@@ -579,13 +611,29 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Salary Certificate:
                             </span>{" "}
-                            {candidateDetails.salaryCertificate}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_salarycertificate/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.salaryCertificate}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.passport && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">Passport:</span>{" "}
-                            {candidateDetails.passport}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_passport/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.passport}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.experienceLetter && (
@@ -593,7 +641,15 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Experience Letter:
                             </span>{" "}
-                            {candidateDetails.experienceLetter}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_experienceletter/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.experienceLetter}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.policeClearance && (
@@ -601,7 +657,15 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Police Clearance:
                             </span>{" "}
-                            {candidateDetails.policeClearance}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_policeclearance/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.policeClearance}
+                            </a>
                           </p>
                         )}
                       </div>
