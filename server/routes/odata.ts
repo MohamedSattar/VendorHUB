@@ -206,9 +206,26 @@ export const handleGetFAQ: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Category choice mapping from Dataverse numeric values to labels
+ * This corresponds to the choice values configured in the CRM
+ */
+const CATEGORY_LABELS: Record<number | string, string> = {
+  0: "N/A",
+  1: "Getting Started",
+  2: "Engagements",
+  3: "Contracts",
+  4: "Resources",
+  5: "Account",
+  6: "Support",
+  7: "Key Features",
+  8: "Contact & Support",
+};
+
+/**
  * Get Manuals content (prmtk_section eq 3)
  * GET /api/odata/manuals
  * Uses authenticated requests to fetch from CRM Dataverse
+ * Transforms numeric category values to display labels
  */
 export const handleGetManuals: RequestHandler = async (req, res) => {
   try {
@@ -242,6 +259,15 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
     }
 
     const data = await response.json();
+
+    // Transform category values to labels
+    if (data.value) {
+      data.value = data.value.map((item: any) => ({
+        ...item,
+        // Store the numeric value and add the formatted label
+        prmtk_category_formatted: CATEGORY_LABELS[item.prmtk_category] || "Unknown",
+      }));
+    }
 
     console.log("[OData Proxy] Successfully fetched Manuals from CRM");
     console.log("[OData Proxy] Manuals count:", data.value ? data.value.length : 0);

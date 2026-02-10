@@ -263,6 +263,7 @@ export async function fetchFAQContent(): Promise<FAQItem[]> {
  * Fetch Manuals content from Power Apps OData API via backend proxy
  * Filters by prmtk_section = 3 (Manuals section)
  * Uses /api/odata/manuals endpoint to avoid CORS issues
+ * Returns category labels instead of numeric values
  */
 export async function fetchManualsContent(): Promise<ManualItem[]> {
   try {
@@ -290,17 +291,26 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
     const manualItems: ManualItem[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
-        // Try to get formatted category value, fallback to raw value or default
+        // Get formatted category from backend transformation (prmtk_category_formatted)
+        // This contains the human-readable label instead of numeric value
         const formattedValue =
-          item["prmtk_category@OData.Community.Display.V1.FormattedValue"];
-        const categoryValue =
-          formattedValue || item.prmtk_category || "General";
+          item.prmtk_category_formatted ||
+          item["prmtk_category@OData.Community.Display.V1.FormattedValue"] ||
+          item.prmtk_category ||
+          "General";
+
+        console.log("[OData] Manual category:", {
+          id: item.prmtk_websitecontentid,
+          title: item.prmtk_header,
+          rawValue: item.prmtk_category,
+          formattedValue: formattedValue,
+        });
 
         return {
           id: item.prmtk_websitecontentid,
           title: item.prmtk_header,
           description: item.prmtk_description,
-          category: categoryValue,
+          category: formattedValue,
           categoryFormatted: formattedValue,
           createdOn: item.createdon,
           modifiedOn: item.modifiedon,
@@ -309,6 +319,7 @@ export async function fetchManualsContent(): Promise<ManualItem[]> {
       });
 
     console.log("[OData] Fetched Manual items:", manualItems.length);
+    console.log("[OData] Sample manuals with categories:", manualItems.slice(0, 3));
 
     return manualItems;
   } catch (error) {
