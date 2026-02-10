@@ -1055,9 +1055,20 @@ export default function OpenRoleDetails() {
 
                   {/* Assign the Resource Section */}
                   <div className="pt-8 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-navy mb-6">
-                      Assign the Resource
-                    </h3>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold text-navy">
+                        Assign the Resource
+                      </h3>
+                      {candidateDetails && (
+                        <button
+                          type="button"
+                          onClick={handleOpenChangeCandidate}
+                          className="px-4 py-2 border border-navy text-navy rounded-lg hover:bg-navy/5 transition font-medium text-sm"
+                        >
+                          Change Candidate
+                        </button>
+                      )}
+                    </div>
 
                     {/* Assignment Mode Selection */}
                     {!assignResourceMode && !candidateDetails ? (
