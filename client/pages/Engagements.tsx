@@ -5,6 +5,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEngagementsContent } from "@/hooks/useEngagementsContent";
+import { useUserContact } from "@/contexts/UserContactContext";
 
 interface Engagement {
   id: string;
@@ -79,9 +80,10 @@ export default function Engagements() {
   const [sortBy, setSortBy] = useState<SortType>("date");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const { t, isArabic } = useLanguage();
+  const { loggedInContact } = useUserContact();
 
-  // Fetch engagements from API
-  const { data: apiEngagements = [], isLoading, error, refetch, isFetching } = useEngagementsContent();
+  // Fetch engagements from API filtered by current vendor ID
+  const { data: apiEngagements = [], isLoading, error, refetch, isFetching } = useEngagementsContent(loggedInContact?.vendorId);
 
   // Transform API data to Engagement format
   const transformedEngagements: Engagement[] = apiEngagements.map((eng) => ({

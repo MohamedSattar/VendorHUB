@@ -3,12 +3,13 @@ import { fetchEngagements, EngagementItem } from "@/services/odata";
 
 /**
  * Hook to fetch engagements content from OData API
+ * Filters by vendor ID if provided
  * with 5-minute cache
  */
-export function useEngagementsContent(): UseQueryResult<EngagementItem[], Error> {
+export function useEngagementsContent(vendorId?: string): UseQueryResult<EngagementItem[], Error> {
   return useQuery({
-    queryKey: ["engagementsContent"],
-    queryFn: fetchEngagements,
+    queryKey: ["engagementsContent", vendorId],
+    queryFn: () => fetchEngagements(vendorId),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 3,
