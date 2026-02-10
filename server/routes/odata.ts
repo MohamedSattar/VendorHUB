@@ -1210,18 +1210,26 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
 
     // Update the prmtk_candidateengagementname record with the candidate lookup value
     // The lookup field is stored as _prmtk_candidate_value in Dynamics CRM
+
+    // We need to set the lookup using the collection-valued navigation property reference
+    // Try using the standard Dynamics REST way to set a single-valued navigation property
+
+    // Step 1: Try setting with a PATCH using the fully qualified URI
     const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
-    // Build the update payload with both the name and the lookup reference
-    const updatePayload: Record<string, any> = {
-      // Set the name field
-      prmtk_name: candidateName,
-      // Set the lookup value directly - this is the key to saving it to the database
-      // In Dynamics CRM, we reference the related record using the @odata.bind syntax
-      "prmtk_candidate@odata.bind": `/prmtk_engagementcontacts(${candidateId})`,
-    };
+    // Build update payload using @odata.bind syntax
+    // The @odata.bind syntax is the standard way to set lookup fields in Dynamics CRM
+    // We'll try with a relative path format
+    const simplePayload: Record<string, any> = {};
 
-    // If form data is provided, we can add more candidate details
+    // The relative path format (without the full URL prefix)
+    const relativePath = `/prmtk_engagementcontacts(${candidateId})`;
+    simplePayload["prmtk_candidate@odata.bind"] = relativePath;
+
+    console.log("[OData Proxy] Patching prmtk_candidate lookup field:")
+    console.log("[OData Proxy]   Field: prmtk_candidate@odata.bind");
+    console.log("[OData Proxy]   Value: " + relativePath);
+
     if (formData) {
       console.log(
         "[OData Proxy] Form data provided for candidate update:",
@@ -1230,7 +1238,8 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     }
 
     console.log("[OData Proxy] Update URL:", updateUrl);
-    console.log("[OData Proxy] Update Payload:", JSON.stringify(updatePayload, null, 2));
+    console.log("[OData Proxy] Update Payload:", JSON.stringify(simplePayload, null, 2));
+    console.log("[OData Proxy] Candidate ID for binding:", candidateId);
 
     // Make the PATCH request to update the open role with the candidate
     const updateResponse = await makeAuthenticatedRequest(updateUrl, {
@@ -1239,7 +1248,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(updatePayload),
+      body: JSON.stringify(simplePayload),
     });
 
     if (!updateResponse.ok) {
@@ -1249,6 +1258,18 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         updateResponse.status,
         errorText,
       );
+
+      // Log more detailed error information
+      try {
+        const errorJson = JSON.parse(errorText);
+        console.error("[OData Proxy] Error details:", {
+          code: errorJson.error?.code,
+          message: errorJson.error?.message,
+        });
+      } catch (e) {
+        console.error("[OData Proxy] Raw error:", errorText);
+      }
+
       throw new Error(
         `Failed to update open role with candidate: ${updateResponse.status} ${updateResponse.statusText}`,
       );
