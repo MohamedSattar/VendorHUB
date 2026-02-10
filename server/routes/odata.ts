@@ -1106,3 +1106,111 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     });
   }
 };
+
+/**
+ * Update Contact Record by ID
+ * PATCH /api/odata/contact/:id
+ * Updates an existing contact record in the standard contact table using contact ID
+ */
+export const handleUpdateContactById: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { firstname, lastname, mobilephone } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        error: "Contact ID is required",
+      });
+    }
+
+    console.log("[OData Proxy] Updating contact record:", {
+      id: id,
+      firstName: firstname,
+      lastName: lastname,
+      mobilePhone: mobilephone,
+    });
+
+    // Get authentication headers
+    const authHeaders = await getAuthHeaders();
+
+    // Build update payload with only provided fields
+    const updatePayload: Record<string, any> = {};
+    if (firstname !== undefined) updatePayload.firstname = firstname;
+    if (lastname !== undefined) updatePayload.lastname = lastname;
+    if (mobilephone !== undefined) updatePayload.mobilephone = mobilephone;
+
+    // Update contact in CRM using PATCH
+    const updateUrl = `${ODATA_BASE_URL}/contacts(${id})`;
+
+    console.log("[OData Proxy] PATCH URL:", updateUrl);
+    console.log("[OData Proxy] Update payload:", updatePayload);
+
+    const updateResponse = await makeAuthenticatedRequest(updateUrl, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+      },
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
+      console.error(
+        "[OData Proxy] Contact update failed:",
+        updateResponse.status,
+        errorText
+      );
+      throw new Error(
+        `Failed to update contact: ${updateResponse.status} ${updateResponse.statusText}`
+      );
+    }
+
+    console.log("[OData Proxy] Contact updated successfully, fetching updated record");
+
+    // Fetch the updated contact record to return
+    const fetchUrl = `${ODATA_BASE_URL}/contacts(${id})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode`;
+
+    const fetchResponse = await makeAuthenticatedRequest(fetchUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!fetchResponse.ok) {
+      console.error(
+        "[OData Proxy] Failed to fetch updated contact:",
+        fetchResponse.status
+      );
+      throw new Error("Failed to fetch updated contact record");
+    }
+
+    const updatedContact: any = await fetchResponse.json();
+
+    console.log("[OData Proxy] Updated contact retrieved:", {
+      id: updatedContact.contactid,
+      firstName: updatedContact.firstname,
+      lastName: updatedContact.lastname,
+      mobilePhone: updatedContact.mobilephone,
+    });
+
+    // Return the updated contact in the expected format
+    res.json({
+      prmtk_contactid: updatedContact.contactid,
+      prmtk_firstname: updatedContact.firstname,
+      prmtk_lastname: updatedContact.lastname,
+      prmtk_email: updatedContact.emailaddress1,
+      prmtk_phone: updatedContact.telephone1,
+      prmtk_mobilenumber: updatedContact.mobilephone,
+      prmtk_preferredcontactmethod: undefined,
+      createdon: updatedContact.createdon,
+      statuscode: updatedContact.statuscode,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Contact Update Error:", error);
+    res.status(500).json({
+      error: "Failed to update contact",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};

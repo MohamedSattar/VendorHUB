@@ -142,39 +142,64 @@ export default function Profile() {
     setIsLoading(true);
 
     try {
-      // Determine preference code (1 = email, 2 = phone, 3 = sms)
-      const preferenceCode: Record<string, number> = {
-        email: 1,
-        phone: 2,
-        sms: 3,
+      console.log("[Profile] Starting contact update for email:", loggedInEmail);
+      console.log("[Profile] Contact ID:", formData.id);
+      console.log("[Profile] Form data to save:", {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        mobileNumber: formData.mobileNumber.trim(),
+      });
+
+      // Build update payload with trimmed values
+      const updatePayload = {
+        firstname: formData.firstName.trim(),
+        lastname: formData.lastName.trim(),
+        mobilephone: formData.mobileNumber.trim(),
       };
 
-      console.log("[Profile] Updating contact data for email:", loggedInEmail);
-
-      // Call API to update contact in CRM
-      const response = await fetch("/api/auth/contact-update", {
-        method: "POST",
+      // Call API to PATCH contact record in CRM using contact ID
+      const response = await fetch(`/api/odata/contact/${formData.id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: loggedInEmail,
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
-          mobileNumber: formData.mobileNumber.trim(),
-          contactPreference: preferenceCode[formData.contactPreference],
-        }),
+        body: JSON.stringify(updatePayload),
       });
 
+      console.log("[Profile] API response status:", response.status);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update profile");
+        const errorText = await response.text();
+        console.error("[Profile] API error response:", errorText);
+
+        try {
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.error || "Failed to update profile");
+        } catch {
+          throw new Error("Failed to update profile in CRM");
+        }
       }
 
+      // Fetch updated contact data
       const updatedContact: CrmContact = await response.json();
-      setContactData(updatedContact);
 
-      console.log("[Profile] Contact updated successfully");
+      console.log("[Profile] Contact updated successfully:", {
+        id: updatedContact.prmtk_contactid,
+        firstName: updatedContact.prmtk_firstname,
+        lastName: updatedContact.prmtk_lastname,
+        mobileNumber: updatedContact.prmtk_mobilenumber,
+      });
+
+      // Update local state with new data
+      setContactData(updatedContact);
+      setFormData({
+        id: updatedContact.prmtk_contactid,
+        firstName: updatedContact.prmtk_firstname || "",
+        lastName: updatedContact.prmtk_lastname || "",
+        mobileNumber: updatedContact.prmtk_mobilenumber || "",
+        contactPreference: formData.contactPreference,
+        email: loggedInEmail,
+      });
 
       toast({
         title: "Success",
