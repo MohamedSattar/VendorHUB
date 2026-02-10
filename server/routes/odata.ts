@@ -1217,18 +1217,30 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     // Step 1: Try setting with a PATCH using the fully qualified URI
     const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
-    // Build update payload using @odata.bind syntax
-    // The @odata.bind syntax is the standard way to set lookup fields in Dynamics CRM
-    // We'll try with a relative path format
-    const simplePayload: Record<string, any> = {};
+    // Build update payload - trying different navigation property names
+    // The error says 'prmtk_candidate' is undeclared, so we need to find the correct name
+    // Let's try alternative field names that might be the navigation property
 
-    // The relative path format (without the full URL prefix)
+    const bindPayload: Record<string, any> = {};
     const relativePath = `/prmtk_engagementcontacts(${candidateId})`;
-    simplePayload["prmtk_candidate@odata.bind"] = relativePath;
 
-    console.log("[OData Proxy] Patching prmtk_candidate lookup field:")
-    console.log("[OData Proxy]   Field: prmtk_candidate@odata.bind");
-    console.log("[OData Proxy]   Value: " + relativePath);
+    // Try alternative navigation property names (in order of likelihood):
+    // Option 1: Using the relationship name with underscore prefix
+    // Option 2: Using the singular form of the related entity
+    // Option 3: Direct field reference without @odata.bind
+
+    // Since prmtk_candidate didn't work, let's try with the entity name:
+    // The lookup might be called "prmtk_engagementcontact" (singular, the related table)
+    const navigationPropertyName = "prmtk_engagementcontact"; // Try the related entity singular form
+
+    bindPayload[`${navigationPropertyName}@odata.bind`] = relativePath;
+
+    console.log("[OData Proxy] Attempting to patch lookup field...")
+    console.log("[OData Proxy] Using navigation property:", navigationPropertyName);
+    console.log("[OData Proxy] Binding format:", `${navigationPropertyName}@odata.bind`);
+    console.log("[OData Proxy] Payload:", JSON.stringify(bindPayload, null, 2));
+    console.log("[OData Proxy] Candidate ID:", candidateId);
+    console.log("[OData Proxy] Binding path:", relativePath);
 
     if (formData) {
       console.log(
@@ -1238,8 +1250,6 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     }
 
     console.log("[OData Proxy] Update URL:", updateUrl);
-    console.log("[OData Proxy] Update Payload:", JSON.stringify(simplePayload, null, 2));
-    console.log("[OData Proxy] Candidate ID for binding:", candidateId);
 
     // Make the PATCH request to update the open role with the candidate
     const updateResponse = await makeAuthenticatedRequest(updateUrl, {
@@ -1248,7 +1258,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(simplePayload),
+      body: JSON.stringify(bindPayload),
     });
 
     if (!updateResponse.ok) {
@@ -1262,16 +1272,18 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
       // Log more detailed error information
       try {
         const errorJson = JSON.parse(errorText);
-        console.error("[OData Proxy] Error details:", {
-          code: errorJson.error?.code,
-          message: errorJson.error?.message,
-        });
+        console.error("[OData Proxy] CRM Error Code:", errorJson.error?.code);
+        console.error("[OData Proxy] CRM Error Message:", errorJson.error?.message);
+
+        // Print the full error object for debugging
+        console.error("[OData Proxy] Full error object:", JSON.stringify(errorJson, null, 2));
       } catch (e) {
-        console.error("[OData Proxy] Raw error:", errorText);
+        console.error("[OData Proxy] Raw error text:", errorText);
       }
 
+      // Include more details in the error for the client
       throw new Error(
-        `Failed to update open role with candidate: ${updateResponse.status} ${updateResponse.statusText}`,
+        `Failed to update open role with candidate: ${updateResponse.status} ${updateResponse.statusText}. Check server logs for details.`,
       );
     }
 
