@@ -252,7 +252,7 @@ export default function AddResource() {
 
                 {/* Documents Section */}
                 <div className="mt-8 pt-8 border-t border-gray-200">
-                  <DocumentUploadSection ref={docsRef} hideHeader={true} isCollapsed={isDetailsCollapsed} />
+                  <DocumentUploadSection ref={docsRef} hideHeader={true} isCollapsed={isDetailsCollapsed} uaeResident={formRef.current?.getUAEResident()} />
                 </div>
               </>
             )}
