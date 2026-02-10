@@ -984,7 +984,7 @@ export default function OpenRoleDetails() {
                     </h3>
 
                     {/* Assignment Mode Selection */}
-                    {!assignResourceMode ? (
+                    {!assignResourceMode && !candidateDetails ? (
                       <div className="space-y-3">
                         {/* Option 1: Select from Dropdown */}
                         <button
