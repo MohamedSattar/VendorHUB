@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import ResourceCard from "@/components/ResourceCard";
