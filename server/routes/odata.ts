@@ -1061,7 +1061,8 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     });
 
     // Update the open role with the assigned candidate
-    const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames('${id}')`;
+    // For prmtk_candidateengagementnames, the key is prmtk_candidateengagementnameid (GUID format)
+    const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
 
     const updatePayload: Record<string, any> = {
       _prmtk_candidate_value: candidateId,
@@ -1078,7 +1079,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     }
 
     console.log("[OData Proxy] Update URL:", updateUrl);
-    console.log("[OData Proxy] Update Payload:", updatePayload);
+    console.log("[OData Proxy] Update Payload:", JSON.stringify(updatePayload, null, 2));
 
     const updateResponse = await makeAuthenticatedRequest(updateUrl, {
       method: "PATCH",
@@ -1095,9 +1096,31 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         updateResponse.status,
         errorText,
       );
-      throw new Error(
-        `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`,
-      );
+
+      // Try alternative: If primary key requires quotes, attempt with quotes
+      if (updateResponse.status === 400) {
+        console.log("[OData Proxy] Trying alternate URL format with quotes...");
+        const updateUrlWithQuotes = `${ODATA_BASE_URL}/prmtk_candidateengagementnames('${id}')`;
+        const retryResponse = await makeAuthenticatedRequest(updateUrlWithQuotes, {
+          method: "PATCH",
+          headers: {
+            Accept: "application/json",
+          },
+          body: JSON.stringify(updatePayload),
+        });
+
+        if (!retryResponse.ok) {
+          const retryErrorText = await retryResponse.text();
+          console.error("[OData Proxy] Retry also failed:", retryResponse.status, retryErrorText);
+          throw new Error(
+            `Failed to update open role: ${retryResponse.status} ${retryResponse.statusText}`,
+          );
+        }
+      } else {
+        throw new Error(
+          `Failed to update open role: ${updateResponse.status} ${updateResponse.statusText}`,
+        );
+      }
     }
 
     console.log("[OData Proxy] Successfully assigned candidate to open role");
