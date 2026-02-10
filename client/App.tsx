@@ -42,8 +42,9 @@ export default function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<About />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<Index />} />
                 <Route path="/index" element={<Index />} />
+                <Route path="/invitation" element={<Login />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/manuals" element={<Manuals />} />
                 <Route path="/supplier-application" element={<SupplierApplication />} />
