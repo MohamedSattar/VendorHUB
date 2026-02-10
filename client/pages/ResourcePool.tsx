@@ -1,14 +1,17 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import ResourceCard from "@/components/ResourceCard";
 import { Search, Loader, Plus } from "lucide-react";
 import { useEngagementContacts } from "@/hooks/useEngagementContacts";
+import { useUserContact } from "@/contexts/UserContactContext";
 
 export default function ResourcePool() {
   const navigate = useNavigate();
-  const { data: contacts = [], isLoading, isError, error } = useEngagementContacts();
+  const { loggedInContact } = useUserContact();
+  const { data: contacts = [], isLoading, isError, error } = useEngagementContacts(loggedInContact?.vendorId);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"All" | "Assigned" | "Not Assigned">("All");
 

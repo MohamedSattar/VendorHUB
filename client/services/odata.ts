@@ -52,6 +52,7 @@ export interface EngagementItem {
   status: string;
   ecaEngagementManager: string;
   vendorName?: string;
+  vendorId?: string; // Vendor ID for filtering
   contractNumber?: string;
   contractDescription?: string;
   typeOfEngagement?: string;
@@ -496,11 +497,15 @@ export async function fetchWebsiteContent(
  * Fetch Engagements content from Power Apps OData API via backend proxy
  * Returns engagement basic details: name, dates, status, manager
  */
-export async function fetchEngagements(): Promise<EngagementItem[]> {
+export async function fetchEngagements(vendorId?: string): Promise<EngagementItem[]> {
   try {
     const url = `${ODATA_PROXY_URL}/engagements`;
 
-    console.log("[OData] Fetching Engagements content via proxy from:", url);
+    console.log(
+      "[OData] Fetching Engagements content via proxy from:",
+      url,
+      vendorId ? `for vendor: ${vendorId}` : ""
+    );
 
     const response = await fetch(url, {
       method: "GET",
@@ -519,7 +524,7 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
     const data: { value: ODataEngagementItem[] } = await response.json();
 
     // Transform OData response to our Engagement format
-    const engagementItems: EngagementItem[] = data.value
+    let engagementItems: EngagementItem[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => ({
         id: item.prmtk_engagementid,
@@ -544,9 +549,23 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
           item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
+        vendorId: item._prmtk_vendor_value, // Add vendor ID for filtering
       }));
 
-    console.log("[OData] Fetched Engagement items:", engagementItems.length);
+    // Filter by vendor ID if provided
+    if (vendorId) {
+      engagementItems = engagementItems.filter(
+        (item) => item.vendorId === vendorId
+      );
+      console.log(
+        "[OData] Filtered Engagement items for vendor:",
+        vendorId,
+        "Count:",
+        engagementItems.length
+      );
+    } else {
+      console.log("[OData] Fetched all Engagement items:", engagementItems.length);
+    }
 
     return engagementItems;
   } catch (error) {
