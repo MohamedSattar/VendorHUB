@@ -806,14 +806,6 @@ export async function fetchCandidateContactById(
       rawData: item,
     });
 
-    // Build the Dynamics image download URL for the personal photo
-    const personalPhotoUrl = buildDynamicsImageUrl(
-      "prmtk_engagementcontact",
-      "prmtk_personalphoto",
-      item.prmtk_engagementcontactid,
-      item.modifiedon
-    );
-
     // Transform OData response to our CandidateDetail format
     const candidateDetail: CandidateDetail = {
       id: item.prmtk_engagementcontactid,
@@ -823,8 +815,8 @@ export async function fetchCandidateContactById(
       status:
         item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
         "Unknown",
-      // Construct photo URL using Dynamics Image/download.aspx endpoint
-      personalPhoto: personalPhotoUrl,
+      // Use backend proxy to fetch the image (avoids CORS issues)
+      personalPhoto: `/api/odata/candidate-contact-photo/${item.prmtk_engagementcontactid}`,
       uaeResident: item.prmtk_uaeresident,
       cvFile: item.prmtk_cvfile_name,
       introductionDocument: item.prmtk_introductiondocument_name,
@@ -968,21 +960,13 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
     const contacts: EngagementContact[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
-        // Build the Dynamics image download URL for the personal photo
-        const personalPhotoUrl = buildDynamicsImageUrl(
-          "prmtk_engagementcontact",
-          "prmtk_personalphoto",
-          item.prmtk_engagementcontactid,
-          item.modifiedon
-        );
-
         const transformed = {
           id: item.prmtk_engagementcontactid,
           name: item.prmtk_id,
           email: item.prmtk_email,
           phoneNumber: item.prmtk_phonenumber,
-          // Construct photo URL using Dynamics Image/download.aspx endpoint
-          personalPhoto: personalPhotoUrl,
+          // Use backend proxy to fetch the image (avoids CORS issues)
+          personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
           // If engagement ID is present, contact is assigned; otherwise not assigned
           status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
           engagementId: item._prmtk_engagement_value,
