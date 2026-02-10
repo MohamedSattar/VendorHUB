@@ -1104,7 +1104,8 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
 
     // Now set the candidate reference using navigation property
     // For Dynamics, Entity Reference updates must use the /ref navigation
-    const refUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})/prmtk_Candidate/$ref`;
+    // The lookup column is prmtk_candidate
+    const refUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})/prmtk_candidate/$ref`;
     const refPayload = {
       "@odata.id": `${ODATA_BASE_URL}/prmtk_engagementcontacts(${candidateId})`,
     };
