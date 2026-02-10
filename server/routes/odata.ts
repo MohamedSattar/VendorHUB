@@ -1221,26 +1221,14 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     // The error says 'prmtk_candidate' is undeclared, so we need to find the correct name
     // Let's try alternative field names that might be the navigation property
 
-    const bindPayload: Record<string, any> = {};
-    const relativePath = `/prmtk_engagementcontacts(${candidateId})`;
+    const updatePayload: Record<string, any> = {};
 
-    // Try alternative navigation property names (in order of likelihood):
-    // Option 1: Using the relationship name with underscore prefix
-    // Option 2: Using the singular form of the related entity
-    // Option 3: Direct field reference without @odata.bind
+    // Set the _prmtk_candidate_value field directly with the candidate ID (GUID)
+    updatePayload["_prmtk_candidate_value"] = candidateId;
 
-    // Bind the prmtk_candidate lookup field directly
-    // The lookup field is prmtk_candidate and we bind it to the engagement contact
-    const navigationPropertyName = "prmtk_candidate";
-
-    bindPayload[`${navigationPropertyName}@odata.bind`] = relativePath;
-
-    console.log("[OData Proxy] Binding candidate to prmtk_candidate lookup field...")
-    console.log("[OData Proxy] Navigation property:", navigationPropertyName);
-    console.log("[OData Proxy] Binding format:", `${navigationPropertyName}@odata.bind`);
-    console.log("[OData Proxy] Payload:", JSON.stringify(bindPayload, null, 2));
+    console.log("[OData Proxy] Setting _prmtk_candidate_value to candidate ID...")
     console.log("[OData Proxy] Candidate ID:", candidateId);
-    console.log("[OData Proxy] Binding path:", relativePath);
+    console.log("[OData Proxy] Payload:", JSON.stringify(updatePayload, null, 2));
 
     if (formData) {
       console.log(
@@ -1258,7 +1246,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(bindPayload),
+      body: JSON.stringify(updatePayload),
     });
 
     if (!updateResponse.ok) {
