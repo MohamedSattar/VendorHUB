@@ -1259,10 +1259,19 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
       );
 
       // Log more detailed error information
+      let errorMessage = `Failed to update open role with candidate: ${updateResponse.status} ${updateResponse.statusText}`;
       try {
         const errorJson = JSON.parse(errorText);
         console.error("[OData Proxy] CRM Error Code:", errorJson.error?.code);
         console.error("[OData Proxy] CRM Error Message:", errorJson.error?.message);
+
+        // Check for duplicate assignment error
+        if (errorJson.error?.code === "0x80060892" ||
+            (errorJson.error?.message && errorJson.error.message.includes("CandidateEngagement_AltKey"))) {
+          errorMessage = "This candidate is already assigned to this role. Please select a different candidate.";
+        } else {
+          errorMessage = errorJson.error?.message || errorMessage;
+        }
 
         // Print the full error object for debugging
         console.error("[OData Proxy] Full error object:", JSON.stringify(errorJson, null, 2));
@@ -1270,10 +1279,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
         console.error("[OData Proxy] Raw error text:", errorText);
       }
 
-      // Include more details in the error for the client
-      throw new Error(
-        `Failed to update open role with candidate: ${updateResponse.status} ${updateResponse.statusText}. Check server logs for details.`,
-      );
+      throw new Error(errorMessage);
     }
 
     console.log("[OData Proxy] Successfully patched candidate reference to open role record");

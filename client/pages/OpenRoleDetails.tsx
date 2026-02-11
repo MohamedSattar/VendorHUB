@@ -429,6 +429,16 @@ export default function OpenRoleDetails() {
       return;
     }
 
+    // Check if the selected candidate is the same as currently assigned
+    if (openRole?.candidateId === changeCandidatePreview.id) {
+      toast({
+        title: "Info",
+        description: "This candidate is already assigned to this role. Please select a different candidate.",
+        variant: "default",
+      });
+      return;
+    }
+
     setIsConfirmingChange(true);
     try {
       await assignCandidateToOpenRole(
@@ -1212,6 +1222,7 @@ export default function OpenRoleDetails() {
                               </button>
                               <button
                                 type="button"
+                                disabled={openRole?.candidateId === selectedResource?.id}
                                 onClick={async () => {
                                   // Get updated form data and assign the resource
                                   if (
@@ -1222,6 +1233,16 @@ export default function OpenRoleDetails() {
                                       title: "Error",
                                       description: "No candidate selected",
                                       variant: "destructive",
+                                    });
+                                    return;
+                                  }
+
+                                  // Check if the selected candidate is already assigned
+                                  if (openRole?.candidateId === selectedResource.id) {
+                                    toast({
+                                      title: "Info",
+                                      description: "This candidate is already assigned to this role.",
+                                      variant: "default",
                                     });
                                     return;
                                   }
@@ -1274,9 +1295,13 @@ export default function OpenRoleDetails() {
                                     console.error("Assignment error:", error);
                                   }
                                 }}
-                                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={`flex-1 px-4 py-3 rounded-lg transition font-medium ${
+                                  openRole?.candidateId === selectedResource?.id
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
+                                    : "bg-green-600 text-white hover:bg-green-700"
+                                }`}
                               >
-                                Confirm & Assign
+                                {openRole?.candidateId === selectedResource?.id ? "Already Assigned" : "Confirm & Assign"}
                               </button>
                             </div>
                           </div>
@@ -1549,9 +1574,9 @@ export default function OpenRoleDetails() {
               </button>
               <button
                 onClick={handleConfirmChangeCandidate}
-                disabled={!changeCandidatePreview || isConfirmingChange}
+                disabled={!changeCandidatePreview || isConfirmingChange || openRole?.candidateId === changeCandidatePreview?.id}
                 className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition ${
-                  changeCandidatePreview && !isConfirmingChange
+                  changeCandidatePreview && !isConfirmingChange && openRole?.candidateId !== changeCandidatePreview?.id
                     ? "bg-primary text-white hover:opacity-90 cursor-pointer"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
                 }`}
@@ -1561,6 +1586,8 @@ export default function OpenRoleDetails() {
                     <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Updating...
                   </>
+                ) : openRole?.candidateId === changeCandidatePreview?.id ? (
+                  "Already Assigned"
                 ) : (
                   "Confirm & Assign"
                 )}
