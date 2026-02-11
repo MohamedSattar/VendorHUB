@@ -936,6 +936,70 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (
 };
 
 /**
+ * Upload Candidate Contact Personal Photo
+ * POST /api/odata/candidate-contact-photo/:id
+ */
+export const handleUploadCandidateContactPhoto: RequestHandler = async (
+  req,
+  res,
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Contact ID is required" });
+    }
+
+    // Get the file from the request
+    if (!req.file) {
+      return res.status(400).json({ error: "No file provided" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
+
+    console.log("[OData Proxy] Uploading candidate contact photo for ID:", id);
+    console.log("[OData Proxy] File size:", req.file.size, "bytes");
+
+    // Use authenticated request to upload the photo
+    const response = await makeAuthenticatedRequest(url, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": req.file.mimetype || "image/jpeg",
+      },
+      body: req.file.buffer,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "[OData Proxy] Upload Error Response:",
+        response.status,
+        errorText,
+      );
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`,
+      );
+    }
+
+    console.log("[OData Proxy] Successfully uploaded candidate contact photo:", id);
+
+    res.json({
+      success: true,
+      message: "Photo uploaded successfully",
+      id: id,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Upload Candidate Contact Photo Error:", error);
+    res.status(500).json({
+      error: "Failed to upload candidate contact photo",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Get Engagement Contact Document (e.g., CV, certificates, etc.)
  * GET /api/odata/engagement-contact/:id/:fieldName/$value
  * Example: /api/odata/engagement-contact/123/prmtk_cvfile/$value

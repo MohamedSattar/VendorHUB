@@ -24,7 +24,28 @@ export default function EditResource() {
     setIsSaving(true);
     try {
       const formData = formRef.current.getFormData();
+      const photoFile = formRef.current.getPhotoFile();
 
+      // First, upload the photo if a new one was selected
+      if (photoFile) {
+        console.log("[EditResource] Uploading new photo...");
+        const photoFormData = new FormData();
+        photoFormData.append("file", photoFile);
+
+        const photoResponse = await fetch(`/api/odata/candidate-contact-photo/${id}`, {
+          method: "POST",
+          body: photoFormData,
+        });
+
+        if (!photoResponse.ok) {
+          const errorData = await photoResponse.json().catch(() => ({}));
+          const errorMessage = errorData?.details || photoResponse.statusText;
+          throw new Error(`Failed to upload photo: ${errorMessage}`);
+        }
+        console.log("[EditResource] Photo uploaded successfully");
+      }
+
+      // Then, update the other fields
       const response = await fetch(`/api/odata/candidate-contact/${id}`, {
         method: "PATCH",
         headers: {

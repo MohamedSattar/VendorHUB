@@ -21,6 +21,7 @@ export interface AddResourceFormHandle {
   getUAEResident: () => boolean;
   isFormValid: () => boolean;
   getPhotoUrl: () => string | null;
+  getPhotoFile: () => File | null;
 }
 
 const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
@@ -33,6 +34,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     });
 
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoLoaded, setPhotoLoaded] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isCollapsedLocal, setIsCollapsedLocal] = useState(false);
@@ -73,7 +75,8 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
         );
       },
       getPhotoUrl: () => photoUrl,
-    }), [formData, photoUrl]);
+      getPhotoFile: () => photoFile,
+    }), [formData, photoUrl, photoFile]);
 
     // Bind form fields from API data when in edit mode
     useEffect(() => {
@@ -269,6 +272,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
                         if (file) {
                           const url = URL.createObjectURL(file);
                           setPhotoUrl(url);
+                          setPhotoFile(file);
                           setPhotoLoaded(false);
                         }
                       }}

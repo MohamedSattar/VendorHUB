@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import multer from "multer";
 import { handleDemo } from "./routes/demo";
 import {
   handleExchangeToken,
@@ -33,6 +34,7 @@ import {
   handleGetOpenRoleById,
   handleGetCandidateContact,
   handleGetCandidateContactPhoto,
+  handleUploadCandidateContactPhoto,
   handleGetEngagementContacts,
   handleGetEngagementContactPhoto,
   handleGetEngagementContactDocument,
@@ -50,6 +52,12 @@ export function createServer() {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // File upload middleware for photos (max 5MB)
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  });
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
@@ -111,6 +119,11 @@ export function createServer() {
   app.get(
     "/api/odata/candidate-contact-photo/:id",
     handleGetCandidateContactPhoto,
+  );
+  app.post(
+    "/api/odata/candidate-contact-photo/:id",
+    upload.single("file"),
+    handleUploadCandidateContactPhoto,
   );
   // Route for document download: /api/odata/engagement-contact/{id}/{fieldName}/$value
   // Using regex to handle the $value part
