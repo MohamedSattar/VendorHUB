@@ -99,11 +99,17 @@ export default function Engagements() {
   // Use API data if available, otherwise fall back to mock data
   const engagementsList = transformedEngagements.length > 0 ? transformedEngagements : mockEngagements;
 
-  // Get unique statuses for filter dropdown
-  const uniqueStatuses = ["all", ...new Set(engagementsList.map((e) => e.status))];
+  // Get unique statuses for filter dropdown (excluding Draft)
+  const uniqueStatuses = ["all", ...new Set(engagementsList
+    .filter((e) => !e.status?.toLowerCase().includes("draft"))
+    .map((e) => e.status)
+  )];
 
   const filteredAndSortedEngagements = useMemo(() => {
     let result = [...engagementsList];
+
+    // Filter out Draft engagements
+    result = result.filter((eng) => !eng.status?.toLowerCase().includes("draft"));
 
     // Filter by status
     if (statusFilter !== "all") {
