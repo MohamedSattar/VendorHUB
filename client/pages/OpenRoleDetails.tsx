@@ -1272,10 +1272,10 @@ export default function OpenRoleDetails() {
                                     await refetchCandidateDetails();
                                     console.log("[OpenRoleDetails] Refetched candidate details");
 
-                                    // Close the search and return to form
+                                    // Close the search but keep the assignment section visible
                                     setSelectedResource(null);
                                     setSearchQuery("");
-                                    setAssignResourceMode(null);
+                                    // Don't reset assignResourceMode - keep it so the assignment section stays visible
 
                                     toast({
                                       title: "Success",
