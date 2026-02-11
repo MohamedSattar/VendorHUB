@@ -360,8 +360,8 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
       itemCount: data.value ? data.value.length : 0,
     });
 
-    // Add cache headers for performance
-    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    // Don't cache engagement records - always fetch fresh data
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
     res.json(data);
   } catch (error) {
     console.error("[OData Proxy] Engagements Error:", error);
@@ -671,13 +671,77 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
 
     const data = await response.json();
 
-    // Add cache headers for performance
-    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    // Don't cache engagement records - always fetch fresh data
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
     res.json(data);
   } catch (error) {
     console.error("[OData Proxy] Engagement by ID Error:", error);
     res.status(500).json({
       error: "Failed to fetch Engagement from CRM",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Submit Engagement and Update Status to "In Progress"
+ * POST /api/odata/engagement/:id/submit
+ * Updates the engagement status to "In Progress" (code 100682000)
+ */
+export const handleSubmitEngagement: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Engagement ID is required" });
+    }
+
+    const url = `${ODATA_BASE_URL}/prmtk_engagements(${id})`;
+
+    console.log("[OData Proxy] Submitting engagement with ID:", id);
+
+    // Update the engagement status to "In Progress"
+    // prmtk_status option set code for "In Progress" is 100682000
+    const updatePayload = {
+      prmtk_status: 100682000, // In Progress
+    };
+
+    console.log("[OData Proxy] Update payload:", JSON.stringify(updatePayload, null, 2));
+
+    // Use authenticated request to update the engagement
+    const response = await makeAuthenticatedRequest(url, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "[OData Proxy] Engagement submission error:",
+        response.status,
+        errorText,
+      );
+      throw new Error(
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`,
+      );
+    }
+
+    console.log("[OData Proxy] Successfully submitted engagement:", id);
+
+    res.json({
+      success: true,
+      message: "Engagement submitted successfully and status updated to In Progress",
+      id: id,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Submit Engagement Error:", error);
+    res.status(500).json({
+      error: "Failed to submit engagement",
       details:
         error instanceof Error ? error.message : "Unknown error occurred",
     });

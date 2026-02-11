@@ -10,7 +10,7 @@ export function useEngagementsContent(vendorId?: string): UseQueryResult<Engagem
   return useQuery({
     queryKey: ["engagementsContent", vendorId],
     queryFn: () => fetchEngagements(vendorId),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always fetch fresh data to ensure status updates are reflected
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),

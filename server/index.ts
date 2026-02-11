@@ -30,6 +30,7 @@ import {
   handleGetManuals,
   handleGetEngagements,
   handleGetEngagementById,
+  handleSubmitEngagement,
   handleGetOpenRoles,
   handleGetOpenRoleById,
   handleGetCandidateContact,
@@ -101,6 +102,7 @@ export function createServer() {
   app.get("/api/odata/manuals", handleGetManuals);
   app.get("/api/odata/engagements", handleGetEngagements);
   app.get("/api/odata/engagements/:id", handleGetEngagementById);
+  app.post("/api/odata/engagement/:id/submit", handleSubmitEngagement);
   app.get("/api/odata/open-roles/:engagementId", handleGetOpenRoles);
   app.get("/api/odata/open-role/:id", handleGetOpenRoleById);
   app.post(

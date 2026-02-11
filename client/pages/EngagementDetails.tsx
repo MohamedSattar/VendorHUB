@@ -96,7 +96,7 @@ export default function EngagementDetails() {
     queryKey: ["engagement", id],
     queryFn: () => (id ? fetchEngagementById(id) : Promise.reject("No ID")),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always fetch fresh data to ensure status updates are reflected
     gcTime: 10 * 60 * 1000,
     retry: 1,
   });
@@ -204,23 +204,31 @@ export default function EngagementDetails() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit engagement");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData?.details || "Failed to submit engagement";
+        throw new Error(errorMessage);
       }
+
+      console.log("[EngagementDetails] Submission successful, refreshing data from backend...");
+
+      // Add a small delay to ensure CRM has processed the update
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refetch engagement data to reflect the new status
+      await refetch();
+      console.log("[EngagementDetails] Data refreshed from backend");
 
       toast({
         title: "Success",
-        description: "Engagement has been submitted to ECA for processing.",
+        description: "Engagement submitted and status updated to 'In Progress'.",
       });
 
       setShowSubmitConfirm(false);
-
-      // Refetch engagement data to reflect the new status
-      refetch();
     } catch (error) {
       console.error("Error submitting engagement:", error);
       toast({
         title: "Error",
-        description: "Failed to submit engagement. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to submit engagement. Please try again.",
         variant: "destructive",
       });
     } finally {
