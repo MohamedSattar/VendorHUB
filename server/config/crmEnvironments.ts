@@ -26,7 +26,7 @@ export const CRM_ENVIRONMENTS: Record<string, CRMEnvironment> = {
 };
 
 // In-memory storage of current environment
-let currentEnvironment: string = process.env.CRM_ENVIRONMENT || "DEV";
+let currentEnvironment: string = process.env.CRM_ENVIRONMENT || "STAGE";
 
 /**
  * Get the current CRM environment
