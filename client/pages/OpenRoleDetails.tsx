@@ -1116,7 +1116,7 @@ export default function OpenRoleDetails() {
                         </button>
                       </div>
                     ) : assignResourceMode === "existing" ? (
-                      /* Dropdown Selection Mode */
+                      /* Search Mode */
                       <div className="space-y-4">
                         <div className="flex gap-2 mb-4">
                           <button
@@ -1124,6 +1124,7 @@ export default function OpenRoleDetails() {
                             onClick={() => {
                               setAssignResourceMode(null);
                               setSelectedResource(null);
+                              setSearchQuery("");
                             }}
                             className="text-sm text-gray-600 hover:text-gray-800 underline"
                           >
@@ -1131,43 +1132,67 @@ export default function OpenRoleDetails() {
                           </button>
                         </div>
 
-                        {/* Dropdown Select */}
+                        {/* Search Box */}
                         <div className="space-y-2">
                           <label className="block text-sm font-medium text-gray-700">
-                            Select Candidate to Assign
+                            Search for Candidate
                           </label>
-                          <select
-                            value={selectedResource?.id || ""}
-                            onChange={(e) => {
-                              const resourceId = e.target.value;
-                              const resource = allResources.find(
-                                (r) => r.id === resourceId
-                              );
-                              setSelectedResource(resource || null);
-                            }}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
-                          >
-                            <option value="">-- Select a Candidate --</option>
-                            {isSearching ? (
-                              <option disabled>Loading candidates...</option>
-                            ) : allResources.length === 0 ? (
-                              <option disabled>No candidates available</option>
-                            ) : (
-                              allResources.map((resource) => (
-                                <option key={resource.id} value={resource.id}>
-                                  {resource.name} ({resource.email})
-                                </option>
-                              ))
-                            )}
-                          </select>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Search by name or email..."
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+                        </div>
 
-                          {/* Status Information */}
-                          <div className="text-xs text-gray-500 p-2">
+                        {/* Search Results */}
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-700">
                             {isSearching
                               ? "Loading candidates..."
-                              : allResources.length === 0
-                                ? "No candidates available in the system"
-                                : `${allResources.length} candidate${allResources.length !== 1 ? "s" : ""} available`}
+                              : searchQuery.length === 0
+                                ? `Showing ${allResources.length} candidate${allResources.length !== 1 ? "s" : ""}`
+                                : `Found ${searchResults.length} result${searchResults.length !== 1 ? "s" : ""}`}
+                          </p>
+
+                          {/* Results List */}
+                          <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            {isSearching ? (
+                              <div className="text-center py-8">
+                                <p className="text-gray-500">Loading candidates...</p>
+                              </div>
+                            ) : (searchQuery.length === 0 ? allResources : searchResults).length === 0 ? (
+                              <div className="text-center py-8">
+                                <p className="text-gray-500">
+                                  {searchQuery.length === 0
+                                    ? "No candidates available"
+                                    : "No candidates match your search"}
+                                </p>
+                              </div>
+                            ) : (
+                              (searchQuery.length === 0 ? allResources : searchResults).map((resource) => (
+                                <button
+                                  key={resource.id}
+                                  type="button"
+                                  onClick={() => setSelectedResource(resource)}
+                                  className={`w-full p-4 text-left rounded-lg border-2 transition ${
+                                    selectedResource?.id === resource.id
+                                      ? "border-primary bg-blue-50"
+                                      : "border-gray-200 hover:border-gray-300 bg-white"
+                                  }`}
+                                >
+                                  <p className="font-semibold text-navy">{resource.name}</p>
+                                  <p className="text-sm text-gray-600">{resource.email}</p>
+                                  {resource.phoneNumber && (
+                                    <p className="text-xs text-gray-500">{resource.phoneNumber}</p>
+                                  )}
+                                </button>
+                              ))
+                            )}
                           </div>
                         </div>
 
@@ -1202,7 +1227,7 @@ export default function OpenRoleDetails() {
                                 }}
                                 className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
                               >
-                                Back to Dropdown
+                                Back to Search
                               </button>
                               <button
                                 type="button"
@@ -1232,19 +1257,29 @@ export default function OpenRoleDetails() {
                                       formData,
                                     );
 
-                                    toast({
-                                      title: "Success",
-                                      description:
-                                        "Candidate assigned successfully!",
-                                    });
+                                    console.log("[OpenRoleDetails] Candidate assignment successful, refetching data...");
 
-                                    // Refetch the data to reload the form
-                                    await refetch();
+                                    // Refetch the open role data first to get the updated candidateId
+                                    const updatedOpenRole = await refetch();
+                                    console.log("[OpenRoleDetails] Refetched open role:", updatedOpenRole);
+
+                                    // Add a small delay to ensure state updates properly
+                                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                                    // Then refetch candidate details with the new candidateId
+                                    await refetchCandidateDetails();
+                                    console.log("[OpenRoleDetails] Refetched candidate details");
 
                                     // Close the search and return to form
                                     setSelectedResource(null);
                                     setSearchQuery("");
                                     setAssignResourceMode(null);
+
+                                    toast({
+                                      title: "Success",
+                                      description:
+                                        "Candidate assigned successfully!",
+                                    });
                                   } catch (error) {
                                     const errorMessage =
                                       error instanceof Error
