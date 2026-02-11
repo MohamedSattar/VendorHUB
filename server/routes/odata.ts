@@ -959,13 +959,34 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
 
     console.log("[OData Proxy] Uploading candidate contact photo for ID:", id);
     console.log("[OData Proxy] File size:", req.file.size, "bytes");
+    console.log("[OData Proxy] File mimetype from multer:", req.file.mimetype);
+    console.log("[OData Proxy] File originalname:", req.file.originalname);
+
+    // Determine the correct MIME type based on file extension
+    let contentType = "image/jpeg"; // default
+    if (req.file.originalname) {
+      const filename = req.file.originalname.toLowerCase();
+      if (filename.endsWith(".png")) {
+        contentType = "image/png";
+      } else if (filename.endsWith(".gif")) {
+        contentType = "image/gif";
+      } else if (filename.endsWith(".webp")) {
+        contentType = "image/webp";
+      } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+        contentType = "image/jpeg";
+      }
+    } else if (req.file.mimetype && req.file.mimetype.startsWith("image/")) {
+      // Use the mimetype from multer if it's a valid image type
+      contentType = req.file.mimetype;
+    }
+
+    console.log("[OData Proxy] Using Content-Type:", contentType);
 
     // Use authenticated request to upload the photo
     const response = await makeAuthenticatedRequest(url, {
       method: "PUT",
       headers: {
-        Accept: "application/json",
-        "Content-Type": req.file.mimetype || "image/jpeg",
+        "Content-Type": contentType,
       },
       body: req.file.buffer,
     });
