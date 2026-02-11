@@ -433,53 +433,46 @@ export default function EngagementDetails() {
                         key={role.id}
                         className={`p-4 rounded-lg border transition relative ${
                           isPendingAssignment
-                            ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-300 hover:border-orange-400 hover:shadow-md ring-1 ring-orange-200"
-                            : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 hover:border-blue-200 hover:shadow-md"
+                            ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-300 hover:border-orange-400 hover:shadow-md"
+                            : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md"
                         }`}
                       >
-                        {/* Ready for Submission Flag */}
+                        {/* Ready for Submission Flag - Top Right */}
                         {role.readyForSubmission && (
-                          <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                          <div className="absolute top-3 right-3 flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
                             <Flag className="w-3 h-3 fill-current" />
-                            Ready to Submit
+                            Ready
                           </div>
                         )}
 
-                        <div className="flex justify-between items-start mb-3 pr-32">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
-                            {role.candidateName && (
-                              <p className="text-sm text-gray-600 mt-1">{role.candidateName}</p>
-                            )}
-                            {!role.candidateName && (
-                              <p className="text-sm text-orange-600 font-medium mt-1">⚠️ Pending Candidate Assignment</p>
-                            )}
-                          </div>
-                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ml-2 whitespace-nowrap ${
-                            role.readyForSubmission
-                              ? "bg-green-100 text-green-700"
-                              : "bg-amber-100 text-amber-700"
-                          }`}>
-                            {role.readyForSubmission ? "Ready" : "Pending"}
-                          </span>
+                        {/* Role Title and Candidate Name */}
+                        <div className={`${role.readyForSubmission ? "pr-28" : ""}`}>
+                          <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
+                          {role.candidateName && (
+                            <p className="text-sm text-primary font-medium mt-1">{role.candidateName}</p>
+                          )}
+                          {!role.candidateName && (
+                            <p className="text-sm text-orange-600 font-medium mt-1">⚠️ Pending Assignment</p>
+                          )}
                         </div>
 
-                        <div className="space-y-2 mb-3">
+                        {/* Expected Start Date and Status */}
+                        <div className="grid grid-cols-2 gap-3 mt-4 mb-4">
                           <div>
-                            <p className="text-xs text-gray-600">Expected Start Date</p>
+                            <p className="text-xs text-gray-600">Expected Start</p>
                             <p className="text-sm font-medium text-gray-900">
                               {formatDate(role.expectedStartDate)}
                             </p>
                           </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Status</p>
+                            <span className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                              {role.status}
+                            </span>
+                          </div>
                         </div>
 
-                        <div className="flex justify-between items-center mb-4">
-                          <span className="text-xs text-gray-600">Status</span>
-                          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                            {role.status}
-                          </span>
-                        </div>
-
+                        {/* Edit Button */}
                         <button
                           onClick={() => navigate(`/open-role/${role.id}`)}
                           className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-opacity-90 transition"
