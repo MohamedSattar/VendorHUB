@@ -224,6 +224,11 @@ export default function EngagementDetails() {
       });
 
       setShowSubmitConfirm(false);
+
+      // Redirect back to engagements screen after successful submission
+      setTimeout(() => {
+        navigate("/engagements");
+      }, 1500);
     } catch (error) {
       console.error("Error submitting engagement:", error);
       toast({
