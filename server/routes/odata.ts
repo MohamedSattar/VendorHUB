@@ -394,10 +394,12 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
     console.log("[OData Proxy] Full URL:", url);
 
     // Use authenticated request to get CRM data with proper OAuth token
+    // Include annotations to get formatted values for lookups (e.g., candidate name)
     const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
+        "Prefer": 'odata.include-annotations="*"',
       },
     });
 
