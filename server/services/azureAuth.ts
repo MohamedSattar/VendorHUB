@@ -4,6 +4,8 @@
  * Used to authenticate with Dataverse/Power Apps APIs
  */
 
+import { getDataverseResource } from "../config/crmEnvironments";
+
 interface TokenCache {
   accessToken: string;
   expiresAt: number;
@@ -30,7 +32,8 @@ export async function getAccessToken(): Promise<string> {
     const tokenUrl = process.env.TOKEN_URL;
     const clientId = process.env.AZURE_CLIENT_ID;
     const clientSecret = process.env.AZURE_CLIENT_SECRET;
-    const resource = process.env.DATAVERSE_RESOURCE;
+    // Use dynamic resource from current CRM environment configuration
+    const resource = getDataverseResource();
     const tenantId = process.env.AZURE_TENANT_ID;
 
     // Validate required environment variables
