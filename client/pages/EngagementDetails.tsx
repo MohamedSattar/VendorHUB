@@ -425,7 +425,7 @@ export default function EngagementDetails() {
                 )}
 
                 {openRoles.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {openRoles.map((role) => {
                       const isPendingAssignment = !role.candidateName || !role.candidateId;
                       return (
@@ -439,7 +439,7 @@ export default function EngagementDetails() {
                       >
                         {/* Header Background with Status */}
                         <div
-                          className={`px-6 py-4 border-b-2 ${
+                          className={`px-6 py-5 border-b-2 ${
                             isPendingAssignment
                               ? "bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100"
                               : "bg-gradient-to-r from-green-50 to-emerald-50 border-green-100"
@@ -468,16 +468,16 @@ export default function EngagementDetails() {
                         </div>
 
                         {/* Content Area */}
-                        <div className="px-6 py-4 space-y-4">
+                        <div className="px-6 py-6 space-y-5">
                           {/* Expected Start Date and Status Grid */}
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-gray-50 rounded-lg p-3">
-                              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Expected Start</p>
+                          <div className="grid grid-cols-2 gap-5">
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Expected Start</p>
                               <p className="text-sm font-bold text-gray-900">
                                 {formatDate(role.expectedStartDate)}
                               </p>
                             </div>
-                            <div className="bg-blue-50 rounded-lg p-3 flex flex-col items-center justify-center text-center">
+                            <div className="bg-blue-50 rounded-lg p-4 flex flex-col items-center justify-center text-center">
                               <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 w-full">Status</p>
                               <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg">
                                 {role.status}
