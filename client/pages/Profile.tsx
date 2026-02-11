@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserContact } from "@/contexts/UserContactContext";
+import { LogOut } from "lucide-react";
 
 interface ProfileFormData {
   id: string;
@@ -44,9 +46,10 @@ const CONTACT_METHOD_REVERSE_MAP: Record<"email" | "phone" | "sms", number> = {
 };
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { t, isArabic } = useLanguage();
-  const { loggedInEmail } = useAuth();
+  const { loggedInEmail, logout } = useAuth();
   const { setLoggedInContact } = useUserContact();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -265,6 +268,15 @@ export default function Profile() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    toast({
+      title: "Success",
+      description: "You have been logged out successfully.",
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
       <DashboardHeader />
@@ -416,6 +428,15 @@ export default function Profile() {
                   className="px-8 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={isLoading || isLoadingData}
+                  className="ml-auto flex items-center gap-2 px-8 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
                 </button>
               </div>
             </form>
