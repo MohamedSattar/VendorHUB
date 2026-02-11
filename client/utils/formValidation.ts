@@ -227,3 +227,110 @@ export const isFormValid = (formData: ApplicationFormData): boolean => {
   const errors = validateSupplierApplicationForm(formData);
   return errors.length === 0;
 };
+
+/**
+ * Map field names to their step number
+ */
+const FIELD_TO_STEP: Record<string, number> = {
+  // Section A: Company Information (Step 0)
+  companyName: 0,
+  yearsInBusiness: 0,
+  numberOfEmployees: 0,
+  tradeLicenseType: 0,
+  registeredAddress: 0,
+  website: 0,
+  websiteUrl: 0,
+  isEmiratiSME: 0,
+  isKhalifaFundRegistered: 0,
+  hasICVCertificate: 0,
+  icvScore: 0,
+
+  // Section B: Operational Capabilities (Step 1)
+  hasEnvironmentalPractices: 1,
+  environmentalPracticesDetails: 1,
+  supplyCategorySelections: 1,
+  suppliers: 1,
+
+  // Section C: Quality & Compliance (Step 2)
+  hasCertifications: 2,
+  certifications: 2,
+  otherCertifications: 2,
+
+  // Section B continued: Client References (Step 3)
+  clientReferences: 3,
+
+  // Section D: Supplier Declaration (Step 4)
+  fullName: 4,
+  designation: 4,
+  phone: 4,
+  email: 4,
+  date: 4,
+
+  // Section E: Attachments (Step 5)
+  "attachments.tradeLicense": 5,
+  "attachments.companyProfile": 5,
+  "attachments.powerOfAttorney": 5,
+  "attachments.icvCertificate": 5,
+};
+
+/**
+ * Get step name by step index
+ */
+export const getStepName = (stepIndex: number): string => {
+  const steps = [
+    "Company Information",
+    "Operational Capabilities",
+    "Quality & Compliance",
+    "Client References",
+    "Supplier Declaration",
+    "Mandatory Attachments",
+    "Review & Submit",
+  ];
+  return steps[stepIndex] || "Unknown";
+};
+
+/**
+ * Group validation errors by step
+ */
+export const groupErrorsByStep = (
+  errors: ValidationError[]
+): Record<number, ValidationError[]> => {
+  const grouped: Record<number, ValidationError[]> = {};
+
+  errors.forEach((error) => {
+    // Try to find the field in the mapping
+    let fieldBase = error.field;
+
+    // Handle nested field references (e.g., "clientReference_0_organization")
+    if (error.field.includes("clientReference_")) {
+      fieldBase = "clientReferences";
+    } else if (error.field.startsWith("attachments.")) {
+      fieldBase = error.field;
+    } else {
+      // Extract just the field name before any underscore suffix
+      fieldBase = fieldBase.split("_")[0];
+    }
+
+    const stepIndex = FIELD_TO_STEP[fieldBase] ?? 6;
+
+    if (!grouped[stepIndex]) {
+      grouped[stepIndex] = [];
+    }
+    grouped[stepIndex].push(error);
+  });
+
+  return grouped;
+};
+
+/**
+ * Get the first step with errors
+ */
+export const getFirstErrorStep = (
+  errors: ValidationError[]
+): number | null => {
+  if (errors.length === 0) return null;
+
+  const grouped = groupErrorsByStep(errors);
+  const steps = Object.keys(grouped).map((s) => parseInt(s));
+  return steps.length > 0 ? Math.min(...steps) : null;
+};

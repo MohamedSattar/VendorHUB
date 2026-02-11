@@ -10,7 +10,8 @@ import ReviewStep from "@/components/supplier/ReviewStep";
 import FormProgressBar from "@/components/supplier/FormProgressBar";
 import SupplierApplicationConfirmDialog from "@/components/SupplierApplicationConfirmDialog";
 import SupplierApplicationSuccess from "@/components/SupplierApplicationSuccess";
-import { validateSupplierApplicationForm, ValidationError } from "@/utils/formValidation";
+import ValidationErrorsDialog from "@/components/ValidationErrorsDialog";
+import { validateSupplierApplicationForm, ValidationError, getFirstErrorStep } from "@/utils/formValidation";
 import { useToast } from "@/hooks/use-toast";
 
 export interface ApplicationFormData {
@@ -125,6 +126,7 @@ export default function SupplierApplicationForm() {
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [showValidationErrorsDialog, setShowValidationErrorsDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{
@@ -162,13 +164,14 @@ export default function SupplierApplicationForm() {
       // Show confirmation dialog if validation passes
       setShowConfirmDialog(true);
     } else {
-      // Show error toast
-      toast({
-        title: "Validation Error",
-        description: `Please fix ${errors.length} error(s) before submitting`,
-        variant: "destructive",
-      });
+      // Show detailed errors dialog
+      setShowValidationErrorsDialog(true);
     }
+  };
+
+  const handleGoToErrorStep = (stepIndex: number) => {
+    setCurrentStep(stepIndex);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleConfirmSubmit = async () => {
@@ -344,6 +347,14 @@ export default function SupplierApplicationForm() {
           </div>
         </div>
       </div>
+
+      {/* Validation Errors Dialog */}
+      <ValidationErrorsDialog
+        isOpen={showValidationErrorsDialog}
+        errors={validationErrors}
+        onClose={() => setShowValidationErrorsDialog(false)}
+        onGoToStep={handleGoToErrorStep}
+      />
 
       {/* Confirmation Dialog */}
       <SupplierApplicationConfirmDialog
