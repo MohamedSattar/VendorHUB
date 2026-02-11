@@ -28,6 +28,7 @@ import {
   handleGetCRMEnvironment,
   handleSwitchCRMEnvironment,
 } from "./routes/config";
+import { handleGetSupplierRegistrationFields } from "./routes/crmDebug";
 import {
   handleGetWebsiteContents,
   handleGetFAQ,
@@ -95,6 +96,9 @@ export function createServer() {
   // Configuration routes
   app.get("/api/config/crm-environment", handleGetCRMEnvironment);
   app.post("/api/config/crm-environment/switch", handleSwitchCRMEnvironment);
+
+  // Debug routes (development only)
+  app.get("/api/debug/supplier-registration-fields", handleGetSupplierRegistrationFields);
 
   // Protected user routes (require authentication)
   app.get("/api/user/profile", requireAuth, handleGetProfile);
