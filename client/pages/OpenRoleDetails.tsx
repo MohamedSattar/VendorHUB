@@ -1084,7 +1084,7 @@ export default function OpenRoleDetails() {
                     {/* Assignment Mode Selection */}
                     {!assignResourceMode && !candidateDetails ? (
                       <div className="space-y-3">
-                        {/* Option 1: Select from Dropdown */}
+                        {/* Option 1: Select Existing Candidate */}
                         <button
                           type="button"
                           onClick={async () => {
@@ -1103,7 +1103,7 @@ export default function OpenRoleDetails() {
                           }}
                           className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
                         >
-                          Select Candidate from Dropdown
+                          Select Existing Candidate
                         </button>
 
                         {/* Option 2: Add New Resource */}
