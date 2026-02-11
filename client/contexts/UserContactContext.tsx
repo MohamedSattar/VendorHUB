@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export interface LoggedInContactData {
   contactId: string;
@@ -33,6 +33,20 @@ interface UserContactProviderProps {
 export function UserContactProvider({ children }: UserContactProviderProps) {
   const [loggedInContact, setLoggedInContactState] = useState<LoggedInContactData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize contact data from localStorage on mount
+  useEffect(() => {
+    try {
+      const storedContact = localStorage.getItem("loggedInContact");
+      if (storedContact) {
+        const parsedContact = JSON.parse(storedContact);
+        setLoggedInContactState(parsedContact);
+        console.log("[UserContactContext] Restored logged-in contact from localStorage:", parsedContact);
+      }
+    } catch (error) {
+      console.error("[UserContactContext] Failed to restore contact from localStorage:", error);
+    }
+  }, []);
 
   const setLoggedInContact = (contact: LoggedInContactData) => {
     console.log("[UserContactContext] Setting logged-in contact:", contact);
