@@ -1116,52 +1116,66 @@ export default function OpenRoleDetails() {
                           </div>
                         </div>
 
-                        {/* Search Results */}
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium text-gray-700">
-                            {isSearching
-                              ? "Loading candidates..."
-                              : searchQuery.length === 0
-                                ? `Showing ${allResources.length} candidate${allResources.length !== 1 ? "s" : ""}`
+                        {/* Search Results - Only show when user types something */}
+                        {searchQuery.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">
+                              {isSearching
+                                ? "Loading candidates..."
                                 : `Found ${searchResults.length} result${searchResults.length !== 1 ? "s" : ""}`}
-                          </p>
+                            </p>
 
-                          {/* Results List */}
-                          <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
-                            {isSearching ? (
-                              <div className="text-center py-8">
-                                <p className="text-gray-500">Loading candidates...</p>
-                              </div>
-                            ) : (searchQuery.length === 0 ? allResources : searchResults).length === 0 ? (
-                              <div className="text-center py-8">
-                                <p className="text-gray-500">
-                                  {searchQuery.length === 0
-                                    ? "No candidates available"
-                                    : "No candidates match your search"}
-                                </p>
-                              </div>
-                            ) : (
-                              (searchQuery.length === 0 ? allResources : searchResults).map((resource) => (
-                                <button
-                                  key={resource.id}
-                                  type="button"
-                                  onClick={() => setSelectedResource(resource)}
-                                  className={`w-full p-4 text-left rounded-lg border-2 transition ${
-                                    selectedResource?.id === resource.id
-                                      ? "border-primary bg-blue-50"
-                                      : "border-gray-200 hover:border-gray-300 bg-white"
-                                  }`}
-                                >
-                                  <p className="font-semibold text-navy">{resource.name}</p>
-                                  <p className="text-sm text-gray-600">{resource.email}</p>
-                                  {resource.phoneNumber && (
-                                    <p className="text-xs text-gray-500">{resource.phoneNumber}</p>
-                                  )}
-                                </button>
-                              ))
-                            )}
+                            {/* Results List */}
+                            <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                              {isSearching ? (
+                                <div className="text-center py-8">
+                                  <p className="text-gray-500">Loading candidates...</p>
+                                </div>
+                              ) : searchResults.length === 0 ? (
+                                <div className="space-y-4">
+                                  <div className="text-center py-8">
+                                    <p className="text-gray-500">No candidates match your search</p>
+                                  </div>
+
+                                  {/* Create New Candidate Option */}
+                                  <button
+                                    type="button"
+                                    onClick={() => navigate("/add-resource")}
+                                    className="w-full px-4 py-3 border-2 border-dashed border-primary text-primary rounded-lg hover:bg-primary/5 transition font-medium text-center"
+                                  >
+                                    + Create New Candidate
+                                  </button>
+                                </div>
+                              ) : (
+                                searchResults.map((resource) => (
+                                  <button
+                                    key={resource.id}
+                                    type="button"
+                                    onClick={() => setSelectedResource(resource)}
+                                    className={`w-full p-4 text-left rounded-lg border-2 transition ${
+                                      selectedResource?.id === resource.id
+                                        ? "border-primary bg-blue-50"
+                                        : "border-gray-200 hover:border-gray-300 bg-white"
+                                    }`}
+                                  >
+                                    <p className="font-semibold text-navy">{resource.name}</p>
+                                    <p className="text-sm text-gray-600">{resource.email}</p>
+                                    {resource.phoneNumber && (
+                                      <p className="text-xs text-gray-500">{resource.phoneNumber}</p>
+                                    )}
+                                  </button>
+                                ))
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )}
+
+                        {/* Hint text when no search query */}
+                        {searchQuery.length === 0 && (
+                          <p className="text-sm text-gray-500 text-center py-4">
+                            Start typing to search for candidates or create a new one
+                          </p>
+                        )}
 
                         {/* Selected Resource Edit Form */}
                         {selectedResource && (
