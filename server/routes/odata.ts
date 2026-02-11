@@ -1017,15 +1017,48 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
       "Authorization": "Bearer ***",
     });
 
-    // Use direct fetch with proper binary data handling
-    // This bypasses makeAuthenticatedRequest which may have issues with buffers
-    const response = await fetch(url, {
+    // Try uploading with binary data first
+    console.log("[OData Proxy] Sending binary request to:", url);
+    console.log("[OData Proxy] Headers being sent:", {
+      Authorization: "Bearer ***",
+      "Content-Type": headers["Content-Type"],
+    });
+
+    let response = await fetch(url, {
       method: "PUT",
       headers,
       body: req.file.buffer,
     });
 
+    // If binary upload fails with 400, try base64-encoded approach
+    if (response.status === 400) {
+      console.log("[OData Proxy] Binary upload failed with 400, trying base64-encoded approach...");
+
+      const base64Data = req.file.buffer.toString("base64");
+      const base64Headers: Record<string, string> = {
+        "Authorization": authHeaders["Authorization"],
+        "Content-Type": "application/json",
+      };
+
+      const base64Payload = JSON.stringify({
+        prmtk_personalphoto: base64Data,
+      });
+
+      console.log("[OData Proxy] Sending base64 PATCH request with JSON payload");
+
+      // Try PATCH with base64-encoded data in JSON
+      response = await fetch(url.replace("/$value", ""), {
+        method: "PATCH",
+        headers: base64Headers,
+        body: base64Payload,
+      });
+    }
+
     console.log("[OData Proxy] Upload response status:", response.status);
+    console.log("[OData Proxy] Upload response headers:", {
+      "content-type": response.headers.get("content-type"),
+      "odata-version": response.headers.get("odata-version"),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
