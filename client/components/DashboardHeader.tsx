@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Settings } from "lucide-react";
 import ECALogo from "@/components/ECALogo";
+import CRMEnvironmentSwitcher from "@/components/CRMEnvironmentSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -39,8 +40,9 @@ export default function DashboardHeader() {
 
           {/* Right section - Icons and profile */}
           <div
-            className={`flex items-center gap-4 ${isArabic ? "flex-row-reverse" : ""}`}
+            className={`flex items-center gap-3 ${isArabic ? "flex-row-reverse" : ""}`}
           >
+            <CRMEnvironmentSwitcher />
             <button
               onClick={() => navigate("/notifications")}
               className="relative p-2 text-navy hover:bg-gray-100 rounded-lg transition"

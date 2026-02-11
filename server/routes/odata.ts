@@ -1,15 +1,16 @@
 import { RequestHandler } from "express";
 import { getAuthHeaders, invalidateTokenCache } from "../services/azureAuth";
+import { getDataverseResource } from "../config/crmEnvironments";
 
 /**
  * Build the OData base URL from Dataverse resource
- * The DATAVERSE_RESOURCE env var contains the organization endpoint
+ * Uses the environment configuration to get the current CRM endpoint
  * Examples:
- * - https://org2a23f983.crm15.dynamics.com/.default (with /.default for OAuth v2.0)
- * - https://org2a23f983.crm15.dynamics.com/ (without suffix)
+ * - https://org2a23f983.crm15.dynamics.com/ (STAGE)
+ * - https://org8b20ca8a.crm15.dynamics.com/ (DEV)
  */
 function getODataBaseUrl(): string {
-  const resource = process.env.DATAVERSE_RESOURCE;
+  const resource = getDataverseResource();
 
   if (resource && resource.includes("dynamics.com")) {
     // Remove /.default or trailing slash if present to get the clean endpoint
@@ -19,6 +20,7 @@ function getODataBaseUrl(): string {
 
     // Construct the API endpoint
     // Dataverse v9.2 API: https://[org].crm[region].dynamics.com/api/data/v9.2
+    console.log("[OData] Using CRM endpoint:", cleanResource);
     return `${cleanResource}/api/data/v9.2`;
   }
 
@@ -26,8 +28,6 @@ function getODataBaseUrl(): string {
   console.warn("[OData] DATAVERSE_RESOURCE not properly configured, using fallback portal endpoint");
   return "https://ecavendorhubspa.powerappsportals.com/_api";
 }
-
-const ODATA_BASE_URL = getODataBaseUrl();
 
 interface ODataQuery {
   filter?: string;
@@ -119,7 +119,7 @@ export const handleGetWebsiteContents: RequestHandler = async (req, res) => {
     };
 
     const queryString = buildODataQuery(query);
-    const url = `${ODATA_BASE_URL}/prmtk_websitecontents${queryString}`;
+    const url = `${getODataBaseUrl()}/prmtk_websitecontents${queryString}`;
 
     console.log("[OData Proxy] Fetching from:", url);
 
@@ -159,7 +159,7 @@ export const handleGetWebsiteContents: RequestHandler = async (req, res) => {
 export const handleGetFAQ: RequestHandler = async (req, res) => {
   try {
     const url =
-      `${ODATA_BASE_URL}/prmtk_websitecontents?` +
+      `${getODataBaseUrl()}/prmtk_websitecontents?` +
       `$filter=prmtk_section%20eq%202&` +
       `$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_section,createdon,modifiedon,statuscode&` +
       `$orderby=importsequencenumber%20asc`;
@@ -231,7 +231,7 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
   try {
     // Request to get formatted values from OData
     const url =
-      `${ODATA_BASE_URL}/prmtk_websitecontents?` +
+      `${getODataBaseUrl()}/prmtk_websitecontents?` +
       `$filter=prmtk_section%20eq%203&` +
       `$select=prmtk_websitecontentid,prmtk_header,prmtk_description,prmtk_category,prmtk_section,createdon,modifiedon,statuscode&` +
       `$orderby=importsequencenumber%20asc`;
@@ -331,7 +331,7 @@ export const handleGetManuals: RequestHandler = async (req, res) => {
 export const handleGetEngagements: RequestHandler = async (req, res) => {
   try {
     const url =
-      `${ODATA_BASE_URL}/prmtk_engagements?` +
+      `${getODataBaseUrl()}/prmtk_engagements?` +
       `$select=prmtk_engagementid,prmtk_engagementname,prmtk_description,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,_prmtk_vendor_value,prmtk_uniqueid,prmtk_type,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_startdate%20desc`;
 
@@ -387,7 +387,7 @@ export const handleGetOpenRoleById: RequestHandler = async (req, res) => {
     }
 
     const url =
-      `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})?` +
+      `${getODataBaseUrl()}/prmtk_candidateengagementnames(${id})?` +
       `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_enddate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,_prmtk_engagement_value,prmtk_currenttitle,prmtk_proposedtitle,prmtk_currentsalaryaed,prmtk_proposedsalaryaed,prmtk_name,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Open Role by ID:", id);
@@ -459,7 +459,7 @@ export const handleUpdateOpenRole: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Open Role ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
+    const url = `${getODataBaseUrl()}/prmtk_candidateengagementnames(${id})`;
 
     console.log("[OData Proxy] Updating Open Role by ID:", id);
     console.log("[OData Proxy] Received fields to update:", {
@@ -595,7 +595,7 @@ export const handleGetOpenRoles: RequestHandler = async (req, res) => {
     }
 
     const url =
-      `${ODATA_BASE_URL}/prmtk_candidateengagementnames?` +
+      `${getODataBaseUrl()}/prmtk_candidateengagementnames?` +
       `$filter=_prmtk_engagement_value%20eq%20${engagementId}&` +
       `$select=prmtk_candidateengagementnameid,prmtk_rolename,prmtk_startdate,prmtk_status,prmtk_readyforsubmission,_prmtk_candidate_value,prmtk_currenttitle,prmtk_proposedtitle,prmtk_currentsalaryaed,prmtk_proposedsalaryaed,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_startdate%20asc`;
@@ -650,7 +650,7 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
     }
 
     const url =
-      `${ODATA_BASE_URL}/prmtk_engagements(${id})?` +
+      `${getODataBaseUrl()}/prmtk_engagements(${id})?` +
       `$select=prmtk_engagementid,prmtk_engagementname,prmtk_description,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,_prmtk_vendor_value,prmtk_uniqueid,prmtk_type,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Engagement by ID:", id);
@@ -698,7 +698,7 @@ export const handleSubmitEngagement: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Engagement ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagements(${id})`;
+    const url = `${getODataBaseUrl()}/prmtk_engagements(${id})`;
 
     console.log("[OData Proxy] Submitting engagement with ID:", id);
 
@@ -759,7 +759,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
     const vendorId = req.query.vendorId as string | undefined;
 
     let url =
-      `${ODATA_BASE_URL}/prmtk_engagementcontacts?` +
+      `${getODataBaseUrl()}/prmtk_engagementcontacts?` +
       `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_id%20asc`;
 
@@ -833,7 +833,7 @@ export const handleGetEngagementContactPhoto: RequestHandler = async (
       return res.status(400).json({ error: "Contact ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
 
     console.log("[OData Proxy] Fetching contact photo for ID:", id);
 
@@ -900,7 +900,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
     }
 
     const url =
-      `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})?` +
+      `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})?` +
       `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_personalphoto,prmtk_uaeresident,prmtk_cvfile_name,prmtk_introductiondocument_name,prmtk_educationalcertificate_name,prmtk_eid_name,prmtk_salarycertificate_name,prmtk_passport_name,prmtk_experienceletter_name,prmtk_policeclearance_name,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Candidate Contact by ID:", id);
@@ -949,7 +949,7 @@ export const handleGetCandidateContactPhoto: RequestHandler = async (
       return res.status(400).json({ error: "Contact ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
 
     console.log("[OData Proxy] Fetching candidate contact photo for ID:", id);
 
@@ -1020,7 +1020,7 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
       return res.status(400).json({ error: "No file provided" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
 
     console.log("[OData Proxy] Uploading candidate contact photo for ID:", id);
     console.log("[OData Proxy] File details:", {
@@ -1188,7 +1188,7 @@ export const handleGetEngagementContactDocument: RequestHandler = async (
       return res.status(400).json({ error: "Invalid document field" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/${fieldName}/$value`;
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})/${fieldName}/$value`;
 
     console.log(
       "[OData Proxy] Fetching document for ID:",
@@ -1272,7 +1272,7 @@ export const handleCreateEngagementContact: RequestHandler = async (
       return res.status(400).json({ error: "Name (prmtk_id) is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts`;
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts`;
 
     console.log("[OData Proxy] Creating new Engagement Contact");
 
@@ -1353,7 +1353,7 @@ export const handleUpdateCandidateContact: RequestHandler = async (
       return res.status(400).json({ error: "Contact ID is required" });
     }
 
-    const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})`;
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})`;
 
     console.log("[OData Proxy] Updating Engagement Contact by ID:", id);
 
@@ -1439,7 +1439,7 @@ export const handleAssignCandidateToOpenRole: RequestHandler = async (
     // Try using the standard Dynamics REST way to set a single-valued navigation property
 
     // Step 1: Try setting with a PATCH using the fully qualified URI
-    const updateUrl = `${ODATA_BASE_URL}/prmtk_candidateengagementnames(${id})`;
+    const updateUrl = `${getODataBaseUrl()}/prmtk_candidateengagementnames(${id})`;
 
     // Build update payload - trying different navigation property names
     // The error says 'prmtk_candidate' is undeclared, so we need to find the correct name
@@ -1563,7 +1563,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
     if (preferredcontactmethodcode !== undefined) updatePayload.preferredcontactmethodcode = preferredcontactmethodcode;
 
     // Update contact in CRM using PATCH
-    const updateUrl = `${ODATA_BASE_URL}/contacts(${id})`;
+    const updateUrl = `${getODataBaseUrl()}/contacts(${id})`;
 
     console.log("[OData Proxy] PATCH URL:", updateUrl);
     console.log("[OData Proxy] Update payload:", updatePayload);
@@ -1591,7 +1591,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
     console.log("[OData Proxy] Contact updated successfully, fetching updated record");
 
     // Fetch the updated contact record
-    const fetchUrl = `${ODATA_BASE_URL}/contacts(${id})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
+    const fetchUrl = `${getODataBaseUrl()}/contacts(${id})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
 
     const fetchResponse = await makeAuthenticatedRequest(fetchUrl, {
       method: "GET",
@@ -1619,7 +1619,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
       // First, query the bridge table prmtk_vendorcontactses to find the first assigned vendor
       // This table links contacts to vendors through the prmtk_engagement_VendorContactPerson_contact relationship
       // Order by createdon to get the first assigned vendor, then get just the first result
-      const bridgeQueryUrl = `${ODATA_BASE_URL}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${id}&$select=_prmtk_vendor_value,createdon&$orderby=createdon asc&$top=1`;
+      const bridgeQueryUrl = `${getODataBaseUrl()}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${id}&$select=_prmtk_vendor_value,createdon&$orderby=createdon asc&$top=1`;
 
       console.log("[OData Proxy] Querying bridge table for first assigned vendor:", bridgeQueryUrl);
 
@@ -1638,7 +1638,7 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 
           // Now query the vendor details using the vendor ID from bridge table
           if (vendorLookupId) {
-            const vendorDetailUrl = `${ODATA_BASE_URL}/prmtk_vendors(${vendorLookupId})?$select=prmtk_vendorid,prmtk_name`;
+            const vendorDetailUrl = `${getODataBaseUrl()}/prmtk_vendors(${vendorLookupId})?$select=prmtk_vendorid,prmtk_name`;
 
             const vendorDetailResponse = await makeAuthenticatedRequest(vendorDetailUrl, {
               method: "GET",

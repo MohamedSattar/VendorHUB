@@ -25,6 +25,10 @@ import {
   handleDeleteResource,
 } from "./routes/user";
 import {
+  handleGetCRMEnvironment,
+  handleSwitchCRMEnvironment,
+} from "./routes/config";
+import {
   handleGetWebsiteContents,
   handleGetFAQ,
   handleGetManuals,
@@ -85,6 +89,10 @@ export function createServer() {
 
   // Debug routes (development only)
   app.get("/api/auth/debug/contacts", handleGetAllContacts);
+
+  // Configuration routes
+  app.get("/api/config/crm-environment", handleGetCRMEnvironment);
+  app.post("/api/config/crm-environment/switch", handleSwitchCRMEnvironment);
 
   // Protected user routes (require authentication)
   app.get("/api/user/profile", requireAuth, handleGetProfile);
