@@ -466,13 +466,14 @@ export default function OpenRoleDetails() {
       await refetchCandidateDetails();
       console.log("[OpenRoleDetails] Refetched candidate details");
 
-      // Reset modal state
+      // Reset modal state and close assignment mode to display the newly assigned candidate
       setIsChangeCandidateModalOpen(false);
       setChangeCandidatePreview(null);
+      setAssignResourceMode(null); // Reset to show the newly assigned candidate details
 
       toast({
         title: "Success",
-        description: "Candidate assignment updated successfully",
+        description: "Candidate assignment updated successfully!",
       });
     } catch (error) {
       console.error("Error changing candidate:", error);
@@ -1272,15 +1273,15 @@ export default function OpenRoleDetails() {
                                     await refetchCandidateDetails();
                                     console.log("[OpenRoleDetails] Refetched candidate details");
 
-                                    // Close the search but keep the assignment section visible
+                                    // Close the search and reset assignment mode to show the newly assigned candidate
                                     setSelectedResource(null);
                                     setSearchQuery("");
-                                    // Don't reset assignResourceMode - keep it so the assignment section stays visible
+                                    setAssignResourceMode(null); // Reset to show the assigned candidate profile
 
                                     toast({
                                       title: "Success",
                                       description:
-                                        "Candidate assigned successfully!",
+                                        "Candidate assigned successfully! Displaying assigned candidate details.",
                                     });
                                   } catch (error) {
                                     const errorMessage =
