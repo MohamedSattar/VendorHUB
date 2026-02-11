@@ -856,8 +856,8 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
 
     const data = await response.json();
 
-    // Add cache headers for performance
-    res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
+    // Don't cache individual candidate contact records - always fetch fresh data
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
     res.json(data);
   } catch (error) {
     console.error("[OData Proxy] Candidate Contact by ID Error:", error);
@@ -1154,6 +1154,7 @@ export const handleUpdateCandidateContact: RequestHandler = async (
       method: "PATCH",
       headers: {
         Accept: "application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(updateData),
     });

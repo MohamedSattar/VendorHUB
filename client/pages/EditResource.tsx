@@ -39,21 +39,29 @@ export default function EditResource() {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save changes: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData?.details || response.statusText;
+        throw new Error(`Failed to save changes: ${errorMessage}`);
       }
+
+      console.log("[EditResource] Save successful, refreshing data from backend...");
+
+      // Add a small delay to ensure CRM has processed the update
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refetch the contact details to show updated data from backend
+      await refetch();
+      console.log("[EditResource] Data refreshed from backend");
 
       toast({
         title: "Success",
         description: "Resource updated successfully",
       });
 
-      // Refetch the contact details to show updated data
-      await refetch();
-
       // Redirect back to resources after successful save
       setTimeout(() => {
         navigate("/resources");
-      }, 1000);
+      }, 1500);
     } catch (err) {
       console.error("Error saving resource:", err);
       toast({
