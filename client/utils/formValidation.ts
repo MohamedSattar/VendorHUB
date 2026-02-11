@@ -71,10 +71,17 @@ export const validateSupplierApplicationForm = (
     });
   }
 
-  if (!formData.registeredAddress || formData.registeredAddress.trim() === "") {
+  if (!formData.country || formData.country.trim() === "") {
     errors.push({
-      field: "registeredAddress",
-      message: "Registered company address is required",
+      field: "country",
+      message: "Country is required",
+    });
+  }
+
+  if (!formData.city || formData.city.trim() === "") {
+    errors.push({
+      field: "city",
+      message: "City is required",
     });
   }
 
@@ -237,7 +244,8 @@ const FIELD_TO_STEP: Record<string, number> = {
   yearsInBusiness: 0,
   numberOfEmployees: 0,
   tradeLicenseType: 0,
-  registeredAddress: 0,
+  country: 0,
+  city: 0,
   website: 0,
   websiteUrl: 0,
   isEmiratiSME: 0,
@@ -333,4 +341,167 @@ export const getFirstErrorStep = (
   const grouped = groupErrorsByStep(errors);
   const steps = Object.keys(grouped).map((s) => parseInt(s));
   return steps.length > 0 ? Math.min(...steps) : null;
+};
+
+/**
+ * Validate a specific step
+ */
+export const validateStep = (
+  stepIndex: number,
+  formData: ApplicationFormData
+): ValidationError[] => {
+  const allErrors = validateSupplierApplicationForm(formData);
+  return allErrors.filter((error) => {
+    const grouped = groupErrorsByStep([error]);
+    const errorStep = Object.keys(grouped)[0];
+    return parseInt(errorStep) === stepIndex;
+  });
+};
+
+/**
+ * Validate Section A: Company Information (Step 0)
+ */
+export const validateCompanyInformationStep = (
+  formData: ApplicationFormData
+): ValidationError[] => {
+  const errors: ValidationError[] = [];
+
+  if (!formData.companyName || formData.companyName.trim() === "") {
+    errors.push({ field: "companyName", message: "Company name is required" });
+  }
+
+  if (!formData.yearsInBusiness || parseInt(formData.yearsInBusiness) < 0) {
+    errors.push({ field: "yearsInBusiness", message: "Years in business must be a valid positive number" });
+  }
+
+  if (!formData.numberOfEmployees || parseInt(formData.numberOfEmployees) < 0) {
+    errors.push({ field: "numberOfEmployees", message: "Number of employees must be a valid positive number" });
+  }
+
+  if (!formData.tradeLicenseType) {
+    errors.push({ field: "tradeLicenseType", message: "Trade license type is required" });
+  }
+
+  if (!formData.country || formData.country.trim() === "") {
+    errors.push({ field: "country", message: "Country is required" });
+  }
+
+  if (!formData.city || formData.city.trim() === "") {
+    errors.push({ field: "city", message: "City is required" });
+  }
+
+  if (formData.website === "yes") {
+    if (!formData.websiteUrl || formData.websiteUrl.trim() === "") {
+      errors.push({ field: "websiteUrl", message: "Website URL is required when answering 'Yes'" });
+    } else if (!isValidUrl(formData.websiteUrl)) {
+      errors.push({ field: "websiteUrl", message: "Website URL must be a valid URL" });
+    }
+  }
+
+  return errors;
+};
+
+/**
+ * Validate Section B: Operational Capabilities (Steps 1 & 3)
+ */
+export const validateOperationalCapabilitiesStep = (
+  formData: ApplicationFormData
+): ValidationError[] => {
+  const errors: ValidationError[] = [];
+
+  if (formData.supplyCategorySelections.length === 0) {
+    errors.push({ field: "supplyCategorySelections", message: "Please select at least one supply category" });
+  }
+
+  const validSuppliers = formData.suppliers.filter((s) => s.name.trim() !== "");
+  if (validSuppliers.length < 3) {
+    errors.push({ field: "suppliers", message: "All three supplier names are required" });
+  }
+
+  return errors;
+};
+
+/**
+ * Validate Section B: Client References (Step 3)
+ */
+export const validateClientReferencesStep = (
+  formData: ApplicationFormData
+): ValidationError[] => {
+  const errors: ValidationError[] = [];
+
+  const validReferences = formData.clientReferences.filter((r) => r.name.trim() !== "");
+  if (validReferences.length < 2) {
+    errors.push({ field: "clientReferences", message: "At least two client references are required" });
+  }
+
+  validReferences.forEach((ref, index) => {
+    if (!ref.organization || ref.organization.trim() === "") {
+      errors.push({ field: `clientReference_${index}_organization`, message: `Reference ${index + 1}: Organization is required` });
+    }
+    if (!ref.email || !isValidEmail(ref.email)) {
+      errors.push({ field: `clientReference_${index}_email`, message: `Reference ${index + 1}: Valid email is required` });
+    }
+    if (!ref.category || ref.category.trim() === "") {
+      errors.push({ field: `clientReference_${index}_category`, message: `Reference ${index + 1}: Category/Service type is required` });
+    }
+    if (!ref.projectName || ref.projectName.trim() === "") {
+      errors.push({ field: `clientReference_${index}_projectName`, message: `Reference ${index + 1}: Project name is required` });
+    }
+  });
+
+  return errors;
+};
+
+/**
+ * Validate Section D: Supplier Declaration (Step 4)
+ */
+export const validateSupplierDeclarationStep = (
+  formData: ApplicationFormData
+): ValidationError[] => {
+  const errors: ValidationError[] = [];
+
+  if (!formData.fullName || formData.fullName.trim() === "") {
+    errors.push({ field: "fullName", message: "Full name is required" });
+  }
+
+  if (!formData.designation || formData.designation.trim() === "") {
+    errors.push({ field: "designation", message: "Designation/Position is required" });
+  }
+
+  if (!formData.phone || !isValidPhone(formData.phone)) {
+    errors.push({ field: "phone", message: "Valid phone number is required (UAE format)" });
+  }
+
+  if (!formData.email || !isValidEmail(formData.email)) {
+    errors.push({ field: "email", message: "Valid email address is required" });
+  }
+
+  if (!formData.date) {
+    errors.push({ field: "date", message: "Declaration date is required" });
+  }
+
+  return errors;
+};
+
+/**
+ * Validate Section E: Attachments (Step 5)
+ */
+export const validateAttachmentsStep = (
+  formData: ApplicationFormData
+): ValidationError[] => {
+  const errors: ValidationError[] = [];
+
+  if (!formData.attachments.tradeLicense) {
+    errors.push({ field: "attachments.tradeLicense", message: "Trade License attachment is required" });
+  }
+
+  if (!formData.attachments.companyProfile) {
+    errors.push({ field: "attachments.companyProfile", message: "Company Profile attachment is required" });
+  }
+
+  if (!formData.attachments.powerOfAttorney) {
+    errors.push({ field: "attachments.powerOfAttorney", message: "Power of Attorney attachment is required" });
+  }
+
+  return errors;
 };

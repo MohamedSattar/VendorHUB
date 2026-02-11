@@ -8,10 +8,20 @@ import DeclarationStep from "@/components/supplier/DeclarationStep";
 import AttachmentsStep from "@/components/supplier/AttachmentsStep";
 import ReviewStep from "@/components/supplier/ReviewStep";
 import FormProgressBar from "@/components/supplier/FormProgressBar";
+import { useEffect } from "react";
 import SupplierApplicationConfirmDialog from "@/components/SupplierApplicationConfirmDialog";
 import SupplierApplicationSuccess from "@/components/SupplierApplicationSuccess";
 import ValidationErrorsDialog from "@/components/ValidationErrorsDialog";
-import { validateSupplierApplicationForm, ValidationError, getFirstErrorStep } from "@/utils/formValidation";
+import {
+  validateSupplierApplicationForm,
+  ValidationError,
+  validateCompanyInformationStep,
+  validateOperationalCapabilitiesStep,
+  validateClientReferencesStep,
+  validateSupplierDeclarationStep,
+  validateAttachmentsStep,
+} from "@/utils/formValidation";
+import { scheduleDraftAutosave, cancelPendingAutosave } from "@/utils/draftAutosave";
 import { useToast } from "@/hooks/use-toast";
 
 export interface ApplicationFormData {
@@ -20,7 +30,10 @@ export interface ApplicationFormData {
   yearsInBusiness: string;
   numberOfEmployees: string;
   tradeLicenseType: string;
-  registeredAddress: string;
+  country: string; // Lookup field ID
+  countryName: string; // Display name
+  city: string; // Lookup field ID
+  cityName: string; // Display name
   website: string;
   websiteUrl: string;
   isEmiratiSME: boolean;
@@ -61,6 +74,9 @@ export interface ApplicationFormData {
     powerOfAttorney: File | null;
     icvCertificate: File | null;
   };
+
+  // Draft tracking
+  draftId?: string;
 }
 
 const STEPS = [
@@ -81,7 +97,10 @@ export default function SupplierApplicationForm() {
     yearsInBusiness: "",
     numberOfEmployees: "",
     tradeLicenseType: "",
-    registeredAddress: "",
+    country: "",
+    countryName: "",
+    city: "",
+    cityName: "",
     website: "",
     websiteUrl: "",
     isEmiratiSME: false,
@@ -123,12 +142,15 @@ export default function SupplierApplicationForm() {
       powerOfAttorney: null,
       icvCertificate: null,
     },
+    draftId: undefined,
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [stepValidationErrors, setStepValidationErrors] = useState<Record<number, ValidationError[]>>({});
   const [showValidationErrorsDialog, setShowValidationErrorsDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{
     success: boolean;
     trackingId: string;
@@ -137,12 +159,72 @@ export default function SupplierApplicationForm() {
     contactEmail: string;
   } | null>(null);
 
-  const handleUpdateFormData = (updates: Partial<ApplicationFormData>) => {
-    setFormData((prev) => ({ ...prev, ...updates }));
+  // Validate a specific step
+  const validateCurrentStep = (): ValidationError[] => {
+    switch (currentStep) {
+      case 0:
+        return validateCompanyInformationStep(formData);
+      case 1:
+        return validateOperationalCapabilitiesStep(formData);
+      case 3:
+        return validateClientReferencesStep(formData);
+      case 4:
+        return validateSupplierDeclarationStep(formData);
+      case 5:
+        return validateAttachmentsStep(formData);
+      default:
+        return [];
+    }
   };
+
+  // Update form data and trigger autosave
+  const handleUpdateFormData = (updates: Partial<ApplicationFormData>) => {
+    setFormData((prev) => {
+      const newFormData = { ...prev, ...updates };
+
+      // Schedule autosave
+      setIsSavingDraft(true);
+      scheduleDraftAutosave(newFormData, (draftId) => {
+        setFormData((f) => ({ ...f, draftId }));
+        setIsSavingDraft(false);
+        console.log("[Form] Draft saved with ID:", draftId);
+      });
+
+      return newFormData;
+    });
+
+    // Validate current step after changes
+    const stepErrors = validateCurrentStep();
+    setStepValidationErrors((prev) => ({
+      ...prev,
+      [currentStep]: stepErrors,
+    }));
+  };
+
+  // Cleanup autosave on unmount
+  useEffect(() => {
+    return () => {
+      cancelPendingAutosave();
+    };
+  }, []);
 
   const handleNext = () => {
     if (currentStep < STEPS.length - 1) {
+      // Validate current step before moving to next
+      const errors = validateCurrentStep();
+
+      if (errors.length > 0) {
+        // Show validation errors
+        setValidationErrors(errors);
+        setShowValidationErrorsDialog(true);
+        toast({
+          title: "Validation Error",
+          description: `Please fix the errors in ${STEPS[currentStep].title} before proceeding`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       setCurrentStep(currentStep + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -180,11 +262,13 @@ export default function SupplierApplicationForm() {
 
       // Prepare the data for submission
       const submissionData = {
+        draftId: formData.draftId,
         companyName: formData.companyName,
         yearsInBusiness: formData.yearsInBusiness,
         numberOfEmployees: formData.numberOfEmployees,
         tradeLicenseType: formData.tradeLicenseType,
-        registeredAddress: formData.registeredAddress,
+        country: formData.country,
+        city: formData.city,
         website: formData.website,
         websiteUrl: formData.websiteUrl,
         isEmiratiSME: formData.isEmiratiSME,
@@ -297,9 +381,24 @@ export default function SupplierApplicationForm() {
         {/* Progress Bar */}
         <FormProgressBar currentStep={currentStep} totalSteps={STEPS.length} steps={STEPS} />
 
+        {/* Draft Saving Indicator */}
+        {isSavingDraft && (
+          <div className="bg-blue-50 border-b border-blue-200 px-8 py-2 flex items-center gap-2">
+            <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse" />
+            <span className="text-sm text-blue-700 font-medium">Saving draft...</span>
+          </div>
+        )}
+
         {/* Form Content */}
         <div className="p-8">
-          <h2 className="text-2xl font-bold text-navy mb-8">{STEPS[currentStep].title}</h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-navy">{STEPS[currentStep].title}</h2>
+            {formData.draftId && (
+              <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                Draft #{formData.draftId.substring(0, 8)}...
+              </span>
+            )}
+          </div>
 
           <div className="mb-8">
             {renderStep()}

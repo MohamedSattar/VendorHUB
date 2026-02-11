@@ -87,23 +87,89 @@ export default function CompanyInformationStep({
         </div>
       </div>
 
-      {/* A5. Registered Company Address */}
-      <div>
-        <label className="block text-sm font-semibold text-navy mb-2">
-          A5. Registered Company Address (Country / City) *
-        </label>
-        <textarea
-          value={formData.registeredAddress}
-          onChange={(e) => updateFormData({ registeredAddress: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder="Enter your registered address"
-          rows={3}
-          required
-        />
-        <p className="text-xs text-gray-500 mt-1">
-          Note: An ECA team may conduct a site visit to this address.
-        </p>
+      {/* A5. Registered Company Address - Country & City */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Country */}
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            A5a. Country *
+          </label>
+          <select
+            value={formData.country}
+            onChange={(e) => {
+              const selectedOption = e.target.options[e.target.selectedIndex];
+              updateFormData({
+                country: e.target.value,
+                countryName: selectedOption.text,
+              });
+            }}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            required
+          >
+            <option value="">Select Country...</option>
+            <option value="ae">United Arab Emirates</option>
+            <option value="sa">Saudi Arabia</option>
+            <option value="kw">Kuwait</option>
+            <option value="qa">Qatar</option>
+            <option value="bh">Bahrain</option>
+            <option value="om">Oman</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Lookup field - Select from available countries
+          </p>
+        </div>
+
+        {/* City */}
+        <div>
+          <label className="block text-sm font-semibold text-navy mb-2">
+            A5b. City *
+          </label>
+          <select
+            value={formData.city}
+            onChange={(e) => {
+              const selectedOption = e.target.options[e.target.selectedIndex];
+              updateFormData({
+                city: e.target.value,
+                cityName: selectedOption.text,
+              });
+            }}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            required
+            disabled={!formData.country}
+          >
+            <option value="">
+              {formData.country ? "Select City..." : "Select Country First"}
+            </option>
+            {formData.country === "ae" && (
+              <>
+                <option value="abudhabi">Abu Dhabi</option>
+                <option value="dubai">Dubai</option>
+                <option value="sharjah">Sharjah</option>
+                <option value="ajman">Ajman</option>
+                <option value="ummalquwain">Umm Al Quwain</option>
+                <option value="ras-al-khaimah">Ras Al Khaimah</option>
+                <option value="fujairah">Fujairah</option>
+              </>
+            )}
+            {formData.country === "sa" && (
+              <>
+                <option value="riyadh">Riyadh</option>
+                <option value="jeddah">Jeddah</option>
+                <option value="dammam">Dammam</option>
+              </>
+            )}
+            {formData.country && formData.country !== "ae" && formData.country !== "sa" && (
+              <option value="main">Main City</option>
+            )}
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Lookup field - Select from available cities
+          </p>
+        </div>
       </div>
+      <p className="text-xs text-gray-500 mt-2">
+        Note: An ECA team may conduct a site visit to this address.
+      </p>
 
       {/* A6. Company Website */}
       <div>

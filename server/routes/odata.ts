@@ -1694,8 +1694,158 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Save supplier registration as draft to prmtk_supplierregistration table
+ * Creates or updates a draft record
+ */
+export const handleSaveDraftSupplierRegistration = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const { draftId, ...supplierData } = req.body;
+
+    console.log("[OData] Saving supplier registration draft:", {
+      draftId,
+      companyName: supplierData.companyName,
+    });
+
+    // Build the record data to save as draft
+    const draftData = {
+      // Section A: Company Information
+      prmtk_companyname: supplierData.companyName || null,
+      prmtk_yearsinbusiness: supplierData.yearsInBusiness
+        ? parseInt(supplierData.yearsInBusiness)
+        : null,
+      prmtk_numberofemployees: supplierData.numberOfEmployees
+        ? parseInt(supplierData.numberOfEmployees)
+        : null,
+      prmtk_tradelivensetype: supplierData.tradeLicenseType || null,
+      prmtk_country: supplierData.country || null,
+      prmtk_city: supplierData.city || null,
+      prmtk_haswebsite: supplierData.website === "yes",
+      prmtk_websiteurl: supplierData.websiteUrl || null,
+      prmtk_isemiratisme: supplierData.isEmiratiSME || false,
+      prmtk_iskhalifafundregistered: supplierData.isKhalifaFundRegistered || false,
+      prmtk_hasicvcertificate: supplierData.hasICVCertificate || false,
+      prmtk_icvscore: supplierData.icvScore || null,
+
+      // Section B: Operational Capabilities
+      prmtk_hasenvironmentalpractices: supplierData.hasEnvironmentalPractices || false,
+      prmtk_environmentalpracticesdetails:
+        supplierData.environmentalPracticesDetails || null,
+      prmtk_supplycategoryselections:
+        supplierData.supplyCategorySelections?.join("; ") || null,
+      prmtk_mainsuppliersinfo: supplierData.suppliers
+        ?.filter((s: any) => s.name)
+        .map((s: any) => s.name)
+        .join("; ") || null,
+
+      // Section C: Quality & Compliance
+      prmtk_hascertifications: supplierData.hasCertifications || false,
+      prmtk_certifications: supplierData.certifications || null,
+      prmtk_othercertifications: supplierData.otherCertifications || null,
+
+      // Section D: Supplier Declaration
+      prmtk_declarationfullname: supplierData.fullName || null,
+      prmtk_declarationdesignation: supplierData.designation || null,
+      prmtk_declarationphone: supplierData.phone || null,
+      prmtk_declarationemail: supplierData.email || null,
+      prmtk_declarationdate: supplierData.date || null,
+
+      // Client References (store as JSON string for complex data)
+      prmtk_clientreferencesdata: supplierData.clientReferences
+        ? JSON.stringify(
+            supplierData.clientReferences.filter((ref: any) => ref.name)
+          )
+        : null,
+
+      // Status - Save as Draft
+      statuscode: 1,
+      statecode: 0,
+      prmtk_submissionstatus: 0, // 0 = Draft
+    };
+
+    // Remove null values
+    Object.keys(draftData).forEach((key) => {
+      if (draftData[key as keyof typeof draftData] === null) {
+        delete draftData[key as keyof typeof draftData];
+      }
+    });
+
+    let response;
+
+    if (draftId) {
+      // Update existing draft
+      const url = `${getODataBaseUrl()}/prmtk_supplierregistrations(${draftId})`;
+
+      console.log("[OData] Updating draft supplier registration:", draftId);
+
+      const authHeaders = await getAuthHeaders();
+
+      response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          ...authHeaders,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(draftData),
+      });
+    } else {
+      // Create new draft
+      const url = `${getODataBaseUrl()}/prmtk_supplierregistrations`;
+
+      console.log("[OData] Creating new draft supplier registration");
+
+      const authHeaders = await getAuthHeaders();
+
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          ...authHeaders,
+          "Content-Type": "application/json",
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify(draftData),
+      });
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("[OData] Failed to save draft:", {
+        status: response.status,
+        error: errorData,
+      });
+
+      throw new Error(
+        `Failed to save draft: ${response.status}. ${
+          errorData?.error?.message || ""
+        }`
+      );
+    }
+
+    const savedRecord = await response.json();
+    const recordId =
+      draftId || savedRecord.prmtk_supplierregistrationid;
+
+    console.log("[OData] Draft saved successfully:", recordId);
+
+    res.status(200).json({
+      success: true,
+      message: "Draft saved successfully",
+      draftId: recordId,
+    });
+  } catch (error) {
+    console.error("[OData] Draft Save Error:", error);
+    res.status(500).json({
+      error: "Failed to save draft",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Submit supplier registration to prmtk_supplierregistration table
- * Creates a new supplier registration record and returns the unique tracking ID
+ * Updates an existing draft or creates a new record and marks it as submitted
  */
 export const handleSubmitSupplierRegistration = async (
   req: any,
@@ -1703,11 +1853,13 @@ export const handleSubmitSupplierRegistration = async (
 ): Promise<void> => {
   try {
     const {
+      draftId,
       companyName,
       yearsInBusiness,
       numberOfEmployees,
       tradeLicenseType,
-      registeredAddress,
+      country,
+      city,
       website,
       websiteUrl,
       isEmiratiSME,
@@ -1737,8 +1889,9 @@ export const handleSubmitSupplierRegistration = async (
       prmtk_companyname: companyName,
       prmtk_yearsinbusiness: yearsInBusiness ? parseInt(yearsInBusiness) : null,
       prmtk_numberofemployees: numberOfEmployees ? parseInt(numberOfEmployees) : null,
-      prmtk_tradelivensetype: tradeLicenseType, // radio button value
-      prmtk_registeredcompanyaddress: registeredAddress,
+      prmtk_tradelivensetype: tradeLicenseType,
+      prmtk_country: country || null,
+      prmtk_city: city || null,
       prmtk_haswebsite: website === "yes",
       prmtk_websiteurl: websiteUrl || null,
       prmtk_isemiratisme: isEmiratiSME,
@@ -1785,44 +1938,67 @@ export const handleSubmitSupplierRegistration = async (
       }
     });
 
-    const url = `${getODataBaseUrl()}/prmtk_supplierregistrations`;
-
-    console.log("[OData] Creating supplier registration record:", {
-      companyName,
-      url,
-    });
-
     // Get authentication headers
     const authHeaders = await getAuthHeaders();
+    let trackingId: string;
+    let response;
 
-    // Create the record
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        ...authHeaders,
-        "Content-Type": "application/json",
-        Prefer: 'return=representation',
-      },
-      body: JSON.stringify(supplierRegistrationData),
-    });
+    if (draftId) {
+      // Update existing draft
+      const url = `${getODataBaseUrl()}/prmtk_supplierregistrations(${draftId})`;
+
+      console.log("[OData] Updating draft supplier registration to submitted:", {
+        draftId,
+        companyName,
+      });
+
+      response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          ...authHeaders,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(supplierRegistrationData),
+      });
+
+      trackingId = draftId;
+    } else {
+      // Create new record
+      const url = `${getODataBaseUrl()}/prmtk_supplierregistrations`;
+
+      console.log("[OData] Creating supplier registration record:", {
+        companyName,
+        url,
+      });
+
+      response = await fetch(url, {
+        method: "POST",
+        headers: {
+          ...authHeaders,
+          "Content-Type": "application/json",
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify(supplierRegistrationData),
+      });
+
+      const createdRecord = await response.json();
+      trackingId = createdRecord.prmtk_supplierregistrationid;
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("[OData] Failed to create supplier registration:", {
+      console.error("[OData] Failed to submit supplier registration:", {
         status: response.status,
         statusText: response.statusText,
         error: errorData,
       });
 
       throw new Error(
-        `Failed to create supplier registration: ${response.status} ${response.statusText}. ${
+        `Failed to submit supplier registration: ${response.status} ${response.statusText}. ${
           errorData?.error?.message || ""
         }`
       );
     }
-
-    const createdRecord = await response.json();
-    const trackingId = createdRecord.prmtk_supplierregistrationid;
 
     console.log("[OData] Supplier registration created successfully:", {
       trackingId,
