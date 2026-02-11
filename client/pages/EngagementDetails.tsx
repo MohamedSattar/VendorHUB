@@ -477,9 +477,9 @@ export default function EngagementDetails() {
                                 {formatDate(role.expectedStartDate)}
                               </p>
                             </div>
-                            <div className="bg-blue-50 rounded-lg p-4 flex flex-col items-center justify-center text-center">
-                              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2 w-full">Status</p>
-                              <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg max-w-full line-clamp-2 break-words">
+                            <div className="bg-blue-50 rounded-lg p-6 flex flex-col items-center justify-center text-center min-h-24">
+                              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3 w-full">Status</p>
+                              <span className="inline-block px-4 py-2 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg max-w-full line-clamp-2 break-words">
                                 {role.status}
                               </span>
                             </div>
