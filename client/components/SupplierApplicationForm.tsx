@@ -8,6 +8,10 @@ import DeclarationStep from "@/components/supplier/DeclarationStep";
 import AttachmentsStep from "@/components/supplier/AttachmentsStep";
 import ReviewStep from "@/components/supplier/ReviewStep";
 import FormProgressBar from "@/components/supplier/FormProgressBar";
+import SupplierApplicationConfirmDialog from "@/components/SupplierApplicationConfirmDialog";
+import SupplierApplicationSuccess from "@/components/SupplierApplicationSuccess";
+import { validateSupplierApplicationForm, ValidationError } from "@/utils/formValidation";
+import { useToast } from "@/hooks/use-toast";
 
 export interface ApplicationFormData {
   // Section A: Company Information
@@ -69,6 +73,7 @@ const STEPS = [
 ];
 
 export default function SupplierApplicationForm() {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<ApplicationFormData>({
     companyName: "",
@@ -119,6 +124,17 @@ export default function SupplierApplicationForm() {
     },
   });
 
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionResult, setSubmissionResult] = useState<{
+    success: boolean;
+    trackingId: string;
+    companyName: string;
+    submissionDate: string;
+    contactEmail: string;
+  } | null>(null);
+
   const handleUpdateFormData = (updates: Partial<ApplicationFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
@@ -138,9 +154,103 @@ export default function SupplierApplicationForm() {
   };
 
   const handleSubmit = () => {
-    // This will be implemented after API integration
-    console.log("Form submitted:", formData);
-    alert("Application submitted! This will be integrated with the backend API.");
+    // Validate the form
+    const errors = validateSupplierApplicationForm(formData);
+    setValidationErrors(errors);
+
+    if (errors.length === 0) {
+      // Show confirmation dialog if validation passes
+      setShowConfirmDialog(true);
+    } else {
+      // Show error toast
+      toast({
+        title: "Validation Error",
+        description: `Please fix ${errors.length} error(s) before submitting`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+
+      // Prepare the data for submission
+      const submissionData = {
+        companyName: formData.companyName,
+        yearsInBusiness: formData.yearsInBusiness,
+        numberOfEmployees: formData.numberOfEmployees,
+        tradeLicenseType: formData.tradeLicenseType,
+        registeredAddress: formData.registeredAddress,
+        website: formData.website,
+        websiteUrl: formData.websiteUrl,
+        isEmiratiSME: formData.isEmiratiSME,
+        isKhalifaFundRegistered: formData.isKhalifaFundRegistered,
+        hasICVCertificate: formData.hasICVCertificate,
+        icvScore: formData.icvScore,
+        hasEnvironmentalPractices: formData.hasEnvironmentalPractices,
+        environmentalPracticesDetails: formData.environmentalPracticesDetails,
+        supplyCategorySelections: formData.supplyCategorySelections,
+        suppliers: formData.suppliers,
+        clientReferences: formData.clientReferences,
+        hasCertifications: formData.hasCertifications,
+        certifications: formData.certifications,
+        otherCertifications: formData.otherCertifications,
+        fullName: formData.fullName,
+        designation: formData.designation,
+        phone: formData.phone,
+        email: formData.email,
+        date: formData.date,
+      };
+
+      console.log("[SupplierApplicationForm] Submitting application:", submissionData);
+
+      const response = await fetch("/api/odata/supplier-registration/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.details || "Failed to submit application"
+        );
+      }
+
+      const result = await response.json();
+
+      // Show success screen
+      setSubmissionResult({
+        success: true,
+        trackingId: result.trackingId,
+        companyName: result.companyName,
+        submissionDate: result.submissionDate,
+        contactEmail: result.contactEmail,
+      });
+
+      setShowConfirmDialog(false);
+
+      toast({
+        title: "Success",
+        description: "Your application has been submitted successfully!",
+      });
+    } catch (error) {
+      console.error("[SupplierApplicationForm] Submission error:", error);
+      toast({
+        title: "Submission Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to submit application. Please try again.",
+        variant: "destructive",
+      });
+      setShowConfirmDialog(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -166,52 +276,88 @@ export default function SupplierApplicationForm() {
     }
   };
 
+  // If submission was successful, show success screen
+  if (submissionResult?.success) {
+    return (
+      <SupplierApplicationSuccess
+        trackingId={submissionResult.trackingId}
+        companyName={submissionResult.companyName}
+        contactEmail={submissionResult.contactEmail}
+        submissionDate={submissionResult.submissionDate}
+      />
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Progress Bar */}
-      <FormProgressBar currentStep={currentStep} totalSteps={STEPS.length} steps={STEPS} />
+    <>
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        {/* Progress Bar */}
+        <FormProgressBar currentStep={currentStep} totalSteps={STEPS.length} steps={STEPS} />
 
-      {/* Form Content */}
-      <div className="p-8">
-        <h2 className="text-2xl font-bold text-navy mb-8">{STEPS[currentStep].title}</h2>
+        {/* Form Content */}
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-navy mb-8">{STEPS[currentStep].title}</h2>
 
-        <div className="mb-8">
-          {renderStep()}
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-8 border-t border-gray-200">
-          <button
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-            className="flex items-center gap-2 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft size={20} />
-            Previous
-          </button>
-
-          <div className="text-sm text-gray-600">
-            Step {currentStep + 1} of {STEPS.length}
+          <div className="mb-8">
+            {renderStep()}
           </div>
 
-          {currentStep === STEPS.length - 1 ? (
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center pt-8 border-t border-gray-200">
             <button
-              onClick={handleSubmit}
-              className="flex items-center gap-2 px-8 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="flex items-center gap-2 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Application
+              <ChevronLeft size={20} />
+              Previous
             </button>
-          ) : (
-            <button
-              onClick={handleNext}
-              className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
-            >
-              Next
-              <ChevronRight size={20} />
-            </button>
-          )}
+
+            <div className="text-sm text-gray-600">
+              Step {currentStep + 1} of {STEPS.length}
+            </div>
+
+            {currentStep === STEPS.length - 1 ? (
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-8 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit Application"
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition"
+              >
+                Next
+                <ChevronRight size={20} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Confirmation Dialog */}
+      <SupplierApplicationConfirmDialog
+        isOpen={showConfirmDialog}
+        isLoading={isSubmitting}
+        companyName={formData.companyName}
+        contactEmail={formData.email}
+        validationErrors={validationErrors}
+        onConfirm={handleConfirmSubmit}
+        onCancel={() => {
+          setShowConfirmDialog(false);
+          setValidationErrors([]);
+        }}
+      />
+    </>
   );
 }

@@ -1692,3 +1692,157 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Submit supplier registration to prmtk_supplierregistration table
+ * Creates a new supplier registration record and returns the unique tracking ID
+ */
+export const handleSubmitSupplierRegistration = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const {
+      companyName,
+      yearsInBusiness,
+      numberOfEmployees,
+      tradeLicenseType,
+      registeredAddress,
+      website,
+      websiteUrl,
+      isEmiratiSME,
+      isKhalifaFundRegistered,
+      hasICVCertificate,
+      icvScore,
+      hasEnvironmentalPractices,
+      environmentalPracticesDetails,
+      supplyCategorySelections,
+      suppliers,
+      clientReferences,
+      hasCertifications,
+      certifications,
+      otherCertifications,
+      fullName,
+      designation,
+      phone,
+      email,
+      date,
+    } = req.body;
+
+    console.log("[OData] Submitting supplier registration for company:", companyName);
+
+    // Build the record data to submit to CRM
+    const supplierRegistrationData = {
+      // Section A: Company Information
+      prmtk_companyname: companyName,
+      prmtk_yearsinbusiness: yearsInBusiness ? parseInt(yearsInBusiness) : null,
+      prmtk_numberofemployees: numberOfEmployees ? parseInt(numberOfEmployees) : null,
+      prmtk_tradelivensetype: tradeLicenseType, // radio button value
+      prmtk_registeredcompanyaddress: registeredAddress,
+      prmtk_haswebsite: website === "yes",
+      prmtk_websiteurl: websiteUrl || null,
+      prmtk_isemiratisme: isEmiratiSME,
+      prmtk_iskhalifafundregistered: isKhalifaFundRegistered,
+      prmtk_hasicvcertificate: hasICVCertificate,
+      prmtk_icvscore: icvScore || null,
+
+      // Section B: Operational Capabilities
+      prmtk_hasenvironmentalpractices: hasEnvironmentalPractices,
+      prmtk_environmentalpracticesdetails: environmentalPracticesDetails || null,
+      prmtk_supplycategoryselections: supplyCategorySelections?.join("; ") || null,
+      prmtk_mainsuppliersinfo: suppliers
+        ?.filter((s: any) => s.name)
+        .map((s: any) => s.name)
+        .join("; ") || null,
+
+      // Section C: Quality & Compliance
+      prmtk_hascertifications: hasCertifications,
+      prmtk_certifications: certifications || null,
+      prmtk_othercertifications: otherCertifications || null,
+
+      // Section D: Supplier Declaration
+      prmtk_declarationfullname: fullName,
+      prmtk_declarationdesignation: designation,
+      prmtk_declarationphone: phone,
+      prmtk_declarationemail: email,
+      prmtk_declarationdate: date,
+
+      // Client References (store as JSON string for complex data)
+      prmtk_clientreferencesdata: JSON.stringify(
+        clientReferences?.filter((ref: any) => ref.name) || []
+      ),
+
+      // Status and metadata
+      statuscode: 1, // Active
+      statecode: 0, // Active
+      prmtk_submissionstatus: 1, // 1 = Submitted (option set)
+    };
+
+    // Remove null values
+    Object.keys(supplierRegistrationData).forEach((key) => {
+      if (supplierRegistrationData[key as keyof typeof supplierRegistrationData] === null) {
+        delete supplierRegistrationData[key as keyof typeof supplierRegistrationData];
+      }
+    });
+
+    const url = `${getODataBaseUrl()}/prmtk_supplierregistrations`;
+
+    console.log("[OData] Creating supplier registration record:", {
+      companyName,
+      url,
+    });
+
+    // Get authentication headers
+    const authHeaders = await getAuthHeaders();
+
+    // Create the record
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        ...authHeaders,
+        "Content-Type": "application/json",
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify(supplierRegistrationData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("[OData] Failed to create supplier registration:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+
+      throw new Error(
+        `Failed to create supplier registration: ${response.status} ${response.statusText}. ${
+          errorData?.error?.message || ""
+        }`
+      );
+    }
+
+    const createdRecord = await response.json();
+    const trackingId = createdRecord.prmtk_supplierregistrationid;
+
+    console.log("[OData] Supplier registration created successfully:", {
+      trackingId,
+      companyName,
+    });
+
+    // Return the tracking ID and confirmation details
+    res.status(201).json({
+      success: true,
+      message: "Supplier application submitted successfully",
+      trackingId: trackingId,
+      companyName: companyName,
+      submissionDate: new Date().toISOString(),
+      contactEmail: email,
+    });
+  } catch (error) {
+    console.error("[OData] Supplier Registration Submission Error:", error);
+    res.status(500).json({
+      error: "Failed to submit supplier registration",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};

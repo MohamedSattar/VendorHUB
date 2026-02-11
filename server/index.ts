@@ -48,6 +48,7 @@ import {
   handleAssignCandidateToOpenRole,
   handleUpdateOpenRole,
   handleUpdateContactById,
+  handleSubmitSupplierRegistration,
 } from "./routes/odata";
 
 export function createServer() {
@@ -152,6 +153,9 @@ export function createServer() {
 
   // Contact management routes
   app.patch("/api/odata/contact/:id", handleUpdateContactById);
+
+  // Supplier registration route
+  app.post("/api/odata/supplier-registration/submit", handleSubmitSupplierRegistration);
 
   return app;
 }
