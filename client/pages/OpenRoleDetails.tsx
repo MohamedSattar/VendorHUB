@@ -167,7 +167,7 @@ export default function OpenRoleDetails() {
   const [isDetailsCollapsed, setIsDetailsCollapsed] = useState(false);
   const [assignResourceMode, setAssignResourceMode] = useState<
     "existing" | "new" | null
-  >(null);
+  >("existing");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedResource, setSelectedResource] = useState<any>(null);
@@ -1081,41 +1081,8 @@ export default function OpenRoleDetails() {
                       )}
                     </div>
 
-                    {/* Assignment Mode Selection */}
-                    {!assignResourceMode && !candidateDetails ? (
-                      <div className="space-y-3">
-                        {/* Option 1: Select Existing Candidate */}
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            setAssignResourceMode("existing");
-                            // Load resources immediately
-                            try {
-                              setIsSearching(true);
-                              const resources = await fetchEngagementContacts();
-                              setAllResources(resources);
-                            } catch (error) {
-                              console.error("Error fetching resources:", error);
-                              setAllResources([]);
-                            } finally {
-                              setIsSearching(false);
-                            }
-                          }}
-                          className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
-                        >
-                          Select Existing Candidate
-                        </button>
-
-                        {/* Option 2: Add New Resource */}
-                        <button
-                          type="button"
-                          onClick={() => navigate("/add-resource")}
-                          className="w-full px-6 py-3 border-2 border-gray-300 text-navy rounded-lg hover:bg-gray-50 transition font-medium"
-                        >
-                          Add New Candidate
-                        </button>
-                      </div>
-                    ) : assignResourceMode === "existing" ? (
+                    {/* Show search box by default when no candidate assigned, show buttons if candidate exists */}
+                    {assignResourceMode === "existing" && !candidateDetails ? (
                       /* Search Mode */
                       <div className="space-y-4">
                         <div className="flex gap-2 mb-4">
@@ -1300,6 +1267,31 @@ export default function OpenRoleDetails() {
                             </div>
                           </div>
                         )}
+                      </div>
+                    ) : candidateDetails ? (
+                      /* Show options when candidate is already assigned */
+                      <div className="space-y-3">
+                        {/* Option 1: Select Existing Candidate */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAssignResourceMode("existing");
+                            setSearchQuery("");
+                            setSelectedResource(null);
+                          }}
+                          className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+                        >
+                          Select Existing Candidate
+                        </button>
+
+                        {/* Option 2: Add New Resource */}
+                        <button
+                          type="button"
+                          onClick={() => navigate("/add-resource")}
+                          className="w-full px-6 py-3 border-2 border-gray-300 text-navy rounded-lg hover:bg-gray-50 transition font-medium"
+                        >
+                          Add New Candidate
+                        </button>
                       </div>
                     ) : null}
                   </div>
