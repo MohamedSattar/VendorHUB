@@ -958,12 +958,17 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
     const url = `${ODATA_BASE_URL}/prmtk_engagementcontacts(${id})/prmtk_personalphoto/$value`;
 
     console.log("[OData Proxy] Uploading candidate contact photo for ID:", id);
-    console.log("[OData Proxy] File size:", req.file.size, "bytes");
-    console.log("[OData Proxy] File mimetype from multer:", req.file.mimetype);
-    console.log("[OData Proxy] File originalname:", req.file.originalname);
+    console.log("[OData Proxy] File details:", {
+      size: req.file.size,
+      mimetype: req.file.mimetype,
+      originalname: req.file.originalname,
+      encoding: req.file.encoding,
+    });
 
-    // Determine the correct MIME type based on file extension
-    let contentType = "image/jpeg"; // default
+    // Determine the correct MIME type based on file extension or multer detection
+    let contentType: string | null = null;
+
+    // First, try to detect from file extension
     if (req.file.originalname) {
       const filename = req.file.originalname.toLowerCase();
       if (filename.endsWith(".png")) {
@@ -974,10 +979,23 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
         contentType = "image/webp";
       } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
         contentType = "image/jpeg";
+      } else if (filename.endsWith(".bmp")) {
+        contentType = "image/bmp";
+      } else if (filename.endsWith(".tiff") || filename.endsWith(".tif")) {
+        contentType = "image/tiff";
       }
-    } else if (req.file.mimetype && req.file.mimetype.startsWith("image/")) {
-      // Use the mimetype from multer if it's a valid image type
-      contentType = req.file.mimetype;
+    }
+
+    // If we couldn't detect from filename, use multer's detected type
+    if (!contentType) {
+      if (req.file.mimetype && req.file.mimetype.startsWith("image/")) {
+        contentType = req.file.mimetype;
+        console.log("[OData Proxy] Using multer-detected mimetype:", contentType);
+      } else {
+        // Only use application/octet-stream as last resort, but try to be smarter
+        console.log("[OData Proxy] Warning: multer detected unknown type:", req.file.mimetype);
+        contentType = "image/jpeg"; // fallback to jpeg for image uploads
+      }
     }
 
     console.log("[OData Proxy] Using Content-Type:", contentType);
@@ -985,14 +1003,25 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
     // Get authentication headers for direct fetch call
     const authHeaders = await getAuthHeaders();
 
+    console.log("[OData Proxy] Auth headers keys:", Object.keys(authHeaders));
+
+    // For photo upload, we only need Authorization and Content-Type
+    // Don't include the "application/json" Content-Type from authHeaders
+    const headers: Record<string, string> = {
+      "Authorization": authHeaders["Authorization"],
+      "Content-Type": contentType,
+    };
+
+    console.log("[OData Proxy] Final headers for upload:", {
+      "Content-Type": contentType,
+      "Authorization": "Bearer ***",
+    });
+
     // Use direct fetch with proper binary data handling
     // This bypasses makeAuthenticatedRequest which may have issues with buffers
     const response = await fetch(url, {
       method: "PUT",
-      headers: {
-        ...authHeaders,
-        "Content-Type": contentType,
-      },
+      headers,
       body: req.file.buffer,
     });
 
