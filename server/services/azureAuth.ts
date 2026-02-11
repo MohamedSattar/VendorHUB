@@ -59,16 +59,16 @@ export async function getAccessToken(): Promise<string> {
       // For v1.0, resource should be the Dynamics endpoint without /.default
       const resourceUrl = resource.replace(/\/\.default$/, "");
       body.append("resource", resourceUrl);
-      console.log("[Azure Auth] Using v1.0 endpoint with resource parameter");
+      console.log("[Azure Auth] Using v1.0 endpoint with resource parameter:", resourceUrl);
     } else if (tokenUrl.includes("/oauth2/v2.0/token")) {
       // v2.0 endpoint - use scope parameter
       body.append("scope", resource);
-      console.log("[Azure Auth] Using v2.0 endpoint with scope parameter");
+      console.log("[Azure Auth] Using v2.0 endpoint with scope parameter:", resource);
     } else {
       // Fallback to v1.0 (resource) for unknown endpoints
       const resourceUrl = resource.replace(/\/\.default$/, "");
       body.append("resource", resourceUrl);
-      console.log("[Azure Auth] Using resource parameter (fallback)");
+      console.log("[Azure Auth] Using resource parameter (fallback):", resourceUrl);
     }
 
     // Request access token
