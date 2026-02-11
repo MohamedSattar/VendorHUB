@@ -982,14 +982,21 @@ export const handleUploadCandidateContactPhoto: RequestHandler = async (
 
     console.log("[OData Proxy] Using Content-Type:", contentType);
 
-    // Use authenticated request to upload the photo
-    const response = await makeAuthenticatedRequest(url, {
+    // Get authentication headers for direct fetch call
+    const authHeaders = await getAuthHeaders();
+
+    // Use direct fetch with proper binary data handling
+    // This bypasses makeAuthenticatedRequest which may have issues with buffers
+    const response = await fetch(url, {
       method: "PUT",
       headers: {
+        ...authHeaders,
         "Content-Type": contentType,
       },
       body: req.file.buffer,
     });
+
+    console.log("[OData Proxy] Upload response status:", response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
