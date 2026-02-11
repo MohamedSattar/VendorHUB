@@ -883,13 +883,16 @@ export async function fetchOpenRoles(
     const openRoles: OpenRole[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
+        // Get candidate name from formatted value annotation or fallback to direct mapping
+        const candidateName =
+          item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"] ||
+          item.prmtk_name ||
+          item._prmtk_candidate_value;
+
         return {
           id: item.prmtk_candidateengagementnameid,
           name: item.prmtk_rolename,
-          candidateName:
-            item[
-              "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"
-            ] || item.prmtk_name,
+          candidateName: candidateName,
           expectedStartDate: item.prmtk_startdate,
           status:
             item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
