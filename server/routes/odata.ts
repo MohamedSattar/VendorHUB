@@ -335,14 +335,14 @@ export const handleGetEngagements: RequestHandler = async (req, res) => {
       `$select=prmtk_engagementid,prmtk_engagementname,prmtk_description,prmtk_startdate,prmtk_enddate,prmtk_status,_prmtk_ecaengagementmanager_value,_prmtk_vendor_value,prmtk_uniqueid,prmtk_type,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_startdate%20desc`;
 
-    // Note: Formatted values are automatically included in OData responses
-
     console.log("[OData Proxy] Fetching Engagements from Power Apps");
 
+    // Request OData annotations to get formatted values for lookups and option sets
     const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
+        "Prefer": 'odata.include-annotations="*"',
       },
     });
 
