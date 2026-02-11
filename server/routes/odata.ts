@@ -687,7 +687,8 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
 /**
  * Submit Engagement and Update Status to "In Progress"
  * POST /api/odata/engagement/:id/submit
- * Updates the engagement status to "In Progress" (code 100682000)
+ * Updates the engagement status to "In Progress" (code 2)
+ * Valid status codes: 1=Open, 2=In Progress, 3=On Hold, 4=Completed
  */
 export const handleSubmitEngagement: RequestHandler = async (req, res) => {
   try {
@@ -702,9 +703,9 @@ export const handleSubmitEngagement: RequestHandler = async (req, res) => {
     console.log("[OData Proxy] Submitting engagement with ID:", id);
 
     // Update the engagement status to "In Progress"
-    // prmtk_status option set code for "In Progress" is 100682000
+    // prmtk_status uses simple numeric codes: 1=Open, 2=In Progress, 3=On Hold, 4=Completed
     const updatePayload = {
-      prmtk_status: 100682000, // In Progress
+      prmtk_status: 2, // In Progress
     };
 
     console.log("[OData Proxy] Update payload:", JSON.stringify(updatePayload, null, 2));
