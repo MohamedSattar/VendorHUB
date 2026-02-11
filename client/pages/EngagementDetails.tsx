@@ -244,6 +244,10 @@ export default function EngagementDetails() {
   // Check if all open roles are ready for submission
   const allRolesReady = openRoles.length > 0 && openRoles.every(role => role.readyForSubmission === true);
 
+  // Check if engagement is in "Pending Vendor Submission" status for edit/submit capabilities
+  const isPendingVendorSubmission = engagement?.status?.toLowerCase().includes("pending") && engagement?.status?.toLowerCase().includes("vendor");
+  const isFormEditable = isPendingVendorSubmission;
+
   // Automatically refresh data when component mounts
   useEffect(() => {
     if (id) {
@@ -251,6 +255,13 @@ export default function EngagementDetails() {
       refetchRoles();
     }
   }, [id, refetch, refetchRoles]);
+
+  // Force exit edit mode if engagement is not in "Pending Vendor Submission" status
+  useEffect(() => {
+    if (isEditMode && !isPendingVendorSubmission) {
+      setIsEditMode(false);
+    }
+  }, [isPendingVendorSubmission, isEditMode]);
 
   if (!engagement) {
     return (
@@ -354,8 +365,8 @@ export default function EngagementDetails() {
                   <span className={`inline-block text-sm font-semibold px-4 py-2 rounded-full ${getStatusColor(engagement.status)}`}>
                     {engagement.status}
                   </span>
-                  {/* Submit button in header - always visible */}
-                  {openRoles.length > 0 && (
+                  {/* Submit button in header - only visible if pending vendor submission */}
+                  {isPendingVendorSubmission && openRoles.length > 0 && (
                     <button
                       onClick={() => setShowSubmitConfirm(true)}
                       disabled={!allRolesReady || isSubmitting}
@@ -498,10 +509,16 @@ export default function EngagementDetails() {
                             </div>
                           </div>
 
-                          {/* Edit Button */}
+                          {/* Edit Button - Only enabled if pending vendor submission */}
                           <button
                             onClick={() => navigate(`/open-role/${role.id}`)}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-navy text-white text-sm font-bold rounded-lg hover:bg-opacity-80 transition-all duration-200 active:scale-95"
+                            disabled={!isPendingVendorSubmission}
+                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 active:scale-95 ${
+                              isPendingVendorSubmission
+                                ? "bg-navy text-white hover:bg-opacity-80"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                            }`}
+                            title={isPendingVendorSubmission ? "Edit role details" : "Cannot edit roles unless engagement is pending vendor submission"}
                           >
                             <Edit2 className="w-4 h-4" />
                             Edit Details
@@ -541,6 +558,13 @@ export default function EngagementDetails() {
                 <p className={`text-sm text-gray-600 mb-6 ${isArabic ? "text-right" : "text-left"}`}>
                   <span className="font-medium">Status:</span> {engagement.status}
                 </p>
+                {!isPendingVendorSubmission && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <p className="text-sm text-yellow-800">
+                      <span className="font-semibold">Read-Only Mode:</span> This engagement is no longer in "Pending Vendor Submission" status. No changes can be made.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <form className="space-y-6">
@@ -553,7 +577,12 @@ export default function EngagementDetails() {
                     type="text"
                     value={editData.name || ""}
                     onChange={(e) => handleEditChange("name", e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -566,7 +595,12 @@ export default function EngagementDetails() {
                     type="date"
                     value={editData.startDate || ""}
                     onChange={(e) => handleEditChange("startDate", e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -579,7 +613,12 @@ export default function EngagementDetails() {
                     type="date"
                     value={editData.endDate || ""}
                     onChange={(e) => handleEditChange("endDate", e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -591,8 +630,13 @@ export default function EngagementDetails() {
                   <textarea
                     value={editData.description || ""}
                     onChange={(e) => handleEditChange("description", e.target.value)}
+                    disabled={!isPendingVendorSubmission}
                     rows={5}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -605,7 +649,12 @@ export default function EngagementDetails() {
                     type="number"
                     value={editData.budget || ""}
                     onChange={(e) => handleEditChange("budget", parseInt(e.target.value) || 0)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -647,8 +696,13 @@ export default function EngagementDetails() {
                     <textarea
                       value={editData.contractDescription || ""}
                       onChange={(e) => handleEditChange("contractDescription", e.target.value)}
+                      disabled={!isPendingVendorSubmission}
                       rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
+                        isPendingVendorSubmission
+                          ? "border-gray-300"
+                          : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                      }`}
                     />
                   </div>
 
@@ -661,7 +715,12 @@ export default function EngagementDetails() {
                       type="text"
                       value={editData.typeOfEngagement || ""}
                       onChange={(e) => handleEditChange("typeOfEngagement", e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      disabled={!isPendingVendorSubmission}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        isPendingVendorSubmission
+                          ? "border-gray-300"
+                          : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                      }`}
                     />
                   </div>
                 </div>
@@ -671,7 +730,12 @@ export default function EngagementDetails() {
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+                    disabled={!isPendingVendorSubmission}
+                    className={`flex items-center gap-2 px-6 py-2 rounded-lg transition font-medium ${
+                      isPendingVendorSubmission
+                        ? "bg-primary text-white hover:opacity-90"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                    }`}
                   >
                     <Save className="w-4 h-4" />
                     Save Changes
@@ -689,8 +753,8 @@ export default function EngagementDetails() {
             </div>
           )}
 
-          {/* Submit Engagement Button - Outside the engagement details box */}
-          {!isEditMode && openRoles.length > 0 && (
+          {/* Submit Engagement Button - Only visible if pending vendor submission */}
+          {!isEditMode && isPendingVendorSubmission && openRoles.length > 0 && (
             <div className="mt-8">
               <button
                 onClick={() => setShowSubmitConfirm(true)}
