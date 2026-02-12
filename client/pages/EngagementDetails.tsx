@@ -365,22 +365,6 @@ export default function EngagementDetails() {
                   <span className={`inline-block text-sm font-semibold px-4 py-2 rounded-full ${getStatusColor(engagement.status)}`}>
                     {engagement.status}
                   </span>
-                  {/* Submit button in header - only visible if pending vendor submission */}
-                  {isPendingVendorSubmission && openRoles.length > 0 && (
-                    <button
-                      onClick={() => setShowSubmitConfirm(true)}
-                      disabled={!allRolesReady || isSubmitting}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm ${
-                        allRolesReady && !isSubmitting
-                          ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-                          : "bg-gray-200 text-gray-500 cursor-not-allowed opacity-60"
-                      }`}
-                      title={allRolesReady ? "Submit engagement to ECA" : "All roles must be ready for submission"}
-                    >
-                      <Flag className="w-4 h-4" />
-                      Submit
-                    </button>
-                  )}
                 </div>
               </div>
 
