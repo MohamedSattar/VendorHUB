@@ -1,9 +1,22 @@
 import { ApplicationFormData } from "@/components/SupplierApplicationForm";
-import { Upload, File, X } from "lucide-react";
+import { Upload, File, X, Info } from "lucide-react";
 
 interface AttachmentsStepProps {
   formData: ApplicationFormData;
   updateFormData: (updates: Partial<ApplicationFormData>) => void;
+}
+
+interface InfoTipProps {
+  text: string;
+}
+
+function InfoTip({ text }: InfoTipProps) {
+  return (
+    <div className="flex items-start gap-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <Info size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <p className="text-xs text-blue-700">{text}</p>
+    </div>
+  );
 }
 
 const REQUIRED_ATTACHMENTS = [
@@ -12,24 +25,28 @@ const REQUIRED_ATTACHMENTS = [
     label: "Trade License (TL)",
     description: "Copy of your company's trade license",
     required: true,
+    tip: "Upload a clear, legible copy of your official trade license document issued by the relevant authority. Ensure all details are visible.",
   },
   {
     key: "companyProfile",
     label: "Company Profile",
     description: "Brief company profile or company overview document",
     required: true,
+    tip: "Provide a concise company overview document highlighting your business mission, services, key achievements, and organizational structure.",
   },
   {
     key: "powerOfAttorney",
     label: "Power of Attorney (POA)",
     description: "Authorization document if applicable",
     required: true,
+    tip: "If the person signing is not the owner, provide a Power of Attorney document authorizing them to represent the company in this application.",
   },
   {
     key: "icvCertificate",
     label: "ICV Certificate",
     description: "If available (optional but encouraged)",
     required: false,
+    tip: "If you hold an ICV Certificate demonstrating local value commitment, upload it to strengthen your application.",
   },
 ];
 
@@ -58,11 +75,11 @@ export default function AttachmentsStep({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Section E Header */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
         <h3 className="font-semibold text-purple-900 mb-2">
-          Section E: Mandatory Attachments
+          Mandatory Attachments
         </h3>
         <p className="text-sm text-purple-800">
           Please upload the required documents to complete your application.
@@ -81,7 +98,7 @@ export default function AttachmentsStep({
       </div>
 
       {/* Attachments List */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         {REQUIRED_ATTACHMENTS.map((attachment) => {
           const file = formData.attachments[attachment.key as keyof typeof formData.attachments];
 
@@ -147,6 +164,8 @@ export default function AttachmentsStep({
                   </button>
                 </div>
               )}
+
+              <InfoTip text={attachment.tip} />
             </div>
           );
         })}
@@ -156,7 +175,7 @@ export default function AttachmentsStep({
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <h4 className="font-semibold text-red-900 mb-2">Important Notice</h4>
         <p className="text-sm text-red-800 mb-2">
-          All mandatory attachments (*) must be uploaded before you can submit your application.
+          All mandatory attachments (<span className="text-red-600">*</span>) must be uploaded before you can submit your application.
         </p>
         <p className="text-sm text-red-800">
           Ensure that all documents are clear, legible, and contain the required information. 

@@ -36,11 +36,25 @@ export async function getAccessToken(): Promise<string> {
     const resource = getDataverseResource();
     const tenantId = process.env.AZURE_TENANT_ID;
 
+    // Log which variables are set (for debugging)
+    console.log("[Azure Auth] Environment variables check:");
+    console.log(`[Azure Auth]   TOKEN_URL: ${tokenUrl ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   AZURE_CLIENT_ID: ${clientId ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   AZURE_CLIENT_SECRET: ${clientSecret ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   DATAVERSE_RESOURCE: ${resource ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   AZURE_TENANT_ID: ${tenantId ? "✓ Set" : "✗ Missing"}`);
+
     // Validate required environment variables
     if (!tokenUrl || !clientId || !clientSecret || !resource) {
+      const missing = [];
+      if (!tokenUrl) missing.push("TOKEN_URL");
+      if (!clientId) missing.push("AZURE_CLIENT_ID");
+      if (!clientSecret) missing.push("AZURE_CLIENT_SECRET");
+      if (!resource) missing.push("DATAVERSE_RESOURCE");
+
       throw new Error(
-        "Missing required Azure authentication environment variables: " +
-        "TOKEN_URL, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, DATAVERSE_RESOURCE"
+        `Missing required Azure authentication environment variables: ${missing.join(", ")}\n` +
+        "Please ensure your .env file is properly configured. See ENV_VARIABLES.md for setup instructions."
       );
     }
 
