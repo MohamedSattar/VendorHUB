@@ -9,6 +9,7 @@ import {
   Flag,
   Search,
   Plus,
+  AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -1408,22 +1409,30 @@ export default function OpenRoleDetails() {
 
                   {/* Ready for Submission - EDITABLE */}
                   <div className="mt-8 pt-8 border-t border-gray-200">
-                    <label className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={editData.readyForSubmission || false}
-                        onChange={(e) =>
-                          handleEditChange(
-                            "readyForSubmission",
-                            e.target.checked,
-                          )
-                        }
-                        className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        Ready for Submission
-                      </span>
-                    </label>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <label className="flex items-start gap-3 mb-3">
+                        <input
+                          type="checkbox"
+                          checked={editData.readyForSubmission || false}
+                          onChange={(e) =>
+                            handleEditChange(
+                              "readyForSubmission",
+                              e.target.checked,
+                            )
+                          }
+                          className="w-4 h-4 border border-gray-300 rounded cursor-pointer mt-1"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          Ready for Submission
+                        </span>
+                      </label>
+                      <div className="flex gap-2 ml-7">
+                        <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-blue-700">
+                          Important: You must mark this as ready for submission to proceed with submitting this engagement.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Action buttons */}
