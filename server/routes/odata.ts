@@ -2428,3 +2428,132 @@ export const handleSubmitSupplierRegistration = async (
     });
   }
 };
+
+/**
+ * Get all countries from CRM
+ * GET /api/odata/countries
+ */
+export const handleGetCountries: RequestHandler = async (req, res) => {
+  try {
+    const authHeaders = await getAuthHeaders();
+
+    const url = `${getODataBaseUrl()}/prmtk_countries?$select=prmtk_countryid,prmtk_name&$orderby=prmtk_name asc`;
+
+    console.log("[OData] Fetching countries from CRM");
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        ...authHeaders,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData] CRM API error fetching countries:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorBody: errorText.substring(0, 500),
+      });
+
+      throw new Error(
+        `CRM returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (!data.value) {
+      console.log("[OData] No countries returned from API");
+      res.json([]);
+      return;
+    }
+
+    console.log("[OData] Countries retrieved:", {
+      count: data.value.length,
+    });
+
+    res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.json(data.value);
+  } catch (error) {
+    console.error("[OData] Countries Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch countries from CRM",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Get cities for a specific country from CRM
+ * GET /api/odata/cities?countryId={countryId}
+ */
+export const handleGetCities: RequestHandler = async (req, res) => {
+  try {
+    const countryId = req.query.countryId as string | undefined;
+
+    if (!countryId) {
+      console.warn("[OData] Cities requested without countryId");
+      res.status(400).json({
+        error: "Missing required parameter: countryId",
+      });
+      return;
+    }
+
+    const authHeaders = await getAuthHeaders();
+
+    const filter = encodeURIComponent(
+      `_prmtk_country_value eq '${countryId}'`
+    );
+    const url = `${getODataBaseUrl()}/prmtk_cities?$select=prmtk_cityid,prmtk_name,_prmtk_country_value&$filter=${filter}&$orderby=prmtk_name asc`;
+
+    console.log("[OData] Fetching cities for country:", countryId);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        ...authHeaders,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData] CRM API error fetching cities:", {
+        status: response.status,
+        statusText: response.statusText,
+        countryId,
+        errorBody: errorText.substring(0, 500),
+      });
+
+      throw new Error(
+        `CRM returned ${response.status}: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (!data.value) {
+      console.log("[OData] No cities returned from API");
+      res.json([]);
+      return;
+    }
+
+    console.log("[OData] Cities retrieved:", {
+      countryId,
+      count: data.value.length,
+    });
+
+    res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+    res.json(data.value);
+  } catch (error) {
+    console.error("[OData] Cities Error:", error);
+    res.status(500).json({
+      error: "Failed to fetch cities from CRM",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};

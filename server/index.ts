@@ -53,6 +53,8 @@ import {
   handleDismissAllNotifications,
   handleSaveDraftSupplierRegistration,
   handleSubmitSupplierRegistration,
+  handleGetCountries,
+  handleGetCities,
 } from "./routes/odata";
 
 export function createServer() {
@@ -170,6 +172,10 @@ export function createServer() {
   // Supplier registration routes
   app.post("/api/odata/supplier-registration/draft", handleSaveDraftSupplierRegistration);
   app.post("/api/odata/supplier-registration/submit", handleSubmitSupplierRegistration);
+
+  // Lookup data routes (countries and cities)
+  app.get("/api/odata/countries", handleGetCountries);
+  app.get("/api/odata/cities", handleGetCities);
 
   return app;
 }
