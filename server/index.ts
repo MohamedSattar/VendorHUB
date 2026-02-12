@@ -24,10 +24,6 @@ import {
   handleGetUserResources,
   handleDeleteResource,
 } from "./routes/user";
-import {
-  handleGetCRMEnvironment,
-  handleSwitchCRMEnvironment,
-} from "./routes/config";
 import { handleGetSupplierRegistrationFields } from "./routes/crmDebug";
 import {
   handleGetWebsiteContents,
@@ -98,10 +94,6 @@ export function createServer() {
 
   // Debug routes (development only)
   app.get("/api/auth/debug/contacts", handleGetAllContacts);
-
-  // Configuration routes
-  app.get("/api/config/crm-environment", handleGetCRMEnvironment);
-  app.post("/api/config/crm-environment/switch", handleSwitchCRMEnvironment);
 
   // Debug routes (development only)
   app.get("/api/debug/supplier-registration-fields", handleGetSupplierRegistrationFields);

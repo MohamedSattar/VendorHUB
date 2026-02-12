@@ -4,10 +4,8 @@ import { getDataverseResource } from "../config/crmEnvironments";
 
 /**
  * Build the OData base URL from Dataverse resource
- * Uses the environment configuration to get the current CRM endpoint
- * Examples:
- * - https://org2a23f983.crm15.dynamics.com/ (STAGE)
- * - https://org8b20ca8a.crm15.dynamics.com/ (DEV)
+ * Uses DEV environment: https://org8b20ca8a.crm15.dynamics.com/api/data/v9.2/
+ * (Environment switching has been removed - using DEV only)
  */
 function getODataBaseUrl(): string {
   const resource = getDataverseResource();
@@ -19,9 +17,10 @@ function getODataBaseUrl(): string {
       .replace(/\/$/, ""); // Remove trailing slash
 
     // Construct the API endpoint
-    // Dataverse v9.2 API: https://[org].crm[region].dynamics.com/api/data/v9.2
-    console.log("[OData] Using CRM endpoint:", cleanResource);
-    return `${cleanResource}/api/data/v9.2`;
+    // Dataverse v9.2 API: https://org8b20ca8a.crm15.dynamics.com/api/data/v9.2
+    const endpoint = `${cleanResource}/api/data/v9.2`;
+    console.log("[OData] Using DEV environment endpoint:", endpoint);
+    return endpoint;
   }
 
   // Fallback to public portal endpoint (for non-Dataverse scenarios)

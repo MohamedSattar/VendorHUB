@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Settings } from "lucide-react";
 import ECALogo from "@/components/ECALogo";
-import CRMEnvironmentSwitcher from "@/components/CRMEnvironmentSwitcher";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContact } from "@/contexts/UserContactContext";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
-  const { language, setLanguage, isArabic } = useLanguage();
-  const { data: notifications = [] } = useNotifications();
+  const { isArabic } = useLanguage();
+  const { loggedInContact } = useUserContact();
+  const { data: notifications = [] } = useNotifications(loggedInContact?.contactId);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
@@ -42,7 +43,6 @@ export default function DashboardHeader() {
           <div
             className={`flex items-center gap-3 ${isArabic ? "flex-row-reverse" : ""}`}
           >
-            <CRMEnvironmentSwitcher />
             <button
               onClick={() => navigate("/notifications")}
               className="relative p-2 text-navy hover:bg-gray-100 rounded-lg transition"
