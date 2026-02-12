@@ -12,6 +12,8 @@ export function useEngagementsContent(vendorId?: string): UseQueryResult<Engagem
     queryFn: () => fetchEngagements(vendorId),
     staleTime: 0, // No caching - always fetch fresh data
     gcTime: 0, // Remove from cache immediately
+    refetchInterval: 5000, // Automatically refetch every 5 seconds for real-time updates
+    refetchIntervalInBackground: true, // Continue refetching even when tab is not focused
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
