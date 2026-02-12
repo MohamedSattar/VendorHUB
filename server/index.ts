@@ -49,12 +49,13 @@ import {
   handleAssignCandidateToOpenRole,
   handleUpdateOpenRole,
   handleUpdateContactById,
+  handleGetNotifications,
+  handleMarkNotificationAsRead,
+  handleMarkNotificationAsUnread,
+  handleDismissNotification,
+  handleDismissAllNotifications,
   handleSaveDraftSupplierRegistration,
   handleSubmitSupplierRegistration,
-  handleLookupSupplierByTradeLicense,
-  handleDeleteSupplierRegistration,
-  handleGetCountries,
-  handleGetCitiesByCountry,
 } from "./routes/odata";
 
 export function createServer() {
@@ -163,15 +164,16 @@ export function createServer() {
   // Contact management routes
   app.patch("/api/odata/contact/:id", handleUpdateContactById);
 
-  // Lookup tables routes
-  app.get("/api/odata/countries", handleGetCountries);
-  app.get("/api/odata/cities", handleGetCitiesByCountry);
+  // Notifications routes
+  app.get("/api/odata/notifications", handleGetNotifications);
+  app.patch("/api/odata/notifications/:id/read", handleMarkNotificationAsRead);
+  app.patch("/api/odata/notifications/:id/unread", handleMarkNotificationAsUnread);
+  app.patch("/api/odata/notifications/:id/dismiss", handleDismissNotification);
+  app.patch("/api/odata/notifications/dismiss-all", handleDismissAllNotifications);
 
   // Supplier registration routes
-  app.get("/api/odata/supplier-registration/lookup", handleLookupSupplierByTradeLicense);
   app.post("/api/odata/supplier-registration/draft", handleSaveDraftSupplierRegistration);
   app.post("/api/odata/supplier-registration/submit", handleSubmitSupplierRegistration);
-  app.delete("/api/odata/supplier-registration/delete/:recordId", handleDeleteSupplierRegistration);
 
   return app;
 }

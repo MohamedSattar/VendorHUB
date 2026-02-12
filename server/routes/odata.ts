@@ -38,30 +38,6 @@ interface ODataQuery {
 }
 
 /**
- * Map supply category text labels to Dataverse choice field numeric values
- */
-const SUPPLY_CATEGORY_MAP: Record<string, number> = {
-  "Human Resources & Staff Development": 918230000,
-  "Professional & Advisory Services": 918230001,
-  "IT Systems, Licenses, Support & Maintenance": 918230002,
-  "Facilities & Operational Services": 918230003,
-  "Events, Marketing & Communications": 918230004,
-  "Office & Administrative Supplies": 918230005,
-  "Travel & Employee-Related Services": 918230006,
-};
-
-/**
- * Convert supply category text selections to Dataverse choice field values
- */
-function convertCategorySelectionsToChoiceValues(
-  categorySelections: string[]
-): number[] {
-  return categorySelections
-    .map((category) => SUPPLY_CATEGORY_MAP[category])
-    .filter((value) => value !== undefined);
-}
-
-/**
  * Make an authenticated request to the OData API
  * Handles token retrieval and error scenarios
  */
@@ -784,7 +760,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
 
     let url =
       `${getODataBaseUrl()}/prmtk_engagementcontacts?` +
-      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_uaeresident,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode&` +
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode&` +
       `$orderby=prmtk_id%20asc`;
 
     // If vendor ID provided, filter by prmtk_vendor column
@@ -1718,6 +1694,275 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Fetch notifications for the logged-in user/contact
+ * Retrieves from prmtk_notifications set
+ */
+export const handleGetNotifications = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const contactId = req.query.contactId;
+
+    if (!contactId) {
+      return res.status(400).json({
+        error: "Missing required parameter: contactId",
+      });
+    }
+
+    console.log("[OData] Fetching notifications for contact:", contactId);
+
+    const url = `${getODataBaseUrl()}/prmkt_notifications?$filter=_prmkt_contact_value eq '${contactId}' and statecode eq 0&$orderby=createdon desc&$select=prmkt_notificationid,prmkt_subject,prmkt_notificationbody,prmkt_read,prmkt_dismissed,createdon,prmkt_name`;
+
+    const authHeaders = await getAuthHeaders();
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        ...authHeaders,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch notifications: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: any = await response.json();
+
+    // Transform CRM data to match our Notification interface
+    const notifications = data.value.map((notification: any) => ({
+      id: notification.prmkt_notificationid,
+      subject: notification.prmkt_subject || "Notification",
+      message: notification.prmkt_notificationbody || "",
+      isRead: notification.prmkt_read || false,
+      isDismissed: notification.prmkt_dismissed || false,
+      createdAt: notification.createdon,
+      name: notification.prmkt_name,
+    }));
+
+    console.log("[OData] Retrieved notifications:", notifications.length);
+
+    res.json(notifications);
+  } catch (error) {
+    console.error("[OData] Error fetching notifications:", error);
+    res.status(500).json({
+      error: "Failed to fetch notifications",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Mark a notification as read
+ */
+export const handleMarkNotificationAsRead = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    console.log("[OData] Marking notification as read:", id);
+
+    const url = `${getODataBaseUrl()}/prmkt_notifications(${id})`;
+
+    const authHeaders = await getAuthHeaders();
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prmkt_read: true }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update notification: ${response.status} ${response.statusText}`
+      );
+    }
+
+    console.log("[OData] Notification marked as read:", id);
+
+    res.json({ success: true, message: "Notification marked as read" });
+  } catch (error) {
+    console.error("[OData] Error updating notification:", error);
+    res.status(500).json({
+      error: "Failed to update notification",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Mark a notification as unread
+ */
+export const handleMarkNotificationAsUnread = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    console.log("[OData] Marking notification as unread:", id);
+
+    const url = `${getODataBaseUrl()}/prmkt_notifications(${id})`;
+
+    const authHeaders = await getAuthHeaders();
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prmkt_read: false }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update notification: ${response.status} ${response.statusText}`
+      );
+    }
+
+    console.log("[OData] Notification marked as unread:", id);
+
+    res.json({ success: true, message: "Notification marked as unread" });
+  } catch (error) {
+    console.error("[OData] Error updating notification:", error);
+    res.status(500).json({
+      error: "Failed to update notification",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Dismiss a notification
+ */
+export const handleDismissNotification = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    console.log("[OData] Dismissing notification:", id);
+
+    const url = `${getODataBaseUrl()}/prmkt_notifications(${id})`;
+
+    const authHeaders = await getAuthHeaders();
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        ...authHeaders,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prmkt_dismissed: true }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to dismiss notification: ${response.status} ${response.statusText}`
+      );
+    }
+
+    console.log("[OData] Notification dismissed:", id);
+
+    res.json({ success: true, message: "Notification dismissed" });
+  } catch (error) {
+    console.error("[OData] Error dismissing notification:", error);
+    res.status(500).json({
+      error: "Failed to dismiss notification",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
+ * Dismiss all notifications for a contact
+ */
+export const handleDismissAllNotifications = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    const contactId = req.query.contactId;
+
+    if (!contactId) {
+      return res.status(400).json({
+        error: "Missing required parameter: contactId",
+      });
+    }
+
+    console.log("[OData] Dismissing all notifications for contact:", contactId);
+
+    // Fetch all non-dismissed notifications first
+    const fetchUrl = `${getODataBaseUrl()}/prmkt_notifications?$filter=_prmkt_contact_value eq '${contactId}' and prmkt_dismissed eq false and statecode eq 0&$select=prmkt_notificationid`;
+
+    const authHeaders = await getAuthHeaders();
+
+    const fetchResponse = await fetch(fetchUrl, {
+      method: "GET",
+      headers: {
+        ...authHeaders,
+        Accept: "application/json",
+      },
+    });
+
+    if (!fetchResponse.ok) {
+      throw new Error(
+        `Failed to fetch notifications: ${fetchResponse.status}`
+      );
+    }
+
+    const data: any = await fetchResponse.json();
+    const notificationIds = data.value.map(
+      (n: any) => n.prmkt_notificationid
+    );
+
+    // Mark all as dismissed
+    const updatePromises = notificationIds.map((id: string) => {
+      const url = `${getODataBaseUrl()}/prmkt_notifications(${id})`;
+      return fetch(url, {
+        method: "PATCH",
+        headers: {
+          ...authHeaders,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prmkt_dismissed: true }),
+      });
+    });
+
+    const responses = await Promise.all(updatePromises);
+
+    const allSuccess = responses.every((r) => r.ok);
+    if (!allSuccess) {
+      throw new Error("Failed to dismiss all notifications");
+    }
+
+    console.log("[OData] All notifications dismissed:", notificationIds.length);
+
+    res.json({
+      success: true,
+      message: `${notificationIds.length} notification(s) dismissed`,
+      dismissedCount: notificationIds.length,
+    });
+  } catch (error) {
+    console.error("[OData] Error dismissing all notifications:", error);
+    res.status(500).json({
+      error: "Failed to dismiss all notifications",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Save supplier registration as draft to prmtk_supplierregistration table
  * Creates or updates a draft record
  */
@@ -1734,69 +1979,77 @@ export const handleSaveDraftSupplierRegistration = async (
     });
 
     // Build the record data to save as draft
-    // Map to correct Dataverse schema fields from prmtk_supplierregistration table
-    const draftData: Record<string, any> = {
+    const draftData = {
       // Section A: Company Information
-      prmtk_name: supplierData.tradeLicenseNumber || null,
-      prmtk_companylegalname: supplierData.companyName || null,
+      prmtk_companyname: supplierData.companyName || null,
       prmtk_yearsinbusiness: supplierData.yearsInBusiness
         ? parseInt(supplierData.yearsInBusiness)
         : null,
       prmtk_numberofemployees: supplierData.numberOfEmployees
         ? parseInt(supplierData.numberOfEmployees)
         : null,
-      prmtk_tradelicensetype: supplierData.tradeLicenseType || null,
-      prmtk_tradelicensenumber: supplierData.tradeLicenseNumber || null,
-      prmtk_companywebsite: supplierData.website === "yes",
+      prmtk_tradelivensetype: supplierData.tradeLicenseType || null,
+      prmtk_country: supplierData.country || null,
+      prmtk_city: supplierData.city || null,
+      prmtk_haswebsite: supplierData.website === "yes",
       prmtk_websiteurl: supplierData.websiteUrl || null,
-      prmtk_sme: supplierData.isEmiratiSME || false,
-      prmtk_khalifafundregistration: supplierData.isKhalifaFundRegistered || false,
-      prmtk_icvcertificate: supplierData.hasICVCertificate || false,
+      prmtk_isemiratisme: supplierData.isEmiratiSME || false,
+      prmtk_iskhalifafundregistered: supplierData.isKhalifaFundRegistered || false,
+      prmtk_hasicvcertificate: supplierData.hasICVCertificate || false,
+      prmtk_icvscore: supplierData.icvScore || null,
 
       // Section B: Operational Capabilities
-      prmtk_environmentalpractices: supplierData.hasEnvironmentalPractices || false,
-      prmtk_category: supplierData.supplyCategorySelections
-        ? convertCategorySelectionsToChoiceValues(supplierData.supplyCategorySelections)
-        : null,
+      prmtk_hasenvironmentalpractices: supplierData.hasEnvironmentalPractices || false,
+      prmtk_environmentalpracticesdetails:
+        supplierData.environmentalPracticesDetails || null,
+      prmtk_supplycategoryselections:
+        supplierData.supplyCategorySelections?.join("; ") || null,
+      prmtk_mainsuppliersinfo: supplierData.suppliers
+        ?.filter((s: any) => s.name)
+        .map((s: any) => s.name)
+        .join("; ") || null,
 
       // Section C: Quality & Compliance
-      prmtk_relevantcertifications: supplierData.hasCertifications || false,
+      prmtk_hascertifications: supplierData.hasCertifications || false,
       prmtk_certifications: supplierData.certifications || null,
       prmtk_othercertifications: supplierData.otherCertifications || null,
 
       // Section D: Supplier Declaration
-      prmtk_designation: supplierData.fullName || supplierData.designation || null,
-      prmtk_email: supplierData.email || null,
-      prmtk_mobilenumber: supplierData.phone || null,
-      prmtk_date: supplierData.date || null,
+      prmtk_declarationfullname: supplierData.fullName || null,
+      prmtk_declarationdesignation: supplierData.designation || null,
+      prmtk_declarationphone: supplierData.phone || null,
+      prmtk_declarationemail: supplierData.email || null,
+      prmtk_declarationdate: supplierData.date || null,
 
+      // Client References (store as JSON string for complex data)
+      prmtk_clientreferencesdata: supplierData.clientReferences
+        ? JSON.stringify(
+            supplierData.clientReferences.filter((ref: any) => ref.name)
+          )
+        : null,
+
+      // Status - Save as Draft
+      statuscode: 1,
+      statecode: 0,
+      prmtk_submissionstatus: 0, // 0 = Draft
     };
 
-    // Separate regular fields from lookup fields for proper PATCH handling
-    const lookupData: Record<string, any> = {};
-
-    if (supplierData.country) {
-      lookupData.country = supplierData.country;
-    }
-    if (supplierData.city) {
-      lookupData.city = supplierData.city;
-    }
-
-    // Remove null values from regular data
+    // Remove null values
     Object.keys(draftData).forEach((key) => {
-      if (draftData[key] === null) {
-        delete draftData[key];
+      if (draftData[key as keyof typeof draftData] === null) {
+        delete draftData[key as keyof typeof draftData];
       }
     });
 
     let response;
-    const authHeaders = await getAuthHeaders();
 
     if (draftId) {
       // Update existing draft
       const url = `${getODataBaseUrl()}/prmtk_supplierregistrations(${draftId})`;
 
       console.log("[OData] Updating draft supplier registration:", draftId);
+
+      const authHeaders = await getAuthHeaders();
 
       response = await fetch(url, {
         method: "PATCH",
@@ -1806,89 +2059,13 @@ export const handleSaveDraftSupplierRegistration = async (
         },
         body: JSON.stringify(draftData),
       });
-
-      if (!response.ok) {
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          const responseText = await response.text();
-          console.error("[OData] Failed to update draft - non-JSON response:", {
-            status: response.status,
-            statusText: response.statusText,
-            responseText: responseText.substring(0, 500),
-          });
-          throw new Error(
-            `Failed to update draft: ${response.status} ${response.statusText}. Response: ${responseText.substring(0, 200)}`
-          );
-        }
-        console.error("[OData] Failed to update draft:", {
-          status: response.status,
-          error: errorData,
-        });
-
-        throw new Error(
-          `Failed to update draft: ${response.status}. ${
-            errorData?.error?.message || JSON.stringify(errorData)
-          }`
-        );
-      }
-
-      // Handle lookup field updates separately via navigation properties
-      if (lookupData.country || lookupData.city) {
-        const lookupUpdateUrl = `${getODataBaseUrl()}/prmtk_supplierregistrations(${draftId})`;
-        const lookupPayload: Record<string, any> = {};
-
-        if (lookupData.country) {
-          lookupPayload["prmtk_Country@odata.bind"] = `/prmtk_countries(${lookupData.country})`;
-        }
-        if (lookupData.city) {
-          lookupPayload["prmtk_City@odata.bind"] = `/prmtk_cities(${lookupData.city})`;
-        }
-
-        // Make a separate PATCH request for lookup fields
-        const lookupResponse = await fetch(lookupUpdateUrl, {
-          method: "PATCH",
-          headers: {
-            ...authHeaders,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(lookupPayload),
-        });
-
-        if (!lookupResponse.ok) {
-          let lookupErrorData;
-          try {
-            lookupErrorData = await lookupResponse.json();
-          } catch (e) {
-            const responseText = await lookupResponse.text();
-            console.error("[OData] Failed to update lookup fields - non-JSON response:", {
-              status: lookupResponse.status,
-              responseText: responseText.substring(0, 500),
-            });
-          }
-          console.error("[OData] Warning: Failed to update lookup fields (country/city):", {
-            status: lookupResponse.status,
-            error: lookupErrorData,
-          });
-        }
-      }
     } else {
-      // Create new draft - can use @odata.bind in POST request
-      const createData = {
-        ...draftData,
-      };
-
-      if (supplierData.country) {
-        createData["prmtk_Country@odata.bind"] = `/prmtk_countries(${supplierData.country})`;
-      }
-      if (supplierData.city) {
-        createData["prmtk_City@odata.bind"] = `/prmtk_cities(${supplierData.city})`;
-      }
-
+      // Create new draft
       const url = `${getODataBaseUrl()}/prmtk_supplierregistrations`;
 
       console.log("[OData] Creating new draft supplier registration");
+
+      const authHeaders = await getAuthHeaders();
 
       response = await fetch(url, {
         method: "POST",
@@ -1897,29 +2074,12 @@ export const handleSaveDraftSupplierRegistration = async (
           "Content-Type": "application/json",
           Prefer: 'return=representation',
         },
-        body: JSON.stringify(createData),
+        body: JSON.stringify(draftData),
       });
     }
 
     if (!response.ok) {
-      let errorData;
-      let responseText;
-      try {
-        responseText = await response.text();
-        if (responseText && responseText.trim()) {
-          errorData = JSON.parse(responseText);
-        }
-      } catch (parseError) {
-        console.error("[OData] Failed to save draft - non-JSON response:", {
-          status: response.status,
-          statusText: response.statusText,
-          responseText: responseText?.substring(0, 500) || "(empty)",
-        });
-        throw new Error(
-          `Failed to save draft: ${response.status} ${response.statusText}. Response: ${responseText?.substring(0, 200) || "(empty)"}`
-        );
-      }
-
+      const errorData = await response.json();
       console.error("[OData] Failed to save draft:", {
         status: response.status,
         error: errorData,
@@ -1927,57 +2087,14 @@ export const handleSaveDraftSupplierRegistration = async (
 
       throw new Error(
         `Failed to save draft: ${response.status}. ${
-          errorData?.error?.message || JSON.stringify(errorData)
+          errorData?.error?.message || ""
         }`
       );
     }
 
-    // For PATCH requests (updating existing), Dataverse returns 204 with no body
-    // For POST requests (creating new), Dataverse returns the created record
-    let recordId: string;
-
-    if (draftId) {
-      // PATCH request - no response body expected, use the draftId
-      recordId = draftId;
-      console.log("[OData] Draft updated successfully (PATCH):", recordId);
-    } else {
-      // POST request - parse the response to get the new record ID
-      let savedRecord;
-      try {
-        const responseText = await response.text();
-        console.log("[OData] POST response body:", {
-          status: response.status,
-          length: responseText.length,
-          preview: responseText.substring(0, 200),
-        });
-
-        if (!responseText || responseText.trim() === "") {
-          throw new Error("Response body is empty");
-        }
-
-        savedRecord = JSON.parse(responseText);
-      } catch (parseError) {
-        const errorMsg =
-          parseError instanceof Error ? parseError.message : "Unknown parse error";
-        console.error("[OData] Failed to parse successful POST response:", {
-          status: response.status,
-          error: errorMsg,
-        });
-        throw new Error(
-          `Failed to parse POST response: ${errorMsg}`
-        );
-      }
-
-      if (!savedRecord.prmtk_supplierregistrationid) {
-        console.error("[OData] No record ID in POST response:", savedRecord);
-        throw new Error(
-          "Created record does not contain ID field (prmtk_supplierregistrationid)"
-        );
-      }
-
-      recordId = savedRecord.prmtk_supplierregistrationid;
-      console.log("[OData] Draft created successfully (POST):", recordId);
-    }
+    const savedRecord = await response.json();
+    const recordId =
+      draftId || savedRecord.prmtk_supplierregistrationid;
 
     console.log("[OData] Draft saved successfully:", recordId);
 
@@ -2006,7 +2123,6 @@ export const handleSubmitSupplierRegistration = async (
   try {
     const {
       draftId,
-      tradeLicenseNumber,
       companyName,
       yearsInBusiness,
       numberOfEmployees,
@@ -2037,54 +2153,57 @@ export const handleSubmitSupplierRegistration = async (
     console.log("[OData] Submitting supplier registration for company:", companyName);
 
     // Build the record data to submit to CRM
-    // Map to correct Dataverse schema fields from prmtk_supplierregistration table
-    const supplierRegistrationData: Record<string, any> = {
+    const supplierRegistrationData = {
       // Section A: Company Information
-      prmtk_name: tradeLicenseNumber || null,
-      prmtk_companylegalname: companyName,
+      prmtk_companyname: companyName,
       prmtk_yearsinbusiness: yearsInBusiness ? parseInt(yearsInBusiness) : null,
       prmtk_numberofemployees: numberOfEmployees ? parseInt(numberOfEmployees) : null,
-      prmtk_tradelicensetype: tradeLicenseType,
-      prmtk_tradelicensenumber: tradeLicenseNumber || null,
-      prmtk_companywebsite: website === "yes",
+      prmtk_tradelivensetype: tradeLicenseType,
+      prmtk_country: country || null,
+      prmtk_city: city || null,
+      prmtk_haswebsite: website === "yes",
       prmtk_websiteurl: websiteUrl || null,
-      prmtk_sme: isEmiratiSME,
-      prmtk_khalifafundregistration: isKhalifaFundRegistered,
-      prmtk_icvcertificate: hasICVCertificate,
+      prmtk_isemiratisme: isEmiratiSME,
+      prmtk_iskhalifafundregistered: isKhalifaFundRegistered,
+      prmtk_hasicvcertificate: hasICVCertificate,
+      prmtk_icvscore: icvScore || null,
 
       // Section B: Operational Capabilities
-      prmtk_environmentalpractices: hasEnvironmentalPractices,
-      prmtk_category: supplyCategorySelections
-        ? convertCategorySelectionsToChoiceValues(supplyCategorySelections)
-        : null,
+      prmtk_hasenvironmentalpractices: hasEnvironmentalPractices,
+      prmtk_environmentalpracticesdetails: environmentalPracticesDetails || null,
+      prmtk_supplycategoryselections: supplyCategorySelections?.join("; ") || null,
+      prmtk_mainsuppliersinfo: suppliers
+        ?.filter((s: any) => s.name)
+        .map((s: any) => s.name)
+        .join("; ") || null,
 
       // Section C: Quality & Compliance
-      prmtk_relevantcertifications: hasCertifications,
+      prmtk_hascertifications: hasCertifications,
       prmtk_certifications: certifications || null,
       prmtk_othercertifications: otherCertifications || null,
 
       // Section D: Supplier Declaration
-      prmtk_designation: fullName || designation,
-      prmtk_email: email || null,
-      prmtk_mobilenumber: phone || null,
-      prmtk_date: date || null,
+      prmtk_declarationfullname: fullName,
+      prmtk_declarationdesignation: designation,
+      prmtk_declarationphone: phone,
+      prmtk_declarationemail: email,
+      prmtk_declarationdate: date,
 
+      // Client References (store as JSON string for complex data)
+      prmtk_clientreferencesdata: JSON.stringify(
+        clientReferences?.filter((ref: any) => ref.name) || []
+      ),
+
+      // Status and metadata
+      statuscode: 1, // Active
+      statecode: 0, // Active
+      prmtk_submissionstatus: 1, // 1 = Submitted (option set)
     };
-
-    // Separate regular fields from lookup fields for proper PATCH handling
-    const lookupData: Record<string, any> = {};
-
-    if (country) {
-      lookupData.country = country;
-    }
-    if (city) {
-      lookupData.city = city;
-    }
 
     // Remove null values
     Object.keys(supplierRegistrationData).forEach((key) => {
-      if (supplierRegistrationData[key] === null) {
-        delete supplierRegistrationData[key];
+      if (supplierRegistrationData[key as keyof typeof supplierRegistrationData] === null) {
+        delete supplierRegistrationData[key as keyof typeof supplierRegistrationData];
       }
     });
 
@@ -2111,60 +2230,9 @@ export const handleSubmitSupplierRegistration = async (
         body: JSON.stringify(supplierRegistrationData),
       });
 
-      // Handle lookup field updates separately via navigation properties
-      if (response.ok && (lookupData.country || lookupData.city)) {
-        const lookupUpdateUrl = `${getODataBaseUrl()}/prmtk_supplierregistrations(${draftId})`;
-        const lookupPayload: Record<string, any> = {};
-
-        if (lookupData.country) {
-          lookupPayload["prmtk_Country@odata.bind"] = `/prmtk_countries(${lookupData.country})`;
-        }
-        if (lookupData.city) {
-          lookupPayload["prmtk_City@odata.bind"] = `/prmtk_cities(${lookupData.city})`;
-        }
-
-        // Make a separate PATCH request for lookup fields
-        const lookupResponse = await fetch(lookupUpdateUrl, {
-          method: "PATCH",
-          headers: {
-            ...authHeaders,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(lookupPayload),
-        });
-
-        if (!lookupResponse.ok) {
-          let lookupErrorData;
-          try {
-            lookupErrorData = await lookupResponse.json();
-          } catch (e) {
-            const responseText = await lookupResponse.text();
-            console.error("[OData] Failed to update lookup fields - non-JSON response:", {
-              status: lookupResponse.status,
-              responseText: responseText.substring(0, 500),
-            });
-          }
-          console.error("[OData] Warning: Failed to update lookup fields (country/city):", {
-            status: lookupResponse.status,
-            error: lookupErrorData,
-          });
-        }
-      }
-
       trackingId = draftId;
     } else {
-      // Create new record - can use @odata.bind in POST request
-      const createData = {
-        ...supplierRegistrationData,
-      };
-
-      if (country) {
-        createData["prmtk_Country@odata.bind"] = `/prmtk_countries(${country})`;
-      }
-      if (city) {
-        createData["prmtk_City@odata.bind"] = `/prmtk_cities(${city})`;
-      }
-
+      // Create new record
       const url = `${getODataBaseUrl()}/prmtk_supplierregistrations`;
 
       console.log("[OData] Creating supplier registration record:", {
@@ -2179,60 +2247,26 @@ export const handleSubmitSupplierRegistration = async (
           "Content-Type": "application/json",
           Prefer: 'return=representation',
         },
-        body: JSON.stringify(createData),
+        body: JSON.stringify(supplierRegistrationData),
       });
 
-      if (!response.ok) {
-        let errorData;
-        let responseText;
-        try {
-          responseText = await response.text();
-          if (responseText && responseText.trim()) {
-            errorData = JSON.parse(responseText);
-          }
-        } catch (parseError) {
-          console.error("[OData] Failed to submit - non-JSON response:", {
-            status: response.status,
-            statusText: response.statusText,
-            responseText: responseText?.substring(0, 500) || "(empty)",
-          });
-          throw new Error(
-            `Failed to submit supplier registration: ${response.status} ${response.statusText}. Response: ${responseText?.substring(0, 200) || "(empty)"}`
-          );
-        }
-        console.error("[OData] Failed to submit supplier registration:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-
-        throw new Error(
-          `Failed to submit supplier registration: ${response.status} ${response.statusText}. ${
-            errorData?.error?.message || JSON.stringify(errorData)
-          }`
-        );
-      }
-
-      let createdRecord;
-      let responseText;
-      try {
-        responseText = await response.text();
-        if (!responseText || responseText.trim() === "") {
-          throw new Error("Response body is empty");
-        }
-        createdRecord = JSON.parse(responseText);
-      } catch (parseError) {
-        const errorMsg =
-          parseError instanceof Error ? parseError.message : "Unknown parse error";
-        console.error("[OData] Failed to parse successful response:", {
-          status: response.status,
-          error: errorMsg,
-        });
-        throw new Error(
-          `Failed to parse response: ${errorMsg}`
-        );
-      }
+      const createdRecord = await response.json();
       trackingId = createdRecord.prmtk_supplierregistrationid;
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("[OData] Failed to submit supplier registration:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+
+      throw new Error(
+        `Failed to submit supplier registration: ${response.status} ${response.statusText}. ${
+          errorData?.error?.message || ""
+        }`
+      );
     }
 
     console.log("[OData] Supplier registration created successfully:", {
@@ -2253,255 +2287,6 @@ export const handleSubmitSupplierRegistration = async (
     console.error("[OData] Supplier Registration Submission Error:", error);
     res.status(500).json({
       error: "Failed to submit supplier registration",
-      details: error instanceof Error ? error.message : "Unknown error occurred",
-    });
-  }
-};
-
-/**
- * Lookup supplier registration by trade license number
- * GET /api/odata/supplier-registration/lookup?tradeLicenseNumber=<number>
- * Returns existing record if found, 404 if not found
- */
-export const handleLookupSupplierByTradeLicense: RequestHandler = async (
-  req: any,
-  res: any
-): Promise<void> => {
-  try {
-    const tradeLicenseNumber = req.query.tradeLicenseNumber as string;
-
-    if (!tradeLicenseNumber || !tradeLicenseNumber.trim()) {
-      return res.status(400).json({
-        error: "Trade license number is required",
-      });
-    }
-
-    console.log("[OData] Looking up supplier by trade license number:", tradeLicenseNumber);
-
-    const authHeaders = await getAuthHeaders();
-
-    // Query to find supplier by trade license number (prmtk_tradelicensenumber)
-    const encodedLicense = encodeURIComponent(tradeLicenseNumber);
-    const url = `${getODataBaseUrl()}/prmtk_supplierregistrations?$filter=prmtk_tradelicensenumber%20eq%20%27${encodedLicense}%27&$select=prmtk_supplierregistrationid,prmtk_name,prmtk_companylegalname,prmtk_yearsinbusiness,prmtk_numberofemployees,prmtk_tradelicensetype,_prmtk_country_value,_prmtk_city_value,prmtk_companywebsite,prmtk_websiteurl,prmtk_sme,prmtk_khalifafundregistration,prmtk_icvcertificate,prmtk_icvscore,prmtk_environmentalpractices,prmtk_relevantcertifications,prmtk_certifications,prmtk_othercertifications,prmtk_designation,prmtk_email,prmtk_mobilenumber,createdon,modifiedon`;
-
-    console.log("[OData] Lookup URL:", url);
-
-    const response = await makeAuthenticatedRequest(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error("[OData] Lookup failed:", {
-        status: response.status,
-        error: errorData,
-      });
-
-      return res.status(response.status).json({
-        error: "Failed to lookup supplier",
-        details: errorData,
-      });
-    }
-
-    const data = await response.json();
-
-    if (!data.value || data.value.length === 0) {
-      console.log("[OData] No supplier found for trade license:", tradeLicenseNumber);
-      return res.status(404).json({
-        error: "No supplier found with this trade license number",
-      });
-    }
-
-    const supplier = data.value[0];
-    console.log("[OData] Found supplier:", {
-      id: supplier.prmtk_supplierregistrationid,
-      name: supplier.prmtk_name,
-    });
-
-    // Return the existing supplier record
-    res.status(200).json(supplier);
-  } catch (error) {
-    console.error("[OData] Supplier Lookup Error:", error);
-    res.status(500).json({
-      error: "Failed to lookup supplier",
-      details: error instanceof Error ? error.message : "Unknown error occurred",
-    });
-  }
-};
-
-/**
- * Fetch all countries from prmtk_countries table
- * GET /api/odata/countries
- */
-export const handleGetCountries: RequestHandler = async (req: any, res: any): Promise<void> => {
-  try {
-    console.log("[OData] Fetching countries");
-
-    const url =
-      `${getODataBaseUrl()}/prmtk_countries?` +
-      `$select=prmtk_countryid,prmtk_name&` +
-      `$orderby=prmtk_name%20asc`;
-
-    console.log("[OData] Countries URL:", url);
-
-    const response = await makeAuthenticatedRequest(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[OData] Failed to fetch countries:", {
-        status: response.status,
-        error: errorText,
-      });
-
-      throw new Error(
-        `Failed to fetch countries: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-
-    console.log("[OData] Countries fetched successfully:", {
-      count: data.value ? data.value.length : 0,
-    });
-
-    // Cache for 1 hour
-    res.set("Cache-Control", "public, max-age=3600");
-    res.json(data.value || []);
-  } catch (error) {
-    console.error("[OData] Countries Fetch Error:", error);
-    res.status(500).json({
-      error: "Failed to fetch countries",
-      details: error instanceof Error ? error.message : "Unknown error occurred",
-    });
-  }
-};
-
-/**
- * Fetch cities by country
- * GET /api/odata/cities?countryId=<id>
- */
-export const handleGetCitiesByCountry: RequestHandler = async (req: any, res: any): Promise<void> => {
-  try {
-    const countryId = req.query.countryId as string;
-
-    if (!countryId || !countryId.trim()) {
-      return res.status(400).json({
-        error: "Country ID is required",
-      });
-    }
-
-    console.log("[OData] Fetching cities for country:", countryId);
-
-    const url =
-      `${getODataBaseUrl()}/prmtk_cities?` +
-      `$filter=_prmtk_country_value%20eq%20%27${encodeURIComponent(countryId)}%27&` +
-      `$select=prmtk_cityid,prmtk_name,_prmtk_country_value&` +
-      `$orderby=prmtk_name%20asc`;
-
-    console.log("[OData] Cities URL:", url);
-
-    const response = await makeAuthenticatedRequest(url, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[OData] Failed to fetch cities:", {
-        status: response.status,
-        countryId,
-        error: errorText,
-      });
-
-      throw new Error(
-        `Failed to fetch cities: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-
-    console.log("[OData] Cities fetched successfully:", {
-      count: data.value ? data.value.length : 0,
-      countryId,
-    });
-
-    // Cache for 1 hour
-    res.set("Cache-Control", "public, max-age=3600");
-    res.json(data.value || []);
-  } catch (error) {
-    console.error("[OData] Cities Fetch Error:", error);
-    res.status(500).json({
-      error: "Failed to fetch cities",
-      details: error instanceof Error ? error.message : "Unknown error occurred",
-    });
-  }
-};
-
-/**
- * Delete supplier registration record (only if status is draft)
- * DELETE /api/odata/supplier-registration/delete/:recordId
- */
-export const handleDeleteSupplierRegistration = async (
-  req: any,
-  res: any
-): Promise<void> => {
-  try {
-    const { recordId } = req.params;
-
-    if (!recordId || recordId.trim() === "") {
-      return res.status(400).json({
-        error: "Record ID is required",
-      });
-    }
-
-    console.log("[OData] Deleting supplier registration:", recordId);
-
-    const authHeaders = await getAuthHeaders();
-
-    // Delete the record
-    const deleteUrl = `${getODataBaseUrl()}/prmtk_supplierregistrations(${recordId})`;
-
-    const deleteResponse = await fetch(deleteUrl, {
-      method: "DELETE",
-      headers: {
-        ...authHeaders,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!deleteResponse.ok && deleteResponse.status !== 204) {
-      const errorData = await deleteResponse.text();
-      console.error("[OData] Failed to delete record:", {
-        status: deleteResponse.status,
-        error: errorData,
-      });
-
-      throw new Error(
-        `Failed to delete record: ${deleteResponse.status}. ${errorData.substring(0, 200)}`
-      );
-    }
-
-    console.log("[OData] Supplier registration deleted successfully:", recordId);
-
-    res.status(200).json({
-      success: true,
-      message: "Supplier registration deleted successfully",
-      recordId: recordId,
-    });
-  } catch (error) {
-    console.error("[OData] Delete Supplier Registration Error:", error);
-    res.status(500).json({
-      error: "Failed to delete supplier registration",
       details: error instanceof Error ? error.message : "Unknown error occurred",
     });
   }

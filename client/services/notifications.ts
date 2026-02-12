@@ -1,6 +1,6 @@
 /**
  * Notifications Service
- * Handles fetching, updating, and managing notifications
+ * Handles fetching, updating, and managing notifications from the CRM backend
  */
 
 export interface Notification {
@@ -8,82 +8,53 @@ export interface Notification {
   subject: string;
   message: string;
   isRead: boolean;
+  isDismissed?: boolean;
   createdAt: string;
+  name?: string;
   type?: "info" | "warning" | "success" | "error";
 }
 
-// Mock notifications data for demonstration
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    subject: "Engagement Submitted Successfully",
-    message:
-      "Your engagement 'UAE Resources - Q1 2024' has been submitted to ECA for processing.",
-    isRead: false,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    type: "success",
-  },
-  {
-    id: "2",
-    subject: "New Open Role Available",
-    message:
-      "A new open role 'Senior Developer' has been added to engagement 'Cloud Migration Project'.",
-    isRead: false,
-    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    type: "info",
-  },
-  {
-    id: "3",
-    subject: "Document Upload Required",
-    message:
-      "Please upload the required documents for candidate 'Ahmed Al-Mansouri' within 24 hours.",
-    isRead: true,
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    type: "warning",
-  },
-  {
-    id: "4",
-    subject: "Candidate Assignment Confirmed",
-    message:
-      "Sarah Johnson has been successfully assigned to role 'Business Analyst' in engagement 'Process Optimization'.",
-    isRead: true,
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    type: "success",
-  },
-  {
-    id: "5",
-    subject: "Engagement Status Update",
-    message:
-      "Engagement 'IT Support Services' status has been updated to 'In Progress'.",
-    isRead: true,
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    type: "info",
-  },
-  {
-    id: "6",
-    subject: "Action Required: Missing Information",
-    message:
-      "Please complete the missing designation information for open role 'Project Manager'.",
-    isRead: false,
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    type: "warning",
-  },
-];
+/**
+ * Get contact ID from localStorage
+ */
+function getContactIdFromStorage(): string {
+  const loggedInContact = localStorage.getItem("loggedInContact");
+  if (loggedInContact) {
+    try {
+      const contact = JSON.parse(loggedInContact);
+      return contact.contactId;
+    } catch (error) {
+      console.error("Error parsing logged in contact:", error);
+    }
+  }
+  throw new Error("Contact ID not found. User may not be logged in.");
+}
 
 /**
  * Fetch all notifications for the current user
- * TODO: Replace with actual API call to /api/notifications
+ * Retrieves from prmkt_notifications table filtered by current contact
  */
 export async function fetchNotifications(): Promise<Notification[]> {
   try {
-    // In production, this would call: GET /api/notifications
-    // const response = await fetch("/api/notifications");
-    // if (!response.ok) throw new Error("Failed to fetch notifications");
-    // return await response.json();
+    const contactId = getContactIdFromStorage();
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    return MOCK_NOTIFICATIONS;
+    console.log("[Notifications] Fetching notifications for contact:", contactId);
+
+    const response = await fetch(
+      `/api/odata/notifications?contactId=${encodeURIComponent(contactId)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch notifications: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const notifications: Notification[] = await response.json();
+
+    console.log("[Notifications] Retrieved", notifications.length, "notifications");
+
+    return notifications;
   } catch (error) {
     console.error("Error fetching notifications:", error);
     throw error;
@@ -92,36 +63,36 @@ export async function fetchNotifications(): Promise<Notification[]> {
 
 /**
  * Mark a single notification as read
- * TODO: Replace with actual API call to /api/notifications/:id/read
  */
 export async function markNotificationAsRead(
   notificationId: string,
 ): Promise<Notification> {
   try {
-    // In production: PATCH /api/notifications/:id/read
-    // const response = await fetch(`/api/notifications/${notificationId}/read`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // if (!response.ok) throw new Error("Failed to mark as read");
-    // return await response.json();
+    console.log("[Notifications] Marking as read:", notificationId);
 
-    const notification = MOCK_NOTIFICATIONS.find(
-      (n) => n.id === notificationId,
-    );
-    if (notification) {
-      notification.isRead = true;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return (
-      notification || {
-        id: notificationId,
-        subject: "",
-        message: "",
-        isRead: true,
-        createdAt: "",
+    const response = await fetch(
+      `/api/odata/notifications/${notificationId}/read`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
       }
     );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to mark as read: ${response.status} ${response.statusText}`
+      );
+    }
+
+    console.log("[Notifications] Marked as read:", notificationId);
+
+    return {
+      id: notificationId,
+      subject: "",
+      message: "",
+      isRead: true,
+      createdAt: new Date().toISOString(),
+    };
   } catch (error) {
     console.error("Error marking notification as read:", error);
     throw error;
@@ -130,36 +101,36 @@ export async function markNotificationAsRead(
 
 /**
  * Mark a single notification as unread
- * TODO: Replace with actual API call to /api/notifications/:id/unread
  */
 export async function markNotificationAsUnread(
   notificationId: string,
 ): Promise<Notification> {
   try {
-    // In production: PATCH /api/notifications/:id/unread
-    // const response = await fetch(`/api/notifications/${notificationId}/unread`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // if (!response.ok) throw new Error("Failed to mark as unread");
-    // return await response.json();
+    console.log("[Notifications] Marking as unread:", notificationId);
 
-    const notification = MOCK_NOTIFICATIONS.find(
-      (n) => n.id === notificationId,
-    );
-    if (notification) {
-      notification.isRead = false;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    return (
-      notification || {
-        id: notificationId,
-        subject: "",
-        message: "",
-        isRead: false,
-        createdAt: "",
+    const response = await fetch(
+      `/api/odata/notifications/${notificationId}/unread`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
       }
     );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to mark as unread: ${response.status} ${response.statusText}`
+      );
+    }
+
+    console.log("[Notifications] Marked as unread:", notificationId);
+
+    return {
+      id: notificationId,
+      subject: "",
+      message: "",
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
   } catch (error) {
     console.error("Error marking notification as unread:", error);
     throw error;
@@ -168,21 +139,35 @@ export async function markNotificationAsUnread(
 
 /**
  * Mark all notifications as read
- * TODO: Replace with actual API call to /api/notifications/read-all
+ * Note: Current implementation marks individual notifications
+ * Could be optimized with a batch API endpoint in the future
  */
 export async function markAllNotificationsAsRead(): Promise<void> {
   try {
-    // In production: PATCH /api/notifications/read-all
-    // const response = await fetch("/api/notifications/read-all", {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // if (!response.ok) throw new Error("Failed to mark all as read");
+    console.log("[Notifications] Marking all notifications as read");
 
-    MOCK_NOTIFICATIONS.forEach((n) => {
-      n.isRead = true;
-    });
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    const contactId = getContactIdFromStorage();
+
+    // Fetch all unread notifications
+    const response = await fetch(
+      `/api/odata/notifications?contactId=${encodeURIComponent(contactId)}`
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch notifications");
+    }
+
+    const notifications: Notification[] = await response.json();
+    const unreadNotifications = notifications.filter((n) => !n.isRead);
+
+    // Mark each as read
+    const updatePromises = unreadNotifications.map((n) =>
+      markNotificationAsRead(n.id)
+    );
+
+    await Promise.all(updatePromises);
+
+    console.log("[Notifications] All notifications marked as read");
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
     throw error;
@@ -190,25 +175,29 @@ export async function markAllNotificationsAsRead(): Promise<void> {
 }
 
 /**
- * Dismiss (delete) a notification
- * TODO: Replace with actual API call to /api/notifications/:id
+ * Dismiss a notification (mark as dismissed)
  */
 export async function dismissNotification(
   notificationId: string,
 ): Promise<void> {
   try {
-    // In production: DELETE /api/notifications/:id
-    // const response = await fetch(`/api/notifications/${notificationId}`, {
-    //   method: "DELETE",
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // if (!response.ok) throw new Error("Failed to dismiss notification");
+    console.log("[Notifications] Dismissing notification:", notificationId);
 
-    const index = MOCK_NOTIFICATIONS.findIndex((n) => n.id === notificationId);
-    if (index > -1) {
-      MOCK_NOTIFICATIONS.splice(index, 1);
+    const response = await fetch(
+      `/api/odata/notifications/${notificationId}/dismiss`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to dismiss notification: ${response.status} ${response.statusText}`
+      );
     }
-    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    console.log("[Notifications] Notification dismissed:", notificationId);
   } catch (error) {
     console.error("Error dismissing notification:", error);
     throw error;
@@ -216,20 +205,29 @@ export async function dismissNotification(
 }
 
 /**
- * Dismiss all notifications
- * TODO: Replace with actual API call to /api/notifications/dismiss-all
+ * Dismiss all notifications for the current user
  */
 export async function dismissAllNotifications(): Promise<void> {
   try {
-    // In production: DELETE /api/notifications/dismiss-all
-    // const response = await fetch("/api/notifications/dismiss-all", {
-    //   method: "DELETE",
-    //   headers: { "Content-Type": "application/json" },
-    // });
-    // if (!response.ok) throw new Error("Failed to dismiss all notifications");
+    const contactId = getContactIdFromStorage();
 
-    MOCK_NOTIFICATIONS.length = 0;
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    console.log("[Notifications] Dismissing all notifications for contact:", contactId);
+
+    const response = await fetch(
+      `/api/odata/notifications/dismiss-all?contactId=${encodeURIComponent(contactId)}`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to dismiss all notifications: ${response.status} ${response.statusText}`
+      );
+    }
+
+    console.log("[Notifications] All notifications dismissed");
   } catch (error) {
     console.error("Error dismissing all notifications:", error);
     throw error;
