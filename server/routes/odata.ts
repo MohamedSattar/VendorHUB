@@ -948,7 +948,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
 
     const url =
       `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})?` +
-      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_personalphoto,prmtk_uaeresident,prmtk_cvfile_name,prmtk_introductiondocument_name,prmtk_educationalcertificate_name,prmtk_eid_name,prmtk_salarycertificate_name,prmtk_passport_name,prmtk_experienceletter_name,prmtk_policeclearance_name,createdon,modifiedon,statuscode`;
+      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_personalphoto,prmtk_uaeresident,prmkt_status,prmtk_cvfile_name,prmtk_introductiondocument_name,prmtk_educationalcertificate_name,prmtk_eid_name,prmtk_salarycertificate_name,prmtk_passport_name,prmtk_experienceletter_name,prmtk_policeclearance_name,createdon,modifiedon,statuscode`;
 
     console.log("[OData Proxy] Fetching Candidate Contact by ID:", id);
 
@@ -957,6 +957,7 @@ export const handleGetCandidateContact: RequestHandler = async (req, res) => {
       method: "GET",
       headers: {
         Accept: "application/json",
+        "Prefer": "odata.include-annotations=\"*\"",
       },
     });
 

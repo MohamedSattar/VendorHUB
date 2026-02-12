@@ -22,13 +22,25 @@ async function fetchContactDetails(contactId: string): Promise<CandidateDetail> 
 
   const data = await response.json();
 
+  // Map status numeric value to display text
+  let statusText = "Unknown";
+  const statusValue = data.prmkt_status;
+
+  if (statusValue === 1) {
+    statusText = "Free";
+  } else if (statusValue === 2) {
+    statusText = "Assigned";
+  } else if (statusValue === 3) {
+    statusText = "Archived";
+  }
+
   // Transform API response to our format
   return {
     id: data.prmtk_engagementcontactid,
     name: data.prmtk_id,
     email: data.prmtk_email,
     phoneNumber: data.prmtk_phonenumber,
-    status: data["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Unknown",
+    status: statusText,
     personalPhoto: `/api/odata/candidate-contact-photo/${data.prmtk_engagementcontactid}`,
     uaeResident: data.prmtk_uaeresident,
     cvFile: data.prmtk_cvfile_name,

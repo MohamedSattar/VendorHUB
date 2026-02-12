@@ -221,12 +221,14 @@ export default function EditResource() {
                       <div className="flex items-center gap-2">
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                            contactDetails.status === "Assigned"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-orange-100 text-orange-700"
+                            contactDetails.status === "Free"
+                              ? "bg-blue-100 text-blue-700"
+                              : contactDetails.status === "Assigned"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {contactDetails.status}
+                          {contactDetails.status || "Unknown"}
                         </span>
                       </div>
                     </div>
