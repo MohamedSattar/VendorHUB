@@ -984,18 +984,18 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
         // Map prmkt_status numeric value to choice text
-        // 0 = Free, 1 = Assigned, 2 = Archived
+        // 1 = Free, 2 = Assigned, 3 = Archived
         const statusValue = item.prmkt_status;
         let status: "Free" | "Assigned" | "Archived" = "Free";
 
         switch (statusValue) {
-          case 0:
+          case 1:
             status = "Free";
             break;
-          case 1:
+          case 2:
             status = "Assigned";
             break;
-          case 2:
+          case 3:
             status = "Archived";
             break;
           default:
