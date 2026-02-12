@@ -1331,7 +1331,7 @@ export const handleCreateEngagementContact: RequestHandler = async (
     // Build the create payload
     const createData: Record<string, any> = {
       prmtk_id: prmtk_id,
-      "_prmtk_vendor_value@odata.bind": `/accounts(${_prmtk_vendor_value})`,
+      "_prmtk_vendor_value": _prmtk_vendor_value,
     };
     if (prmtk_email !== undefined) createData.prmtk_email = prmtk_email;
     if (prmtk_phonenumber !== undefined)
@@ -1354,10 +1354,11 @@ export const handleCreateEngagementContact: RequestHandler = async (
       console.error(
         "[OData Proxy] Create Error Response:",
         response.status,
-        errorText,
+        response.statusText,
       );
+      console.error("[OData Proxy] Full Error Body:", errorText);
       throw new Error(
-        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText}`,
+        `OData API returned ${response.status}: ${response.statusText}. Details: ${errorText.substring(0, 500)}`,
       );
     }
 
