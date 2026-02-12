@@ -18,8 +18,8 @@ function getDataverseOrgUrl(): string {
     return envUrl;
   }
 
-  // Fallback to known organization URL
-  return "https://org2a23f983.crm15.dynamics.com";
+  // Fallback to DEV organization URL (org8b20ca8a)
+  return "https://org8b20ca8a.crm15.dynamics.com";
 }
 
 /**
