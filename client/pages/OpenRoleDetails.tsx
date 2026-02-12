@@ -474,13 +474,14 @@ export default function OpenRoleDetails() {
 
       toast({
         title: "Success",
-        description: "Candidate assigned successfully! Refreshing page...",
+        description: "Candidate assigned successfully!",
       });
 
-      // Refresh the page to fetch all updated details from the server
+      // Refresh the page immediately to fetch all updated details from the server
+      // The short delay ensures the toast message is visible before reload
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error("Error changing candidate:", error);
       toast({
