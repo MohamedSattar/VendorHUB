@@ -42,6 +42,7 @@ import {
   handleGetEngagementContactPhoto,
   handleGetEngagementContactDocument,
   handleCreateEngagementContact,
+  handleUploadEngagementContactDocument,
   handleUpdateCandidateContact,
   handleAssignCandidateToOpenRole,
   handleUpdateOpenRole,
@@ -144,6 +145,11 @@ export function createServer() {
     "/api/odata/candidate-contact-photo/:id",
     upload.single("file"),
     handleUploadCandidateContactPhoto,
+  );
+  app.post(
+    "/api/odata/engagement-contact/:id/document/:fieldName",
+    upload.single("file"),
+    handleUploadEngagementContactDocument,
   );
   // Route for document download: /api/odata/engagement-contact/{id}/{fieldName}/$value
   // Using regex to handle the $value part

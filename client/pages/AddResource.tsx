@@ -112,7 +112,7 @@ export default function AddResource() {
         throw new Error("No contact ID returned from API");
       }
 
-      // Step 2: Upload documents
+      // Step 2: Upload documents to the created record
       const updatedFiles = docsRef.current.getUpdatedFiles();
       const documentFieldMap: Record<string, string> = {
         cv: "prmtk_cvfile",
@@ -125,15 +125,35 @@ export default function AddResource() {
         police: "prmtk_policeclearance",
       };
 
-      for (const [docId, file] of Object.entries(updatedFiles)) {
-        const fieldName = documentFieldMap[docId];
-        if (fieldName) {
-          const docFormData = new FormData();
-          docFormData.append("file", file);
+      if (Object.keys(updatedFiles).length > 0) {
+        console.log("[AddResource] Starting document uploads for contact:", contactId);
 
-          // Note: Document upload endpoint would need to be implemented on the backend
-          // This is a placeholder for the actual implementation
-          console.log(`Would upload document: ${docId} to field: ${fieldName}`);
+        for (const [docId, file] of Object.entries(updatedFiles)) {
+          const fieldName = documentFieldMap[docId];
+          if (fieldName && file) {
+            try {
+              const docFormData = new FormData();
+              docFormData.append("file", file);
+
+              const uploadResponse = await fetch(
+                `/api/odata/engagement-contact/${contactId}/document/${fieldName}`,
+                {
+                  method: "POST",
+                  body: docFormData,
+                }
+              );
+
+              if (!uploadResponse.ok) {
+                console.warn(`Failed to upload document ${docId}: ${uploadResponse.statusText}`);
+                // Continue with other documents even if one fails
+              } else {
+                console.log(`Successfully uploaded document: ${docId}`);
+              }
+            } catch (docError) {
+              console.error(`Error uploading document ${docId}:`, docError);
+              // Continue with other documents even if one fails
+            }
+          }
         }
       }
 

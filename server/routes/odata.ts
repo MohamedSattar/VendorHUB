@@ -1472,6 +1472,86 @@ export const handleUpdateCandidateContact: RequestHandler = async (
 };
 
 /**
+ * Upload a document to an Engagement Contact
+ * POST /api/odata/engagement-contact/:id/document/:fieldName
+ * Uploads a file to a specified document field on an engagement contact record
+ */
+export const handleUploadEngagementContactDocument: RequestHandler = async (
+  req,
+  res,
+) => {
+  try {
+    const { id, fieldName } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Contact ID is required" });
+    }
+
+    if (!fieldName) {
+      return res.status(400).json({ error: "Field name is required" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No file provided" });
+    }
+
+    const url = `${getODataBaseUrl()}/prmtk_engagementcontacts(${id})/${fieldName}/$value`;
+
+    console.log("[OData Proxy] Uploading document to engagement contact:", {
+      id,
+      fieldName,
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+      mimetype: req.file.mimetype,
+    });
+
+    const authHeaders = await getAuthHeaders();
+
+    // For file uploads, send the file binary data with proper content type
+    const headers: Record<string, string> = {
+      "Authorization": authHeaders["Authorization"],
+      "Content-Type": req.file.mimetype || "application/octet-stream",
+    };
+
+    const uploadResponse = await fetch(url, {
+      method: "PUT",
+      headers,
+      body: req.file.buffer,
+    });
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error(
+        "[OData Proxy] Document upload error:",
+        uploadResponse.status,
+        errorText
+      );
+      throw new Error(
+        `Failed to upload document: ${uploadResponse.statusText}`
+      );
+    }
+
+    console.log(
+      "[OData Proxy] Successfully uploaded document for field:",
+      fieldName
+    );
+
+    res.json({
+      success: true,
+      message: `Document uploaded successfully to field: ${fieldName}`,
+      fieldName,
+    });
+  } catch (error) {
+    console.error("[OData Proxy] Upload Document Error:", error);
+    res.status(500).json({
+      error: "Failed to upload document",
+      details:
+        error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Assign a candidate to an open role
  * POST /api/odata/open-role/:id/assign-candidate
  */
