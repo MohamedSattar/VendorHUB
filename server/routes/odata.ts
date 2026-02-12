@@ -756,59 +756,105 @@ export const handleSubmitEngagement: RequestHandler = async (req, res) => {
 export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
   try {
     const vendorId = req.query.vendorId as string | undefined;
+    const authHeaders = await getAuthHeaders();
 
-    let url =
-      `${getODataBaseUrl()}/prmtk_engagementcontacts?` +
-      `$select=prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,prmtk_uaeresident,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode&` +
-      `$orderby=prmtk_id%20asc`;
+    // Build the OData URL with properly encoded parameters
+    // Note: Field names should match the actual CRM entity definition
+    const select = encodeURIComponent(
+      "prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode"
+    );
+    const orderby = encodeURIComponent("prmtk_id asc");
 
-    // If vendor ID provided, filter by prmtk_vendor column
+    let url = `${getODataBaseUrl()}/prmtk_engagementcontacts?$select=${select}&$orderby=${orderby}`;
+
+    // If vendor ID provided, filter by _prmtk_vendor_value column
     if (vendorId) {
       const filterExpression = encodeURIComponent(`_prmtk_vendor_value eq '${vendorId}'`);
       url += `&$filter=${filterExpression}`;
-      console.log(
-        "[OData Proxy] Fetching Engagement Contacts for vendor:",
-        vendorId
-      );
+      console.log("[OData] Fetching Engagement Contacts for vendor:", vendorId);
     } else {
-      console.log("[OData Proxy] Fetching all Engagement Contacts from CRM Dataverse");
+      console.log("[OData] Fetching all Engagement Contacts");
     }
 
-    console.log("[OData Proxy] URL:", url);
+    console.log("[OData] Query URL:", url);
 
     // Use authenticated request to get CRM data with proper OAuth token
-    const response = await makeAuthenticatedRequest(url, {
+    let response = await fetch(url, {
       method: "GET",
       headers: {
+        ...authHeaders,
         Accept: "application/json",
       },
     });
 
+    // If primary query fails with 404 or other error, try alternative entity name
+    if (!response.ok && (response.status === 404 || response.status === 500)) {
+      console.warn("[OData] Primary query failed, trying alternative entity name...");
+
+      // Try with alternative entity name (prmkt_ instead of prmtk_)
+      const altUrl = url.replace(/\/prmtk_engagementcontacts/, "/prmkt_engagementcontacts");
+      console.log("[OData] Trying alternative URL:", altUrl);
+
+      response = await fetch(altUrl, {
+        method: "GET",
+        headers: {
+          ...authHeaders,
+          Accept: "application/json",
+        },
+      });
+    }
+
     if (!response.ok) {
-      console.error(
-        `[OData Proxy] CRM API returned status ${response.status}: ${response.statusText}`,
-      );
       const errorText = await response.text();
-      console.error("[OData Proxy] Error response:", errorText);
+      console.error("[OData] CRM API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        responseLength: errorText.length,
+        first500chars: errorText.substring(0, 500),
+      });
+
+      // Try to parse JSON error response
+      try {
+        const errorJson = JSON.parse(errorText);
+        console.error("[OData] Parsed CRM error:", {
+          message: errorJson.error?.message,
+          innererror: errorJson.error?.innererror?.message,
+          type: errorJson.error?.innererror?.type,
+        });
+      } catch (e) {
+        // Not JSON, error already logged above
+      }
+
+      // If entity not found (404), return empty list instead of error
+      if (response.status === 404) {
+        console.log("[OData] Entity not found, returning empty list");
+        res.json({ value: [] });
+        return;
+      }
+
       throw new Error(
-        `CRM API returned ${response.status}: ${response.statusText}`,
+        `CRM returned ${response.status}: ${response.statusText}`
       );
     }
 
     const data = await response.json();
 
-    console.log("[OData Proxy] Engagement Contacts API Response:", {
-      status: response.status,
-      hasValue: !!data.value,
-      itemCount: data.value ? data.value.length : 0,
-      firstItem: data.value && data.value.length > 0 ? data.value[0] : null,
+    console.log("[OData] Engagement Contacts retrieved:", {
+      count: data.value ? data.value.length : 0,
+      hasData: !!data.value && data.value.length > 0,
     });
+
+    // Return empty array if no data
+    if (!data.value) {
+      res.json({ value: [] });
+      return;
+    }
 
     // Add cache headers for performance
     res.set("Cache-Control", "public, max-age=300"); // Cache for 5 minutes
     res.json(data);
   } catch (error) {
-    console.error("[OData Proxy] Engagement Contacts Error:", error);
+    console.error("[OData] Engagement Contacts Error:", error);
     res.status(500).json({
       error: "Failed to fetch Engagement Contacts from CRM",
       details:

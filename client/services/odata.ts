@@ -946,6 +946,12 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData] Engagement Contacts API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorBody: errorText.substring(0, 500),
+      });
       throw new Error(
         `Failed to fetch Engagement Contacts: ${response.status} ${response.statusText}`,
       );
@@ -953,10 +959,16 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
 
     const data: { value: ODataEngagementContact[] } = await response.json();
 
+    // Handle empty or missing data
+    if (!data.value) {
+      console.log("[OData] No engagement contacts returned from API");
+      return [];
+    }
+
     console.log("[OData] Raw API response:", {
       hasValue: !!data.value,
-      itemCount: data.value?.length || 0,
-      firstItem: data.value?.[0],
+      itemCount: data.value.length,
+      firstItem: data.value[0],
     });
 
     // Transform OData response to our EngagementContact format
