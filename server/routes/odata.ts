@@ -1319,6 +1319,7 @@ export const handleCreateEngagementContact: RequestHandler = async (
       return res.status(400).json({ error: "Name (prmtk_id) is required" });
     }
 
+    const authHeaders = await getAuthHeaders();
     const url = `${getODataBaseUrl()}/prmtk_engagementcontacts`;
 
     console.log("[OData Proxy] Creating new Engagement Contact");
@@ -1333,22 +1334,13 @@ export const handleCreateEngagementContact: RequestHandler = async (
     if (prmtk_uaeresident !== undefined)
       createData.prmtk_uaeresident = prmtk_uaeresident;
 
-    const headers: Record<string, string> = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    };
-
-    // Add authentication if available from environment
-    if (process.env.POWER_APPS_USERNAME && process.env.POWER_APPS_PASSWORD) {
-      const credentials = Buffer.from(
-        `${process.env.POWER_APPS_USERNAME}:${process.env.POWER_APPS_PASSWORD}`,
-      ).toString("base64");
-      headers["Authorization"] = `Basic ${credentials}`;
-    }
-
     const response = await fetch(url, {
       method: "POST",
-      headers,
+      headers: {
+        ...authHeaders,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(createData),
     });
 
