@@ -121,7 +121,7 @@ export default function Profile() {
         });
 
         // Store contact data in global context for filtering queries
-        setLoggedInContact({
+        const contactDataToStore = {
           contactId: contact.prmtk_contactid,
           email: contact.prmtk_email || loggedInEmail || "",
           firstName: contact.prmtk_firstname || "",
@@ -133,6 +133,15 @@ export default function Profile() {
           userRole: "Vendor",
           mobileNumber: contact.prmtk_mobilenumber || contact.prmtk_phone,
           preferredContactMethod: preferredMethod,
+        };
+
+        setLoggedInContact(contactDataToStore);
+
+        // Log to confirm storage
+        console.log("[Profile] Contact data stored in context and localStorage:", {
+          contactId: contactDataToStore.contactId,
+          vendorId: contactDataToStore.vendorId,
+          email: contactDataToStore.email,
         });
       } catch (error) {
         console.error("[Profile] Error loading contact data:", error);

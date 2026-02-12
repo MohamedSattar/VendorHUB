@@ -5,6 +5,7 @@ import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import NotificationsList from "@/components/NotificationsList";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContact } from "@/contexts/UserContactContext";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Notification,
@@ -19,18 +20,27 @@ export default function Notifications() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isArabic } = useLanguage();
+  const { loggedInContact } = useUserContact();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch notifications on mount
+  // Fetch notifications when contact info is available
   useEffect(() => {
     const loadNotifications = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await fetchNotifications();
+
+        if (!loggedInContact?.contactId) {
+          console.warn("[Notifications] No contact ID available yet");
+          setError("Please load your profile first to view notifications");
+          setIsLoading(false);
+          return;
+        }
+
+        const data = await fetchNotifications(loggedInContact.contactId);
         setNotifications(data);
       } catch (err) {
         const errorMessage =
@@ -47,7 +57,7 @@ export default function Notifications() {
     };
 
     loadNotifications();
-  }, [toast]);
+  }, [loggedInContact?.contactId, toast]);
 
   const handleMarkAsRead = async (id: string) => {
     try {
@@ -113,6 +123,15 @@ export default function Notifications() {
   const handleDismissAll = async () => {
     if (notifications.length === 0) return;
 
+    if (!loggedInContact?.contactId) {
+      toast({
+        title: "Error",
+        description: "Contact information not available",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Show confirmation
     const confirmed = window.confirm(
       "Are you sure you want to dismiss all notifications? This action cannot be undone.",
@@ -120,7 +139,7 @@ export default function Notifications() {
     if (!confirmed) return;
 
     try {
-      await dismissAllNotifications();
+      await dismissAllNotifications(loggedInContact.contactId);
       setNotifications([]);
       toast({
         title: "Success",
