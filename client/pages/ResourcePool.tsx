@@ -12,7 +12,7 @@ export default function ResourcePool() {
   const { loggedInContact } = useUserContact();
   const { data: contacts = [], isLoading, isError, error } = useEngagementContacts(loggedInContact?.vendorId);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"All" | "Free" | "Assigned" | "Archived">("All");
+  const [statusFilter, setStatusFilter] = useState<"All" | "Assigned" | "Not Assigned">("All");
 
   // Filter and search contacts
   const filteredContacts = useMemo(() => {
@@ -78,11 +78,11 @@ export default function ResourcePool() {
           </div>
 
           {/* Status Filter */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2">
             <span className="text-sm font-medium text-gray-700 flex items-center">
               Status:
             </span>
-            {(["All", "Free", "Assigned", "Archived"] as const).map((status) => (
+            {(["All", "Assigned", "Not Assigned"] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}

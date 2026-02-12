@@ -8,9 +8,8 @@ interface ResourceCardProps {
 }
 
 const statusColors = {
-  Free: "bg-blue-100 text-blue-700",
   Assigned: "bg-green-100 text-green-700",
-  Archived: "bg-gray-100 text-gray-700",
+  "Not Assigned": "bg-orange-100 text-orange-700",
 };
 
 export default function ResourceCard({ contact }: ResourceCardProps) {
