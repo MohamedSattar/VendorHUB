@@ -1414,7 +1414,11 @@ export default function OpenRoleDetails() {
 
                   {/* Ready for Submission - EDITABLE */}
                   <div className="mt-8 pt-8 border-t border-gray-200">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className={`border rounded-lg p-4 ${
+                      !openRole?.candidateId
+                        ? "bg-gray-50 border-gray-200"
+                        : "bg-blue-50 border-blue-200"
+                    }`}>
                       <label className="flex items-start gap-3 mb-3">
                         <input
                           type="checkbox"
@@ -1425,16 +1429,36 @@ export default function OpenRoleDetails() {
                               e.target.checked,
                             )
                           }
-                          className="w-4 h-4 border border-gray-300 rounded cursor-pointer mt-1"
+                          disabled={!openRole?.candidateId}
+                          className={`w-4 h-4 border rounded cursor-pointer mt-1 ${
+                            !openRole?.candidateId
+                              ? "border-gray-300 bg-gray-100 cursor-not-allowed opacity-50"
+                              : "border-gray-300 cursor-pointer"
+                          }`}
                         />
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className={`text-sm font-medium ${
+                          !openRole?.candidateId
+                            ? "text-gray-500"
+                            : "text-gray-700"
+                        }`}>
                           Ready for Submission
                         </span>
                       </label>
                       <div className="flex gap-2 ml-7">
-                        <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-blue-700">
-                          Important: You must mark this as ready for submission to proceed with submitting this engagement.
+                        <AlertCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                          !openRole?.candidateId
+                            ? "text-gray-400"
+                            : "text-blue-600"
+                        }`} />
+                        <p className={`text-sm ${
+                          !openRole?.candidateId
+                            ? "text-gray-600"
+                            : "text-blue-700"
+                        }`}>
+                          {!openRole?.candidateId
+                            ? "Please select a candidate first before marking as ready for submission."
+                            : "Important: You must mark this as ready for submission to proceed with submitting this engagement."
+                          }
                         </p>
                       </div>
                     </div>
