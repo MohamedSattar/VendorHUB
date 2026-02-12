@@ -1,9 +1,22 @@
 import { ApplicationFormData } from "@/components/SupplierApplicationForm";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Info } from "lucide-react";
 
 interface ReviewStepProps {
   formData: ApplicationFormData;
   updateFormData: (updates: Partial<ApplicationFormData>) => void;
+}
+
+interface InfoTipProps {
+  text: string;
+}
+
+function InfoTip({ text }: InfoTipProps) {
+  return (
+    <div className="flex items-start gap-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <Info size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <p className="text-xs text-blue-700">{text}</p>
+    </div>
+  );
 }
 
 export default function ReviewStep({ formData }: ReviewStepProps) {
@@ -11,22 +24,38 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
   const isFieldComplete = (value: any) => {
     if (value === null || value === undefined) return false;
     if (typeof value === "string") return value.trim() !== "";
+    if (typeof value === "number" && value === 0) return false;
     if (Array.isArray(value)) return value.length > 0;
     return true;
+  };
+
+  // Helper function to get choice label from value
+  const getTradeLicenseTypeLabel = (value: number): string => {
+    switch (value) {
+      case 1:
+        return "Abu Dhabi Department of Economic Development (ADDED)";
+      case 2:
+        return "Non-ADDED";
+      default:
+        return "Not selected";
+    }
   };
 
   const sections = [
     {
       title: "Company Information",
       items: [
+        { label: "Trade License Number", value: formData.tradeLicenseNumber },
         { label: "Company Name", value: formData.companyName },
         { label: "Years in Business", value: formData.yearsInBusiness },
         { label: "Number of Employees", value: formData.numberOfEmployees },
-        { label: "Trade License Type", value: formData.tradeLicenseType },
-        { label: "Registered Address", value: formData.registeredAddress },
+        { label: "Trade License Type", value: getTradeLicenseTypeLabel(formData.tradeLicenseType) },
+        { label: "Country", value: formData.countryName || formData.country },
+        { label: "City", value: formData.cityName || formData.city },
         { label: "Website", value: formData.website === "yes" ? formData.websiteUrl : "No" },
         { label: "Emirati SME", value: formData.isEmiratiSME ? "Yes" : "No" },
         { label: "Khalifa Fund Registered", value: formData.isKhalifaFundRegistered ? "Yes" : "No" },
+        { label: "ICV Certificate", value: formData.hasICVCertificate ? "Yes" : "No" },
       ],
     },
     {
@@ -66,12 +95,12 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
   ];
 
   // Check if mandatory fields are complete
-  const isMandatoryComplete = 
+  const isMandatoryComplete =
+    formData.tradeLicenseNumber &&
     formData.companyName &&
     formData.yearsInBusiness &&
     formData.numberOfEmployees &&
-    formData.tradeLicenseType &&
-    formData.registeredAddress &&
+    formData.tradeLicenseType > 0 &&
     formData.supplyCategorySelections.length > 0 &&
     formData.fullName &&
     formData.designation &&
@@ -83,7 +112,7 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
     formData.attachments.powerOfAttorney;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Submission Status */}
       <div
         className={`p-4 rounded-lg border ${
@@ -116,6 +145,8 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
           )}
         </div>
       </div>
+
+      <InfoTip text="Please carefully review all information before submitting. Once submitted, this application will be processed and you will receive confirmation via email." />
 
       {/* Review Sections */}
       <div className="space-y-6">
@@ -185,7 +216,7 @@ export default function ReviewStep({ formData }: ReviewStepProps) {
           <li>Ensure all mandatory fields are completed</li>
           <li>Verify that all attachments are properly uploaded</li>
           <li>Confirm that you have authorization to submit this application</li>
-          <li>Once submitted, you will receive a confirmation email</li>
+          <li>Once submitted, you will receive a confirmation email with tracking ID</li>
         </ul>
       </div>
     </div>

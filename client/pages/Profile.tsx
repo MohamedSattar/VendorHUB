@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserContact } from "@/contexts/UserContactContext";
 
 interface ProfileFormData {
   id: string;
@@ -43,9 +45,11 @@ const CONTACT_METHOD_REVERSE_MAP: Record<"email" | "phone" | "sms", number> = {
 };
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { t, isArabic } = useLanguage();
   const { loggedInEmail } = useAuth();
+  const { setLoggedInContact } = useUserContact();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [contactData, setContactData] = useState<CrmContact | null>(null);
@@ -113,6 +117,30 @@ export default function Profile() {
           mobileNumber: contact.prmtk_mobilenumber || contact.prmtk_phone || "",
           contactPreference: preferredMethod,
           email: contact.prmtk_email || loggedInEmail,
+        });
+
+        // Store contact data in global context for filtering queries
+        const contactDataToStore = {
+          contactId: contact.prmtk_contactid,
+          email: contact.prmtk_email || loggedInEmail || "",
+          firstName: contact.prmtk_firstname || "",
+          lastName: contact.prmtk_lastname || "",
+          vendorId: contact.prmtk_vendor_id,
+          vendorName: contact.prmtk_vendor_name,
+          accountStatus: contact.statuscode === 1 ? "Active" : "Inactive",
+          memberSince: contact.createdon,
+          userRole: "Vendor",
+          mobileNumber: contact.prmtk_mobilenumber || contact.prmtk_phone,
+          preferredContactMethod: preferredMethod,
+        };
+
+        setLoggedInContact(contactDataToStore);
+
+        // Log to confirm storage
+        console.log("[Profile] Contact data stored in context and localStorage:", {
+          contactId: contactDataToStore.contactId,
+          vendorId: contactDataToStore.vendorId,
+          email: contactDataToStore.email,
         });
       } catch (error) {
         console.error("[Profile] Error loading contact data:", error);
@@ -247,6 +275,7 @@ export default function Profile() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50" dir={isArabic ? "rtl" : "ltr"}>
@@ -423,12 +452,6 @@ export default function Profile() {
                           day: "numeric",
                         })
                       : "N/A"}
-                  </p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-600 mb-1">Contact ID</p>
-                  <p className="text-lg font-semibold text-navy font-mono text-sm">
-                    {contactData?.prmtk_contactid || "N/A"}
                   </p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">

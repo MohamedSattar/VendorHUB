@@ -7,6 +7,68 @@
 // Use backend proxy instead of direct API calls to avoid CORS issues
 const ODATA_PROXY_URL = "/api/odata";
 
+/**
+ * Get the Dataverse organization URL from environment or build from common patterns
+ * This is used to construct direct image URLs
+ */
+function getDataverseOrgUrl(): string {
+  // Try to get from environment variable (would need to be exposed via Vite)
+  const envUrl = import.meta.env.VITE_DATAVERSE_ORG_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+
+  // Fallback to DEV organization URL (org8b20ca8a)
+  return "https://org8b20ca8a.crm15.dynamics.com";
+}
+
+/**
+ * Build a Dynamics image download URL for entity attributes
+ * Format: https://org.crm.dynamics.com/Image/download.aspx?Entity={entity}&Attribute={attribute}&Id={id}&Timestamp={timestamp}&full=true
+ */
+function buildDynamicsImageUrl(
+  entity: string,
+  attribute: string,
+  id: string,
+  modifiedOn?: string
+): string {
+  const orgUrl = getDataverseOrgUrl();
+
+  // Convert modifiedOn date to Windows FileTime format timestamp
+  // If modifiedOn is not provided, use current time
+  let timestamp = "";
+  if (modifiedOn) {
+    try {
+      const date = new Date(modifiedOn);
+      // Windows FileTime is 100-nanosecond intervals since 1601-01-01
+      // JavaScript dates are milliseconds since 1970-01-01
+      // Difference: 11644473600000 milliseconds
+      const fileTime = BigInt(date.getTime() + 11644473600000) * BigInt(10000);
+      timestamp = fileTime.toString();
+    } catch {
+      // If date parsing fails, use current time
+      const now = new Date();
+      const fileTime = BigInt(now.getTime() + 11644473600000) * BigInt(10000);
+      timestamp = fileTime.toString();
+    }
+  } else {
+    // Use current time if modifiedOn not provided
+    const now = new Date();
+    const fileTime = BigInt(now.getTime() + 11644473600000) * BigInt(10000);
+    timestamp = fileTime.toString();
+  }
+
+  const params = new URLSearchParams({
+    Entity: entity,
+    Attribute: attribute,
+    Id: id,
+    Timestamp: timestamp,
+    full: "true",
+  });
+
+  return `${orgUrl}/Image/download.aspx?${params.toString()}`;
+}
+
 export interface FAQItem {
   id: string;
   question: string;
@@ -52,6 +114,7 @@ export interface EngagementItem {
   status: string;
   ecaEngagementManager: string;
   vendorName?: string;
+  vendorId?: string; // Vendor ID for filtering
   contractNumber?: string;
   contractDescription?: string;
   typeOfEngagement?: string;
@@ -85,7 +148,7 @@ export interface EngagementContact {
   email?: string;
   phoneNumber?: string;
   personalPhoto?: string;
-  status: "Assigned" | "Not Assigned";
+  status: "Free" | "Assigned" | "Archived";
   engagementId?: string;
   createdOn: string;
   modifiedOn: string;
@@ -496,11 +559,15 @@ export async function fetchWebsiteContent(
  * Fetch Engagements content from Power Apps OData API via backend proxy
  * Returns engagement basic details: name, dates, status, manager
  */
-export async function fetchEngagements(): Promise<EngagementItem[]> {
+export async function fetchEngagements(vendorId?: string): Promise<EngagementItem[]> {
   try {
     const url = `${ODATA_PROXY_URL}/engagements`;
 
-    console.log("[OData] Fetching Engagements content via proxy from:", url);
+    console.log(
+      "[OData] Fetching Engagements content via proxy from:",
+      url,
+      vendorId ? `for vendor: ${vendorId}` : ""
+    );
 
     const response = await fetch(url, {
       method: "GET",
@@ -519,7 +586,7 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
     const data: { value: ODataEngagementItem[] } = await response.json();
 
     // Transform OData response to our Engagement format
-    const engagementItems: EngagementItem[] = data.value
+    let engagementItems: EngagementItem[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => ({
         id: item.prmtk_engagementid,
@@ -544,9 +611,23 @@ export async function fetchEngagements(): Promise<EngagementItem[]> {
           item["prmtk_type@OData.Community.Display.V1.FormattedValue"],
         createdOn: item.createdon,
         modifiedOn: item.modifiedon,
+        vendorId: item._prmtk_vendor_value, // Add vendor ID for filtering
       }));
 
-    console.log("[OData] Fetched Engagement items:", engagementItems.length);
+    // Filter by vendor ID if provided
+    if (vendorId) {
+      engagementItems = engagementItems.filter(
+        (item) => item.vendorId === vendorId
+      );
+      console.log(
+        "[OData] Filtered Engagement items for vendor:",
+        vendorId,
+        "Count:",
+        engagementItems.length
+      );
+    } else {
+      console.log("[OData] Fetched all Engagement items:", engagementItems.length);
+    }
 
     return engagementItems;
   } catch (error) {
@@ -588,15 +669,16 @@ export async function fetchEngagementById(
     const item: ODataEngagementItem = await response.json();
 
     // Transform OData response to our Engagement format
+    const statusFormatted = item["prmtk_status@OData.Community.Display.V1.FormattedValue"];
+    const statusRaw = item.prmtk_status;
+
     const engagement: EngagementItem = {
       id: item.prmtk_engagementid,
       name: item.prmtk_engagementname,
       description: item.prmtk_description,
       startDate: item.prmtk_startdate,
       endDate: item.prmtk_enddate,
-      status:
-        item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
-        "Pending",
+      status: statusFormatted || "Pending",
       ecaEngagementManager:
         item[
           "_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"
@@ -611,7 +693,14 @@ export async function fetchEngagementById(
       modifiedOn: item.modifiedon,
     };
 
-    console.log("[OData] Fetched Engagement:", engagement);
+    console.log("[OData] Fetched Engagement:", {
+      ...engagement,
+      statusDebug: {
+        raw: statusRaw,
+        formatted: statusFormatted,
+        final: engagement.status,
+      },
+    });
 
     return engagement;
   } catch (error) {
@@ -734,8 +823,8 @@ export async function fetchCandidateContactById(
       status:
         item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
         "Unknown",
-      // Construct photo URL to fetch the actual image via backend proxy
-      personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
+      // Use backend proxy to fetch the image (avoids CORS issues)
+      personalPhoto: `/api/odata/candidate-contact-photo/${item.prmtk_engagementcontactid}`,
       uaeResident: item.prmtk_uaeresident,
       cvFile: item.prmtk_cvfile_name,
       introductionDocument: item.prmtk_introductiondocument_name,
@@ -802,13 +891,16 @@ export async function fetchOpenRoles(
     const openRoles: OpenRole[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
+        // Get candidate name from formatted value annotation or fallback to direct mapping
+        const candidateName =
+          item["_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"] ||
+          item.prmtk_name ||
+          item._prmtk_candidate_value;
+
         return {
           id: item.prmtk_candidateengagementnameid,
           name: item.prmtk_rolename,
-          candidateName:
-            item[
-              "_prmtk_candidate_value@OData.Community.Display.V1.FormattedValue"
-            ] || item.prmtk_name,
+          candidateName: candidateName,
           expectedStartDate: item.prmtk_startdate,
           status:
             item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
@@ -838,13 +930,19 @@ export async function fetchOpenRoles(
  * Fetch all Engagement Contacts from Power Apps OData API via backend proxy
  * Returns all contacts with status (Assigned/Not Assigned) based on active engagements
  */
-export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
+export async function fetchEngagementContacts(vendorId?: string): Promise<EngagementContact[]> {
   try {
-    const url = `${ODATA_PROXY_URL}/engagement-contacts`;
+    const params = new URLSearchParams();
+    if (vendorId) {
+      params.append("vendorId", vendorId);
+    }
+
+    const url = `${ODATA_PROXY_URL}/engagement-contacts${params.toString() ? `?${params.toString()}` : ""}`;
 
     console.log(
-      "[OData] Fetching all Engagement Contacts via proxy from:",
+      "[OData] Fetching Engagement Contacts via proxy from:",
       url,
+      vendorId ? `for vendor: ${vendorId}` : "",
     );
 
     const response = await fetch(url, {
@@ -856,6 +954,12 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[OData] Engagement Contacts API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        errorBody: errorText.substring(0, 500),
+      });
       throw new Error(
         `Failed to fetch Engagement Contacts: ${response.status} ${response.statusText}`,
       );
@@ -863,30 +967,55 @@ export async function fetchEngagementContacts(): Promise<EngagementContact[]> {
 
     const data: { value: ODataEngagementContact[] } = await response.json();
 
+    // Handle empty or missing data
+    if (!data.value) {
+      console.log("[OData] No engagement contacts returned from API");
+      return [];
+    }
+
     console.log("[OData] Raw API response:", {
       hasValue: !!data.value,
-      itemCount: data.value?.length || 0,
-      firstItem: data.value?.[0],
+      itemCount: data.value.length,
+      firstItem: data.value[0],
     });
 
     // Transform OData response to our EngagementContact format
     const contacts: EngagementContact[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
+        // Map prmkt_status numeric value to choice text
+        // 1 = Free, 2 = Assigned, 3 = Archived
+        const statusValue = item.prmkt_status;
+        let status: "Free" | "Assigned" | "Archived" = "Free";
+
+        switch (statusValue) {
+          case 1:
+            status = "Free";
+            break;
+          case 2:
+            status = "Assigned";
+            break;
+          case 3:
+            status = "Archived";
+            break;
+          default:
+            status = "Free";
+        }
+
         const transformed = {
           id: item.prmtk_engagementcontactid,
           name: item.prmtk_id,
           email: item.prmtk_email,
           phoneNumber: item.prmtk_phonenumber,
-          // Construct photo URL to fetch the actual image via backend proxy
+          // Use backend proxy to fetch the image (avoids CORS issues)
           personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
-          // If engagement ID is present, contact is assigned; otherwise not assigned
-          status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
+          // Use prmkt_status choice column for status (Free, Assigned, Archived)
+          status,
           engagementId: item._prmtk_engagement_value,
           createdOn: item.createdon,
           modifiedOn: item.modifiedon,
         };
-        console.log("[OData] Transformed contact:", transformed);
+        console.log("[OData] Transformed contact:", { ...transformed, statusDebug: { value: statusValue, final: status } });
         return transformed;
       });
 

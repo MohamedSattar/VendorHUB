@@ -1,14 +1,38 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Bell, Settings } from "lucide-react";
+import { Bell, Settings, LogOut } from "lucide-react";
 import ECALogo from "@/components/ECALogo";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContact } from "@/contexts/UserContactContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useToast } from "@/hooks/use-toast";
+import { useCrmTokenInit } from "@/hooks/useCrmTokenInit";
+import { useUserContactInit } from "@/hooks/useUserContactInit";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
-  const { language, setLanguage, isArabic } = useLanguage();
-  const { data: notifications = [] } = useNotifications();
+  const { isArabic } = useLanguage();
+  const { loggedInContact } = useUserContact();
+  const { logout } = useAuth();
+  const { toast } = useToast();
+
+  // Initialize CRM token on mount (ensures token is cached before API calls)
+  useCrmTokenInit();
+
+  // Initialize user contact profile on mount (ensures contact data is available for pages that need it)
+  useUserContactInit();
+
+  const { data: notifications = [] } = useNotifications(loggedInContact?.contactId);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    toast({
+      title: "Success",
+      description: "You have been logged out successfully.",
+    });
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -39,7 +63,7 @@ export default function DashboardHeader() {
 
           {/* Right section - Icons and profile */}
           <div
-            className={`flex items-center gap-4 ${isArabic ? "flex-row-reverse" : ""}`}
+            className={`flex items-center gap-3 ${isArabic ? "flex-row-reverse" : ""}`}
           >
             <button
               onClick={() => navigate("/notifications")}
@@ -56,11 +80,17 @@ export default function DashboardHeader() {
             <button
               onClick={() => navigate("/profile")}
               className="p-2 text-navy hover:bg-gray-100 rounded-lg transition"
+              title="Profile Settings"
             >
               <Settings className="w-5 h-5" />
             </button>
-            <button className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-90 transition">
-              U
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>

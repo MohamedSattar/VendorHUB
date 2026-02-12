@@ -22,13 +22,25 @@ async function fetchContactDetails(contactId: string): Promise<CandidateDetail> 
 
   const data = await response.json();
 
+  // Map status numeric value to display text
+  let statusText = "Unknown";
+  const statusValue = data.prmkt_status;
+
+  if (statusValue === 1) {
+    statusText = "Free";
+  } else if (statusValue === 2) {
+    statusText = "Assigned";
+  } else if (statusValue === 3) {
+    statusText = "Archived";
+  }
+
   // Transform API response to our format
   return {
     id: data.prmtk_engagementcontactid,
     name: data.prmtk_id,
     email: data.prmtk_email,
     phoneNumber: data.prmtk_phonenumber,
-    status: data["prmtk_status@OData.Community.Display.V1.FormattedValue"] || "Unknown",
+    status: statusText,
     personalPhoto: `/api/odata/candidate-contact-photo/${data.prmtk_engagementcontactid}`,
     uaeResident: data.prmtk_uaeresident,
     cvFile: data.prmtk_cvfile_name,
@@ -52,7 +64,9 @@ export function useContactDetails(contactId?: string) {
       return fetchContactDetails(contactId);
     },
     enabled: !!contactId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // No caching - always fetch fresh data
+    gcTime: 0, // Remove from cache immediately
+    refetchInterval: 5000, // Automatically refetch every 5 seconds for real-time updates
+    refetchIntervalInBackground: true, // Continue refetching even when tab is not focused
   });
 }

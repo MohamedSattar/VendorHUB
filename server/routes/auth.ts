@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { getAuthHeaders } from "../services/azureAuth";
+import { getDataverseResource } from "../config/crmEnvironments";
 
 /**
  * OAuth 2.0 Token Exchange Handler
@@ -218,10 +219,17 @@ interface AdxInvitationRecord {
   statuscode: number;
 }
 
-const ODATA_BASE_URL =
-  process.env.DATAVERSE_RESOURCE?.replace(/\/$/, "")
-    .replace(/\/\.default$/, "") || "https://ecavendorhubspa.crm15.dynamics.com";
-const API_ENDPOINT = `${ODATA_BASE_URL}/api/data/v9.2`;
+function getODataBaseUrl(): string {
+  const resource = getDataverseResource();
+  const cleanResource = resource
+    .replace(/\/$/, "")
+    .replace(/\/\.default$/, "");
+  return cleanResource;
+}
+
+function getApiEndpoint(): string {
+  return `${getODataBaseUrl()}/api/data/v9.2`;
+}
 
 /**
  * Login with email and password
@@ -252,7 +260,7 @@ export const handleLogin: RequestHandler = async (req, res) => {
 
     // Query CRM for user by email
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/prmtk_contacts?$filter=prmtk_email%20eq%20'${encodeURIComponent(
+    const queryUrl = `${getApiEndpoint()}/prmtk_contacts?$filter=prmtk_email%20eq%20'${encodeURIComponent(
       email
     )}'&$select=prmtk_contactid,prmtk_email,prmtk_firstname,prmtk_lastname,prmtk_organizationname,statuscode`;
 
@@ -384,7 +392,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       statuscode: 1, // Active
     };
 
-    const createResponse = await fetch(`${API_ENDPOINT}/prmtk_contacts`, {
+    const createResponse = await fetch(`${getApiEndpoint()}/prmtk_contacts`, {
       method: "POST",
       headers: authHeaders,
       body: JSON.stringify(contactRecord),
@@ -463,7 +471,7 @@ export const handleVerifyInvitation: RequestHandler = async (req, res) => {
 
     // Query CRM for invitation using standard adx_invitation table
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/adx_invitations?$filter=adx_invitationcode%20eq%20'${encodeURIComponent(
+    const queryUrl = `${getApiEndpoint()}/adx_invitations?$filter=adx_invitationcode%20eq%20'${encodeURIComponent(
       invitationCode
     )}'&$select=adx_invitationid,adx_invitationemail,adx_invitationcode,createdon,adx_expirationdate,statecode,statuscode`;
 
@@ -550,7 +558,7 @@ export const handleGetInvitation: RequestHandler = async (req, res) => {
 
     // Query CRM for invitation using standard adx_invitation table
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/adx_invitations?$filter=adx_invitationcode%20eq%20'${encodeURIComponent(
+    const queryUrl = `${getApiEndpoint()}/adx_invitations?$filter=adx_invitationcode%20eq%20'${encodeURIComponent(
       code
     )}'&$select=adx_invitationid,adx_invitationemail,adx_invitationcode,createdon,adx_expirationdate,statecode,statuscode`;
 
@@ -634,11 +642,11 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
     }
 
     console.log("[Auth] Fetching contact by email:", email);
-    console.log("[Auth] CRM API Endpoint:", API_ENDPOINT);
+    console.log("[Auth] CRM API Endpoint:", getApiEndpoint());
 
     // Query CRM for contact using standard contact table
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
+    const queryUrl = `${getApiEndpoint()}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
       email
     )}'&$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
 
@@ -661,7 +669,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
         error: "Contact not found",
         debug: {
           email: email,
-          endpoint: API_ENDPOINT,
+          endpoint: getApiEndpoint(),
           status: response.status,
           details: responseText,
         },
@@ -685,7 +693,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
         message: `No contact record found in CRM for email: ${email}`,
         debug: {
           email: email,
-          endpoint: API_ENDPOINT,
+          endpoint: getApiEndpoint(),
           searchFilter: `emailaddress1 eq '${email}'`,
         },
       });
@@ -702,7 +710,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
       // First, query the bridge table prmtk_vendorcontactses to find the first assigned vendor
       // This table links contacts to vendors through the prmtk_engagement_VendorContactPerson_contact relationship
       // Order by createdon to get the first assigned vendor, then get just the first result
-      const bridgeQueryUrl = `${API_ENDPOINT}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${contact.contactid}&$select=_prmtk_vendor_value,createdon&$orderby=createdon asc&$top=1`;
+      const bridgeQueryUrl = `${getApiEndpoint()}/prmtk_vendorcontactses?$filter=_prmtk_contact_value eq ${contact.contactid}&$select=_prmtk_vendor_value,createdon&$orderby=createdon asc&$top=1`;
 
       console.log("[Auth] Querying bridge table for first assigned vendor:", bridgeQueryUrl);
 
@@ -719,7 +727,7 @@ export const handleGetContactByEmail: RequestHandler = async (req, res) => {
 
           // Now query the vendor details using the vendor ID from bridge table
           if (vendorLookupId) {
-            const vendorDetailUrl = `${API_ENDPOINT}/prmtk_vendors(${vendorLookupId})?$select=prmtk_vendorid,prmtk_name`;
+            const vendorDetailUrl = `${getApiEndpoint()}/prmtk_vendors(${vendorLookupId})?$select=prmtk_vendorid,prmtk_name`;
 
             const vendorDetailResponse = await fetch(vendorDetailUrl, {
               method: "GET",
@@ -790,7 +798,7 @@ export const handleUpdateContact: RequestHandler = async (req, res) => {
 
     // First, get the contact ID using standard contact table
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
+    const queryUrl = `${getApiEndpoint()}/contacts?$filter=emailaddress1%20eq%20'${encodeURIComponent(
       email
     )}'&$select=contactid`;
 
@@ -831,7 +839,7 @@ export const handleUpdateContact: RequestHandler = async (req, res) => {
     console.log("[Auth] Updating contact with payload:", updatePayload);
 
     // Update contact in CRM
-    const updateUrl = `${API_ENDPOINT}/contacts(${contactId})`;
+    const updateUrl = `${getApiEndpoint()}/contacts(${contactId})`;
 
     const updateResponse = await fetch(updateUrl, {
       method: "PATCH",
@@ -850,7 +858,7 @@ export const handleUpdateContact: RequestHandler = async (req, res) => {
     console.log("[Auth] Contact updated successfully");
 
     // Fetch updated contact to return
-    const fetchUrl = `${API_ENDPOINT}/contacts(${contactId})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
+    const fetchUrl = `${getApiEndpoint()}/contacts(${contactId})?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode,preferredcontactmethodcode`;
 
     const fetchResponse = await fetch(fetchUrl, {
       method: "GET",
@@ -897,7 +905,7 @@ export const handleGetAllContacts: RequestHandler = async (req, res) => {
     console.log("[Auth Debug] Fetching all contacts from CRM standard contact table");
 
     const authHeaders = await getAuthHeaders();
-    const queryUrl = `${API_ENDPOINT}/contacts?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode&$top=100`;
+    const queryUrl = `${getApiEndpoint()}/contacts?$select=contactid,firstname,lastname,emailaddress1,telephone1,mobilephone,createdon,statecode,statuscode&$top=100`;
 
     console.log("[Auth Debug] Query URL:", queryUrl);
 
@@ -939,6 +947,35 @@ export const handleGetAllContacts: RequestHandler = async (req, res) => {
     res.status(500).json({
       error: "Failed to fetch contacts",
       details: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+/**
+ * Initialize CRM Access Token
+ * GET /api/auth/init-crm-token
+ * Ensures the CRM access token is obtained and cached on the server
+ * This should be called once per session to warm up the token cache
+ */
+export const handleInitCrmToken: RequestHandler = async (req, res) => {
+  try {
+    console.log("[Auth] Initializing CRM access token...");
+
+    // Get auth headers which will obtain and cache the token
+    const authHeaders = await getAuthHeaders();
+
+    console.log("[Auth] CRM access token initialized successfully");
+
+    res.json({
+      success: true,
+      message: "CRM access token initialized",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("[Auth] Failed to initialize CRM token:", error);
+    res.status(500).json({
+      error: "Failed to initialize CRM token",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
     });
   }
 };

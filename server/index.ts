@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import multer from "multer";
 import { handleDemo } from "./routes/demo";
 import {
   handleExchangeToken,
@@ -15,6 +16,7 @@ import {
   handleGetContactByEmail,
   handleUpdateContact,
   handleGetAllContacts,
+  handleInitCrmToken,
 } from "./routes/auth";
 import { requireAuth } from "./middleware/auth";
 import {
@@ -23,23 +25,38 @@ import {
   handleGetUserResources,
   handleDeleteResource,
 } from "./routes/user";
+import { handleGetSupplierRegistrationFields } from "./routes/crmDebug";
 import {
   handleGetWebsiteContents,
   handleGetFAQ,
   handleGetManuals,
   handleGetEngagements,
   handleGetEngagementById,
+  handleSubmitEngagement,
   handleGetOpenRoles,
   handleGetOpenRoleById,
   handleGetCandidateContact,
   handleGetCandidateContactPhoto,
+  handleUploadCandidateContactPhoto,
   handleGetEngagementContacts,
   handleGetEngagementContactPhoto,
   handleGetEngagementContactDocument,
   handleCreateEngagementContact,
+  handleUploadEngagementContactDocument,
   handleUpdateCandidateContact,
   handleAssignCandidateToOpenRole,
+  handleUpdateOpenRole,
   handleUpdateContactById,
+  handleGetCurrentUserContact,
+  handleGetNotifications,
+  handleMarkNotificationAsRead,
+  handleMarkNotificationAsUnread,
+  handleDismissNotification,
+  handleDismissAllNotifications,
+  handleSaveDraftSupplierRegistration,
+  handleSubmitSupplierRegistration,
+  handleGetCountries,
+  handleGetCities,
 } from "./routes/odata";
 
 export function createServer() {
@@ -49,6 +66,12 @@ export function createServer() {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // File upload middleware for photos (max 5MB)
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  });
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
@@ -76,6 +99,12 @@ export function createServer() {
   // Debug routes (development only)
   app.get("/api/auth/debug/contacts", handleGetAllContacts);
 
+  // CRM Token initialization (public - called on app startup)
+  app.get("/api/auth/init-crm-token", handleInitCrmToken);
+
+  // Debug routes (development only)
+  app.get("/api/debug/supplier-registration-fields", handleGetSupplierRegistrationFields);
+
   // Protected user routes (require authentication)
   app.get("/api/user/profile", requireAuth, handleGetProfile);
   app.put("/api/user/profile", requireAuth, handleUpdateProfile);
@@ -92,12 +121,14 @@ export function createServer() {
   app.get("/api/odata/manuals", handleGetManuals);
   app.get("/api/odata/engagements", handleGetEngagements);
   app.get("/api/odata/engagements/:id", handleGetEngagementById);
+  app.post("/api/odata/engagement/:id/submit", handleSubmitEngagement);
   app.get("/api/odata/open-roles/:engagementId", handleGetOpenRoles);
   app.get("/api/odata/open-role/:id", handleGetOpenRoleById);
   app.post(
     "/api/odata/open-role/:id/assign-candidate",
     handleAssignCandidateToOpenRole,
   );
+  app.patch("/api/odata/open-role/:id", handleUpdateOpenRole);
   app.get("/api/odata/engagement-contacts", handleGetEngagementContacts);
   app.get(
     "/api/odata/engagement-contact-photo/:id",
@@ -109,6 +140,16 @@ export function createServer() {
   app.get(
     "/api/odata/candidate-contact-photo/:id",
     handleGetCandidateContactPhoto,
+  );
+  app.post(
+    "/api/odata/candidate-contact-photo/:id",
+    upload.single("file"),
+    handleUploadCandidateContactPhoto,
+  );
+  app.post(
+    "/api/odata/engagement-contact/:id/document/:fieldName",
+    upload.single("file"),
+    handleUploadEngagementContactDocument,
   );
   // Route for document download: /api/odata/engagement-contact/{id}/{fieldName}/$value
   // Using regex to handle the $value part
@@ -127,6 +168,24 @@ export function createServer() {
 
   // Contact management routes
   app.patch("/api/odata/contact/:id", handleUpdateContactById);
+
+  // Current user routes
+  app.get("/api/odata/current-user-contact", handleGetCurrentUserContact);
+
+  // Notifications routes
+  app.get("/api/odata/notifications", handleGetNotifications);
+  app.patch("/api/odata/notifications/:id/read", handleMarkNotificationAsRead);
+  app.patch("/api/odata/notifications/:id/unread", handleMarkNotificationAsUnread);
+  app.patch("/api/odata/notifications/:id/dismiss", handleDismissNotification);
+  app.patch("/api/odata/notifications/dismiss-all", handleDismissAllNotifications);
+
+  // Supplier registration routes
+  app.post("/api/odata/supplier-registration/draft", handleSaveDraftSupplierRegistration);
+  app.post("/api/odata/supplier-registration/submit", handleSubmitSupplierRegistration);
+
+  // Lookup data routes (countries and cities)
+  app.get("/api/odata/countries", handleGetCountries);
+  app.get("/api/odata/cities", handleGetCities);
 
   return app;
 }

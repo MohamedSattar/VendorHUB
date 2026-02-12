@@ -9,6 +9,7 @@ import {
   Flag,
   Search,
   Plus,
+  AlertCircle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -118,16 +119,20 @@ const formatReadableDate = (dateString: string): string => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
 
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
+    // Format: "Jan 15, 2026 at 2:30 PM"
+    const dateFormatter = new Intl.DateTimeFormat("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
+    });
+
+    const timeFormatter = new Intl.DateTimeFormat("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
       hour12: true,
     });
+
+    return `${dateFormatter.format(date)} at ${timeFormatter.format(date)}`;
   } catch {
     return dateString;
   }
@@ -143,7 +148,7 @@ export default function OpenRoleDetails() {
   const { data: openRole, isLoading, error, refetch } = useOpenRoleDetails(id);
 
   // Fetch candidate details from API using candidateId
-  const { data: candidateDetails, isLoading: isCandidateLoading } =
+  const { data: candidateDetails, isLoading: isCandidateLoading, refetch: refetchCandidateDetails } =
     useCandidateDetails(openRole?.candidateId);
 
   // Debug logging
@@ -163,13 +168,16 @@ export default function OpenRoleDetails() {
   const [isDetailsCollapsed, setIsDetailsCollapsed] = useState(false);
   const [assignResourceMode, setAssignResourceMode] = useState<
     "existing" | "new" | null
-  >(null);
+  >("existing");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [allResources, setAllResources] = useState<any[]>([]);
   const selectedResourceRef = useRef<AddResourceFormHandle>(null);
+  const [isChangeCandidateModalOpen, setIsChangeCandidateModalOpen] = useState(false);
+  const [changeCandidatePreview, setChangeCandidatePreview] = useState<any>(null);
+  const [isConfirmingChange, setIsConfirmingChange] = useState(false);
   const [editData, setEditData] = useState<Partial<OpenRoleDetailsData>>({
     name: openRole?.name,
     candidateName: openRole?.candidateName,
@@ -247,7 +255,7 @@ export default function OpenRoleDetails() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editData.name?.trim()) {
       toast({
         title: "Validation Error",
@@ -257,11 +265,124 @@ export default function OpenRoleDetails() {
       return;
     }
 
-    toast({
-      title: "Success",
-      description: "Open role has been saved successfully.",
-    });
-    setIsEditMode(false);
+    try {
+      // Build payload with only provided fields
+      // Start with just the essential fields to avoid payload validation errors
+      const rolePayload: Record<string, any> = {};
+
+      // Always update the role name if it's changed
+      if (editData.name?.trim()) {
+        rolePayload.prmtk_rolename = editData.name.trim();
+      }
+
+      // Try to update ready for submission status
+      if (editData.readyForSubmission !== undefined && editData.readyForSubmission !== null) {
+        rolePayload.prmtk_readyforsubmission = Boolean(editData.readyForSubmission);
+      }
+
+      // Optionally update designations (text fields)
+      if (editData.designation?.trim()) {
+        rolePayload.prmtk_currenttitle = editData.designation.trim();
+      }
+      if (editData.designationArabic?.trim()) {
+        rolePayload.prmtk_proposedtitle = editData.designationArabic.trim();
+      }
+
+      // Include salary fields if they have values
+      if (editData.currentSalary !== undefined && editData.currentSalary !== null && editData.currentSalary > 0) {
+        rolePayload.prmtk_currentsalaryaed = editData.currentSalary;
+      }
+      if (editData.proposedSalary !== undefined && editData.proposedSalary !== null && editData.proposedSalary > 0) {
+        rolePayload.prmtk_proposedsalaryaed = editData.proposedSalary;
+      }
+
+      // Note: Status field (prmtk_status) expects numeric option set code, not string
+      // Commenting out for now - we can add proper code mapping later if needed
+      // if (editData.status !== undefined && editData.status !== null) {
+      //   rolePayload.prmtk_status = editData.status;
+      // }
+
+      console.log("[OpenRoleDetails] Role update payload:", rolePayload);
+
+      // Update open role with role details
+      const roleUpdatePromise = fetch(
+        `/api/odata/open-role/${openRole?.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rolePayload),
+        }
+      );
+
+      // If candidate is being assigned (from search/select), also update the candidate contact
+      // Note: Only update candidate when it's from the search flow (selectedResourceRef exists)
+      let candidateUpdatePromise: Promise<Response> | null = null;
+      if (openRole?.candidateId && selectedResourceRef.current) {
+        try {
+          const formData = selectedResourceRef.current.getFormData();
+          if (formData && formData.fullName) {
+            candidateUpdatePromise = fetch(
+              `/api/odata/candidate-contact/${openRole.candidateId}`,
+              {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  prmtk_id: formData.fullName,
+                  prmtk_email: formData.email || undefined,
+                  prmtk_phonenumber: formData.phoneNumber || undefined,
+                  prmtk_uaeresident: formData.uaeResident !== null && formData.uaeResident !== undefined ? formData.uaeResident : undefined,
+                }),
+              }
+            );
+          }
+        } catch (e) {
+          console.error("[OpenRoleDetails] Error getting form data:", e);
+        }
+      }
+
+      // Wait for all updates to complete
+      const [roleResponse, candidateResponse] = await Promise.all([
+        roleUpdatePromise,
+        candidateUpdatePromise || Promise.resolve({ ok: true }),
+      ]);
+
+      // Check role update response
+      if (!roleResponse || !roleResponse.ok) {
+        const errorText = roleResponse ? await roleResponse.text() : 'Unknown error';
+        throw new Error(`Failed to save role: ${roleResponse?.statusText || 'No response'} - ${errorText}`);
+      }
+
+      // Check candidate update response if it was made
+      if (candidateResponse && !candidateResponse.ok) {
+        const errorText = await candidateResponse.text();
+        console.error("[OpenRoleDetails] Candidate update failed:", errorText);
+        throw new Error(`Failed to save candidate: ${candidateResponse.statusText}`);
+      }
+
+      toast({
+        title: "Success",
+        description: "Open role and resource have been saved successfully.",
+      });
+
+      // Refetch the data to show updated values
+      await refetch();
+      if (openRole?.candidateId) {
+        await refetchCandidateDetails();
+      }
+
+      setIsEditMode(false);
+    } catch (error) {
+      console.error("Error saving:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to save changes",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -279,6 +400,98 @@ export default function OpenRoleDetails() {
       });
     }
     setIsEditMode(false);
+  };
+
+  const handleOpenChangeCandidate = async () => {
+    try {
+      setIsSearching(true);
+      const resources = await fetchEngagementContacts();
+      setAllResources(resources);
+      setIsChangeCandidateModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching resources:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load candidate list",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleConfirmChangeCandidate = async () => {
+    if (!changeCandidatePreview || !openRole) {
+      toast({
+        title: "Error",
+        description: "Please select a candidate",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if the selected candidate is the same as currently assigned
+    if (openRole?.candidateId === changeCandidatePreview.id) {
+      toast({
+        title: "Info",
+        description: "This candidate is already assigned to this role. Please select a different candidate.",
+        variant: "default",
+      });
+      return;
+    }
+
+    setIsConfirmingChange(true);
+    try {
+      await assignCandidateToOpenRole(
+        openRole.id,
+        changeCandidatePreview.id,
+        changeCandidatePreview.name,
+        {
+          fullName: changeCandidatePreview.name,
+          email: changeCandidatePreview.email,
+          phoneNumber: changeCandidatePreview.phoneNumber,
+          uaeResident: changeCandidatePreview.uaeResident,
+        }
+      );
+
+      console.log("[OpenRoleDetails] Candidate assignment successful, refetching data...");
+
+      // Refetch the open role data first to get the updated candidateId
+      await refetch();
+      console.log("[OpenRoleDetails] Refetched open role");
+
+      // Then immediately refetch candidate details with the new candidateId
+      await refetchCandidateDetails();
+      console.log("[OpenRoleDetails] Refetched candidate details successfully");
+
+      // Reset modal state and close assignment mode to display the newly assigned candidate
+      setIsChangeCandidateModalOpen(false);
+      setChangeCandidatePreview(null);
+      setAssignResourceMode(null);
+
+      // Exit edit mode to display the newly assigned candidate details in view mode
+      setIsEditMode(false);
+
+      toast({
+        title: "Success",
+        description: "Candidate assigned successfully!",
+      });
+
+      // Refresh the page immediately to fetch all updated details from the server
+      // The short delay ensures the toast message is visible before reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error("Error changing candidate:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update candidate",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConfirmingChange(false);
+    }
   };
 
   if (!openRole && !isLoading) {
@@ -470,9 +683,18 @@ export default function OpenRoleDetails() {
               {/* Assigned Candidate Section */}
               {candidateDetails && (
                 <div className="mb-8 pt-8 border-t border-gray-200">
-                  <h3 className="text-lg font-semibold text-navy mb-6">
-                    Candidate Details
-                  </h3>
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-navy">
+                      Candidate Details
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={handleOpenChangeCandidate}
+                      className="px-4 py-2 border border-navy text-navy rounded-lg hover:bg-navy/5 transition font-medium text-sm"
+                    >
+                      Change Candidate
+                    </button>
+                  </div>
 
                   {/* Photo and Details */}
                   <div className="flex gap-6 mb-6 items-start">
@@ -549,7 +771,15 @@ export default function OpenRoleDetails() {
                         {candidateDetails.cvFile && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">CV:</span>{" "}
-                            {candidateDetails.cvFile}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_cvfile/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.cvFile}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.introductionDocument && (
@@ -557,7 +787,15 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Introduction Document:
                             </span>{" "}
-                            {candidateDetails.introductionDocument}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_introductiondocument/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.introductionDocument}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.educationalCertificate && (
@@ -565,13 +803,29 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Educational Certificate:
                             </span>{" "}
-                            {candidateDetails.educationalCertificate}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_educationalcertificate/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.educationalCertificate}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.eid && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">EID:</span>{" "}
-                            {candidateDetails.eid}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_eid/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.eid}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.salaryCertificate && (
@@ -579,13 +833,29 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Salary Certificate:
                             </span>{" "}
-                            {candidateDetails.salaryCertificate}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_salarycertificate/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.salaryCertificate}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.passport && (
                           <p className="text-sm text-gray-700">
                             <span className="font-medium">Passport:</span>{" "}
-                            {candidateDetails.passport}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_passport/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.passport}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.experienceLetter && (
@@ -593,7 +863,15 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Experience Letter:
                             </span>{" "}
-                            {candidateDetails.experienceLetter}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_experienceletter/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.experienceLetter}
+                            </a>
                           </p>
                         )}
                         {candidateDetails.policeClearance && (
@@ -601,7 +879,15 @@ export default function OpenRoleDetails() {
                             <span className="font-medium">
                               Police Clearance:
                             </span>{" "}
-                            {candidateDetails.policeClearance}
+                            <a
+                              href={`/api/odata/engagement-contact/${candidateDetails.id}/prmtk_policeclearance/$value`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                              download
+                            >
+                              {candidateDetails.policeClearance}
+                            </a>
                           </p>
                         )}
                       </div>
@@ -701,26 +987,6 @@ export default function OpenRoleDetails() {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                       />
                     </div>
-
-                    {/* Ready for Submission - EDITABLE */}
-                    <div>
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={editData.readyForSubmission || false}
-                          onChange={(e) =>
-                            handleEditChange(
-                              "readyForSubmission",
-                              e.target.checked,
-                            )
-                          }
-                          className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
-                        />
-                        <span className="text-sm font-medium text-gray-700">
-                          Ready for Submission
-                        </span>
-                      </label>
-                    </div>
                   </div>
 
                   {/* Role Assignment Details Section */}
@@ -798,59 +1064,32 @@ export default function OpenRoleDetails() {
 
                   {/* Assign the Resource Section */}
                   <div className="pt-8 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-navy mb-6">
-                      Assign the Resource
-                    </h3>
-
-                    {/* Assignment Mode Selection */}
-                    {!assignResourceMode ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Option 1: Search Existing Resource */}
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold text-navy">
+                        Assign the Resource
+                      </h3>
+                      {candidateDetails && (
                         <button
                           type="button"
-                          onClick={() => setAssignResourceMode("existing")}
-                          className="p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
+                          onClick={handleOpenChangeCandidate}
+                          className="px-4 py-2 border border-navy text-navy rounded-lg hover:bg-navy/5 transition font-medium text-sm"
                         >
-                          <div className="flex items-center gap-3 mb-3">
-                            <Search className="w-6 h-6 text-primary" />
-                            <h4 className="font-semibold text-navy">
-                              Search Existing Resource
-                            </h4>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Find and assign a resource from the existing pool
-                            using email or name
-                          </p>
+                          Change Candidate
                         </button>
+                      )}
+                    </div>
 
-                        {/* Option 2: Add New Resource */}
-                        <button
-                          type="button"
-                          onClick={() => navigate("/add-resource")}
-                          className="p-6 border-2 border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition text-left"
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            <Plus className="w-6 h-6 text-primary" />
-                            <h4 className="font-semibold text-navy">
-                              Add New Resource
-                            </h4>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            Create and add a new resource to the system
-                          </p>
-                        </button>
-                      </div>
-                    ) : assignResourceMode === "existing" ? (
-                      /* Search Existing Resource Mode */
+                    {/* Show search box by default when no candidate assigned, show buttons if candidate exists */}
+                    {assignResourceMode === "existing" && !candidateDetails ? (
+                      /* Search Mode */
                       <div className="space-y-4">
                         <div className="flex gap-2 mb-4">
                           <button
                             type="button"
                             onClick={() => {
                               setAssignResourceMode(null);
-                              setSearchQuery("");
-                              setSearchResults([]);
                               setSelectedResource(null);
+                              setSearchQuery("");
                             }}
                             className="text-sm text-gray-600 hover:text-gray-800 underline"
                           >
@@ -858,70 +1097,82 @@ export default function OpenRoleDetails() {
                           </button>
                         </div>
 
-                        {/* Search Input */}
+                        {/* Search Box */}
                         <div className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-700">
+                            Search for Candidate
+                          </label>
                           <div className="relative">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                               type="text"
-                              placeholder="Search by name, email, or phone..."
+                              placeholder="Search by name or email..."
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
-                              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             />
-                          </div>
-
-                          {/* Status Information */}
-                          <div className="text-xs text-gray-500 p-2">
-                            {isSearching
-                              ? "Loading resources..."
-                              : allResources.length === 0
-                                ? "No resources available in the system"
-                                : `${allResources.length} resource${allResources.length !== 1 ? "s" : ""} available`}
                           </div>
                         </div>
 
-                        {/* Search Results */}
-                        {searchQuery && (
-                          <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto">
-                            {isSearching ? (
-                              <p className="text-center text-gray-500 py-8">
-                                Searching...
-                              </p>
-                            ) : searchResults.length > 0 ? (
-                              <div className="space-y-2">
-                                {searchResults.map((resource) => (
+                        {/* Search Results - Only show when user types something */}
+                        {searchQuery.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-gray-700">
+                              {isSearching
+                                ? "Loading candidates..."
+                                : `Found ${searchResults.length} result${searchResults.length !== 1 ? "s" : ""}`}
+                            </p>
+
+                            {/* Results List */}
+                            <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                              {isSearching ? (
+                                <div className="text-center py-8">
+                                  <p className="text-gray-500">Loading candidates...</p>
+                                </div>
+                              ) : searchResults.length === 0 ? (
+                                <div className="space-y-4">
+                                  <div className="text-center py-8">
+                                    <p className="text-gray-500">No candidates match your search</p>
+                                  </div>
+
+                                  {/* Create New Candidate Option */}
+                                  <button
+                                    type="button"
+                                    onClick={() => navigate("/add-resource")}
+                                    className="w-full px-4 py-3 border-2 border-dashed border-primary text-primary rounded-lg hover:bg-primary/5 transition font-medium text-center"
+                                  >
+                                    + Create New Candidate
+                                  </button>
+                                </div>
+                              ) : (
+                                searchResults.map((resource) => (
                                   <button
                                     key={resource.id}
                                     type="button"
-                                    onClick={() =>
-                                      setSelectedResource(resource)
-                                    }
-                                    className={`w-full p-3 rounded-lg text-left transition ${
+                                    onClick={() => setSelectedResource(resource)}
+                                    className={`w-full p-4 text-left rounded-lg border-2 transition ${
                                       selectedResource?.id === resource.id
-                                        ? "bg-primary/10 border-primary border-2"
-                                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
+                                        ? "border-primary bg-blue-50"
+                                        : "border-gray-200 hover:border-gray-300 bg-white"
                                     }`}
                                   >
-                                    <p className="font-medium text-gray-900">
-                                      {resource.name}
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                      {resource.email}
-                                    </p>
+                                    <p className="font-semibold text-navy">{resource.name}</p>
+                                    <p className="text-sm text-gray-600">{resource.email}</p>
+                                    {resource.phoneNumber && (
+                                      <p className="text-xs text-gray-500">{resource.phoneNumber}</p>
+                                    )}
                                   </button>
-                                ))}
-                              </div>
-                            ) : allResources.length === 0 ? (
-                              <p className="text-center text-gray-500 py-8">
-                                No resources available in the system
-                              </p>
-                            ) : (
-                              <p className="text-center text-gray-500 py-8">
-                                No resources match "{searchQuery}"
-                              </p>
-                            )}
+                                ))
+                              )}
+                            </div>
                           </div>
+                        )}
+
+                        {/* Hint text when no search query */}
+                        {searchQuery.length === 0 && (
+                          <p className="text-sm text-gray-500 text-center py-4">
+                            Start typing to search for candidates or create a new one
+                          </p>
                         )}
 
                         {/* Selected Resource Edit Form */}
@@ -952,7 +1203,6 @@ export default function OpenRoleDetails() {
                                 type="button"
                                 onClick={() => {
                                   setSelectedResource(null);
-                                  setSearchQuery("");
                                 }}
                                 className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
                               >
@@ -960,6 +1210,7 @@ export default function OpenRoleDetails() {
                               </button>
                               <button
                                 type="button"
+                                disabled={openRole?.candidateId === selectedResource?.id}
                                 onClick={async () => {
                                   // Get updated form data and assign the resource
                                   if (
@@ -970,6 +1221,16 @@ export default function OpenRoleDetails() {
                                       title: "Error",
                                       description: "No candidate selected",
                                       variant: "destructive",
+                                    });
+                                    return;
+                                  }
+
+                                  // Check if the selected candidate is already assigned
+                                  if (openRole?.candidateId === selectedResource.id) {
+                                    toast({
+                                      title: "Info",
+                                      description: "This candidate is already assigned to this role.",
+                                      variant: "default",
                                     });
                                     return;
                                   }
@@ -986,19 +1247,29 @@ export default function OpenRoleDetails() {
                                       formData,
                                     );
 
+                                    console.log("[OpenRoleDetails] Candidate assignment successful, refetching data...");
+
+                                    // Refetch the open role data first to get the updated candidateId
+                                    const updatedOpenRole = await refetch();
+                                    console.log("[OpenRoleDetails] Refetched open role:", updatedOpenRole);
+
+                                    // Add a small delay to ensure state updates properly
+                                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                                    // Then refetch candidate details with the new candidateId
+                                    await refetchCandidateDetails();
+                                    console.log("[OpenRoleDetails] Refetched candidate details");
+
+                                    // Close the search and reset assignment mode to show the newly assigned candidate
+                                    setSelectedResource(null);
+                                    setSearchQuery("");
+                                    setAssignResourceMode(null); // Reset to show the assigned candidate profile
+
                                     toast({
                                       title: "Success",
                                       description:
-                                        "Candidate assigned successfully!",
+                                        "Candidate assigned successfully! Displaying assigned candidate details.",
                                     });
-
-                                    // Refetch the data to reload the form
-                                    await refetch();
-
-                                    // Close the search and return to form
-                                    setSelectedResource(null);
-                                    setSearchQuery("");
-                                    setAssignResourceMode(null);
                                   } catch (error) {
                                     const errorMessage =
                                       error instanceof Error
@@ -1012,9 +1283,13 @@ export default function OpenRoleDetails() {
                                     console.error("Assignment error:", error);
                                   }
                                 }}
-                                className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={`flex-1 px-4 py-3 rounded-lg transition font-medium ${
+                                  openRole?.candidateId === selectedResource?.id
+                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
+                                    : "bg-green-600 text-white hover:bg-green-700"
+                                }`}
                               >
-                                Confirm & Assign
+                                {openRole?.candidateId === selectedResource?.id ? "Already Assigned" : "Confirm & Assign"}
                               </button>
                             </div>
                           </div>
@@ -1138,6 +1413,58 @@ export default function OpenRoleDetails() {
                     </div>
                   )}
 
+                  {/* Ready for Submission - EDITABLE */}
+                  <div className="mt-8 pt-8 border-t border-gray-200">
+                    <div className={`border rounded-lg p-4 ${
+                      !openRole?.candidateId
+                        ? "bg-gray-50 border-gray-200"
+                        : "bg-blue-50 border-blue-200"
+                    }`}>
+                      <label className="flex items-start gap-3 mb-3">
+                        <input
+                          type="checkbox"
+                          checked={editData.readyForSubmission || false}
+                          onChange={(e) =>
+                            handleEditChange(
+                              "readyForSubmission",
+                              e.target.checked,
+                            )
+                          }
+                          disabled={!openRole?.candidateId}
+                          className={`w-4 h-4 border rounded cursor-pointer mt-1 ${
+                            !openRole?.candidateId
+                              ? "border-gray-300 bg-gray-100 cursor-not-allowed opacity-50"
+                              : "border-gray-300 cursor-pointer"
+                          }`}
+                        />
+                        <span className={`text-sm font-medium ${
+                          !openRole?.candidateId
+                            ? "text-gray-500"
+                            : "text-gray-700"
+                        }`}>
+                          Ready for Submission
+                        </span>
+                      </label>
+                      <div className="flex gap-2 ml-7">
+                        <AlertCircle className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                          !openRole?.candidateId
+                            ? "text-gray-400"
+                            : "text-blue-600"
+                        }`} />
+                        <p className={`text-sm ${
+                          !openRole?.candidateId
+                            ? "text-gray-600"
+                            : "text-blue-700"
+                        }`}>
+                          {!openRole?.candidateId
+                            ? "Please select a candidate first before marking as ready for submission."
+                            : "Important: You must mark this as ready for submission to proceed with submitting this engagement."
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Action buttons */}
                   <div className="flex gap-4 mt-8 pt-8 border-t border-gray-200">
                     <button
@@ -1163,6 +1490,127 @@ export default function OpenRoleDetails() {
           )}
         </div>
       </main>
+
+      {/* Change Candidate Modal */}
+      {isChangeCandidateModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-navy">Change Candidate</h2>
+              <button
+                onClick={() => {
+                  setIsChangeCandidateModalOpen(false);
+                  setChangeCandidatePreview(null);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
+              {/* Candidate List */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select a Candidate
+                </label>
+                <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                  {isSearching ? (
+                    <p className="text-gray-500 text-center py-4">Loading candidates...</p>
+                  ) : allResources.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No candidates available</p>
+                  ) : (
+                    allResources.map((resource) => (
+                      <button
+                        key={resource.id}
+                        onClick={() => setChangeCandidatePreview(resource)}
+                        className={`w-full p-3 text-left rounded-lg border-2 transition ${
+                          changeCandidatePreview?.id === resource.id
+                            ? "border-primary bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <p className="font-medium text-navy">{resource.name}</p>
+                        <p className="text-sm text-gray-600">{resource.email}</p>
+                        {resource.phoneNumber && (
+                          <p className="text-xs text-gray-500">{resource.phoneNumber}</p>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Preview Section */}
+              {changeCandidatePreview && (
+                <div className="mt-6 p-4 rounded-lg border border-blue-200 bg-blue-50">
+                  <h3 className="font-semibold text-navy mb-3">Candidate Preview</h3>
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-medium">Name:</span> {changeCandidatePreview.name}
+                    </p>
+                    <p>
+                      <span className="font-medium">Email:</span> {changeCandidatePreview.email}
+                    </p>
+                    {changeCandidatePreview.phoneNumber && (
+                      <p>
+                        <span className="font-medium">Phone:</span> {changeCandidatePreview.phoneNumber}
+                      </p>
+                    )}
+                    {changeCandidatePreview.status && (
+                      <p>
+                        <span className="font-medium">Status:</span> {changeCandidatePreview.status}
+                      </p>
+                    )}
+                    {changeCandidatePreview.uaeResident !== null &&
+                      changeCandidatePreview.uaeResident !== undefined && (
+                        <p>
+                          <span className="font-medium">UAE Resident:</span>{" "}
+                          {changeCandidatePreview.uaeResident ? "Yes" : "No"}
+                        </p>
+                      )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-6 flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsChangeCandidateModalOpen(false);
+                  setChangeCandidatePreview(null);
+                }}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmChangeCandidate}
+                disabled={!changeCandidatePreview || isConfirmingChange || openRole?.candidateId === changeCandidatePreview?.id}
+                className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition ${
+                  changeCandidatePreview && !isConfirmingChange && openRole?.candidateId !== changeCandidatePreview?.id
+                    ? "bg-primary text-white hover:opacity-90 cursor-pointer"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-50"
+                }`}
+              >
+                {isConfirmingChange ? (
+                  <>
+                    <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Updating...
+                  </>
+                ) : openRole?.candidateId === changeCandidatePreview?.id ? (
+                  "Already Assigned"
+                ) : (
+                  "Confirm & Assign"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

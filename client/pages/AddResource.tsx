@@ -6,6 +6,7 @@ import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResource
 import DocumentUploadSection, { DocumentUploadHandle } from "@/components/DocumentUploadSection";
 import ImportCVModal from "@/components/ImportCVModal";
 import { Plus, ChevronDown, Flag } from "lucide-react";
+import { useUserContact } from "@/contexts/UserContactContext";
 
 export default function AddResource() {
   const navigate = useNavigate();
@@ -69,6 +70,8 @@ export default function AddResource() {
     return () => clearInterval(interval);
   }, [formRef, docsRef]);
 
+  const { getVendorId } = useUserContact();
+
   const handleSave = async () => {
     if (!formRef.current || !docsRef.current || !validateForm()) {
       return;
@@ -78,6 +81,11 @@ export default function AddResource() {
     try {
       // Step 1: Create the contact record
       const formData = formRef.current.getFormData();
+      const vendorId = getVendorId();
+
+      if (!vendorId) {
+        throw new Error("Vendor information not available. Please reload the page and try again.");
+      }
 
       const createResponse = await fetch("/api/odata/engagement-contact", {
         method: "POST",
@@ -89,6 +97,7 @@ export default function AddResource() {
           prmtk_email: formData.email,
           prmtk_phonenumber: formData.phoneNumber,
           prmtk_uaeresident: formData.uaeResident,
+          _prmtk_vendor_value: vendorId,
         }),
       });
 
@@ -103,7 +112,7 @@ export default function AddResource() {
         throw new Error("No contact ID returned from API");
       }
 
-      // Step 2: Upload documents
+      // Step 2: Upload documents to the created record
       const updatedFiles = docsRef.current.getUpdatedFiles();
       const documentFieldMap: Record<string, string> = {
         cv: "prmtk_cvfile",
@@ -116,15 +125,35 @@ export default function AddResource() {
         police: "prmtk_policeclearance",
       };
 
-      for (const [docId, file] of Object.entries(updatedFiles)) {
-        const fieldName = documentFieldMap[docId];
-        if (fieldName) {
-          const docFormData = new FormData();
-          docFormData.append("file", file);
+      if (Object.keys(updatedFiles).length > 0) {
+        console.log("[AddResource] Starting document uploads for contact:", contactId);
 
-          // Note: Document upload endpoint would need to be implemented on the backend
-          // This is a placeholder for the actual implementation
-          console.log(`Would upload document: ${docId} to field: ${fieldName}`);
+        for (const [docId, file] of Object.entries(updatedFiles)) {
+          const fieldName = documentFieldMap[docId];
+          if (fieldName && file) {
+            try {
+              const docFormData = new FormData();
+              docFormData.append("file", file);
+
+              const uploadResponse = await fetch(
+                `/api/odata/engagement-contact/${contactId}/document/${fieldName}`,
+                {
+                  method: "POST",
+                  body: docFormData,
+                }
+              );
+
+              if (!uploadResponse.ok) {
+                console.warn(`Failed to upload document ${docId}: ${uploadResponse.statusText}`);
+                // Continue with other documents even if one fails
+              } else {
+                console.log(`Successfully uploaded document: ${docId}`);
+              }
+            } catch (docError) {
+              console.error(`Error uploading document ${docId}:`, docError);
+              // Continue with other documents even if one fails
+            }
+          }
         }
       }
 
@@ -252,7 +281,7 @@ export default function AddResource() {
 
                 {/* Documents Section */}
                 <div className="mt-8 pt-8 border-t border-gray-200">
-                  <DocumentUploadSection ref={docsRef} hideHeader={true} isCollapsed={isDetailsCollapsed} />
+                  <DocumentUploadSection ref={docsRef} hideHeader={true} isCollapsed={isDetailsCollapsed} uaeResident={formRef.current?.getUAEResident()} />
                 </div>
               </>
             )}

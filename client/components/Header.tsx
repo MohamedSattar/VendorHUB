@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import ECALogo from "@/components/ECALogo";
 import AuthButtons from "@/components/AuthButtons";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 function HeaderContent() {
   const { language, setLanguage, t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -17,6 +19,14 @@ function HeaderContent() {
 
           {/* Navigation */}
           <nav className={`hidden md:flex items-center gap-6 ${language === "ar" ? "flex-row-reverse" : ""}`}>
+            {isAuthenticated && (
+              <Link
+                to="/dashboard"
+                className="text-navy font-medium hover:text-primary transition"
+              >
+                Dashboard
+              </Link>
+            )}
             <Link
               to="/faq"
               className="text-navy font-medium hover:text-primary transition"

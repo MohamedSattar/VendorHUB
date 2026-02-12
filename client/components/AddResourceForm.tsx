@@ -21,6 +21,8 @@ export interface AddResourceFormHandle {
   getUAEResident: () => boolean;
   isFormValid: () => boolean;
   getPhotoUrl: () => string | null;
+  getPhotoFile: () => File | null;
+  isValid: boolean;
 }
 
 const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
@@ -33,9 +35,11 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     });
 
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoLoaded, setPhotoLoaded] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isCollapsedLocal, setIsCollapsedLocal] = useState(false);
+    const [isValid, setIsValid] = useState(false);
 
     // When isCollapsed prop is provided, it's controlled by parent
     // Otherwise, manage it locally
@@ -58,22 +62,26 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
       return phoneRegex.test(phone);
     };
 
+    // Check if form is valid and update state
+    const checkFormValidity = (): boolean => {
+      const isFormValid =
+        formData.fullName.trim() !== "" &&
+        formData.email.trim() !== "" &&
+        formData.phoneNumber.trim() !== "" &&
+        formData.uaeResident !== null &&
+        photoUrl !== null;
+      return isFormValid;
+    };
+
     // Expose form data through ref
     useImperativeHandle(ref, () => ({
       getFormData: () => formData,
       getUAEResident: () => formData.uaeResident || false,
-      isFormValid: () => {
-        // All required fields must be filled
-        return (
-          formData.fullName.trim() !== "" &&
-          formData.email.trim() !== "" &&
-          formData.phoneNumber.trim() !== "" &&
-          formData.uaeResident !== null && // Must explicitly select Yes or No
-          photoUrl !== null // Personal Photo is mandatory
-        );
-      },
+      isFormValid: () => checkFormValidity(),
       getPhotoUrl: () => photoUrl,
-    }), [formData, photoUrl]);
+      getPhotoFile: () => photoFile,
+      isValid,
+    }), [formData, photoUrl, photoFile, isValid]);
 
     // Bind form fields from API data when in edit mode
     useEffect(() => {
@@ -91,6 +99,12 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
         }
       }
     }, [mode, resourceData]);
+
+    // Update validation state whenever form data changes
+    useEffect(() => {
+      const valid = checkFormValidity();
+      setIsValid(valid);
+    }, [formData, photoUrl]);
 
     const handleInputChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -224,7 +238,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
           {/* Personal Photo */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-navy mb-3">
-              Personal Photo
+              Personal Photo <span className="text-red-600">*</span>
             </label>
             <div className="flex flex-col gap-4">
               {/* Photo Display */}
@@ -269,6 +283,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
                         if (file) {
                           const url = URL.createObjectURL(file);
                           setPhotoUrl(url);
+                          setPhotoFile(file);
                           setPhotoLoaded(false);
                         }
                       }}
@@ -293,7 +308,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-navy mb-2">
-                Full Name
+                Full Name <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
@@ -308,7 +323,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-navy mb-2">
-                Email
+                Email <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
@@ -350,7 +365,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
             {/* Phone Number */}
             <div>
               <label className="block text-sm font-medium text-navy mb-2">
-                Phone Number
+                Phone Number <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
@@ -394,7 +409,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-navy mb-4">
-              UAE Resident
+              UAE Resident <span className="text-red-600">*</span>
             </label>
             <div className="flex items-center gap-3">
               <button

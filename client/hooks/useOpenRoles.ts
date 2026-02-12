@@ -13,8 +13,10 @@ export function useOpenRoles(
     queryKey: ["openRoles", engagementId],
     queryFn: () => (engagementId ? fetchOpenRoles(engagementId) : Promise.resolve([])),
     enabled: !!engagementId,
-    staleTime: 0, // Data is always considered stale to ensure fresh data
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // No caching - always fetch fresh data
+    gcTime: 0, // Remove from cache immediately
+    refetchInterval: 5000, // Automatically refetch every 5 seconds for real-time updates
+    refetchIntervalInBackground: true, // Continue refetching even when tab is not focused
     retry: 1,
   });
 }

@@ -1,8 +1,22 @@
 import { ApplicationFormData } from "@/components/SupplierApplicationForm";
+import { Info } from "lucide-react";
 
 interface ComplianceStepProps {
   formData: ApplicationFormData;
   updateFormData: (updates: Partial<ApplicationFormData>) => void;
+}
+
+interface InfoTipProps {
+  text: string;
+}
+
+function InfoTip({ text }: InfoTipProps) {
+  return (
+    <div className="flex items-start gap-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <Info size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <p className="text-xs text-blue-700">{text}</p>
+    </div>
+  );
 }
 
 const CERTIFICATION_OPTIONS = [
@@ -16,19 +30,19 @@ export default function ComplianceStep({
   updateFormData,
 }: ComplianceStepProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Section C: Quality & Compliance */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h3 className="font-semibold text-navy mb-2">Section C: Quality & Compliance</h3>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="font-semibold text-navy mb-2">Quality & Compliance</h3>
         <p className="text-sm text-gray-700">
           Please provide information about your company's certifications and compliance status.
         </p>
       </div>
 
-      {/* C1. Certifications */}
+      {/* Certifications */}
       <div>
         <label className="block text-sm font-semibold text-navy mb-3">
-          C1. Do you hold any relevant certifications (e.g., ISO, FSC, HSE, etc.)?
+          Do you hold any relevant certifications (e.g., ISO, FSC, HSE, etc.)? <span className="text-red-600">*</span>
         </label>
         <div className="space-y-2 mb-4">
           {[
@@ -95,11 +109,12 @@ export default function ComplianceStep({
             </div>
           </div>
         )}
+        <InfoTip text="Professional certifications demonstrate your commitment to quality standards and industry best practices. ISO certifications show compliance with international standards, while HSE certifications indicate health and safety commitment." />
       </div>
 
       {/* Info Box */}
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-        <h4 className="font-semibold text-green-900 mb-2">Quality & Compliance Importance</h4>
+        <h4 className="font-semibold text-green-900 mb-2">Why Quality & Compliance Matters</h4>
         <p className="text-sm text-green-800">
           Certifications and compliance documentation help us verify your company's commitment to quality and adherence to industry standards. 
           This information is crucial for our partnership evaluation process.

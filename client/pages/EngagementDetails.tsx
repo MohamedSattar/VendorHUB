@@ -96,7 +96,7 @@ export default function EngagementDetails() {
     queryKey: ["engagement", id],
     queryFn: () => (id ? fetchEngagementById(id) : Promise.reject("No ID")),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always fetch fresh data to ensure status updates are reflected
     gcTime: 10 * 60 * 1000,
     retry: 1,
   });
@@ -204,23 +204,36 @@ export default function EngagementDetails() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to submit engagement");
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData?.details || "Failed to submit engagement";
+        throw new Error(errorMessage);
       }
+
+      console.log("[EngagementDetails] Submission successful, refreshing data from backend...");
+
+      // Add a small delay to ensure CRM has processed the update
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refetch engagement data to reflect the new status
+      await refetch();
+      console.log("[EngagementDetails] Data refreshed from backend");
 
       toast({
         title: "Success",
-        description: "Engagement has been submitted to ECA for processing.",
+        description: "Engagement submitted and status updated to 'In Progress'.",
       });
 
       setShowSubmitConfirm(false);
 
-      // Refetch engagement data to reflect the new status
-      refetch();
+      // Redirect back to engagements screen after successful submission
+      setTimeout(() => {
+        navigate("/engagements");
+      }, 1500);
     } catch (error) {
       console.error("Error submitting engagement:", error);
       toast({
         title: "Error",
-        description: "Failed to submit engagement. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to submit engagement. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -231,6 +244,10 @@ export default function EngagementDetails() {
   // Check if all open roles are ready for submission
   const allRolesReady = openRoles.length > 0 && openRoles.every(role => role.readyForSubmission === true);
 
+  // Check if engagement is in "Pending Vendor Submission" status for edit/submit capabilities
+  const isPendingVendorSubmission = engagement?.status?.toLowerCase().includes("pending") && engagement?.status?.toLowerCase().includes("vendor");
+  const isFormEditable = isPendingVendorSubmission;
+
   // Automatically refresh data when component mounts
   useEffect(() => {
     if (id) {
@@ -238,6 +255,13 @@ export default function EngagementDetails() {
       refetchRoles();
     }
   }, [id, refetch, refetchRoles]);
+
+  // Force exit edit mode if engagement is not in "Pending Vendor Submission" status
+  useEffect(() => {
+    if (isEditMode && !isPendingVendorSubmission) {
+      setIsEditMode(false);
+    }
+  }, [isPendingVendorSubmission, isEditMode]);
 
   if (!engagement) {
     return (
@@ -341,22 +365,6 @@ export default function EngagementDetails() {
                   <span className={`inline-block text-sm font-semibold px-4 py-2 rounded-full ${getStatusColor(engagement.status)}`}>
                     {engagement.status}
                   </span>
-                  {/* Submit button in header - always visible */}
-                  {openRoles.length > 0 && (
-                    <button
-                      onClick={() => setShowSubmitConfirm(true)}
-                      disabled={!allRolesReady || isSubmitting}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition font-medium text-sm ${
-                        allRolesReady && !isSubmitting
-                          ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-                          : "bg-gray-200 text-gray-500 cursor-not-allowed opacity-60"
-                      }`}
-                      title={allRolesReady ? "Submit engagement to ECA" : "All roles must be ready for submission"}
-                    >
-                      <Flag className="w-4 h-4" />
-                      Submit
-                    </button>
-                  )}
                 </div>
               </div>
 
@@ -425,68 +433,81 @@ export default function EngagementDetails() {
                 )}
 
                 {openRoles.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {openRoles.map((role) => {
                       const isPendingAssignment = !role.candidateName || !role.candidateId;
                       return (
                       <div
                         key={role.id}
-                        className={`p-4 rounded-lg border transition relative ${
+                        className={`rounded-xl border-2 transition-all duration-200 overflow-hidden shadow-sm hover:shadow-lg ${
                           isPendingAssignment
-                            ? "bg-gradient-to-br from-orange-50 to-red-50 border-orange-300 hover:border-orange-400 hover:shadow-md ring-1 ring-orange-200"
-                            : "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 hover:border-blue-200 hover:shadow-md"
+                            ? "bg-white border-orange-200 hover:border-orange-300"
+                            : "bg-white border-green-200 hover:border-green-300"
                         }`}
                       >
-                        {/* Ready for Submission Flag */}
-                        {role.readyForSubmission && (
-                          <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                            <Flag className="w-3 h-3 fill-current" />
-                            Ready to Submit
-                          </div>
-                        )}
-
-                        <div className="flex justify-between items-start mb-3 pr-32">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 text-base">{role.name}</h4>
-                            {role.candidateName && (
-                              <p className="text-sm text-gray-600 mt-1">{role.candidateName}</p>
-                            )}
-                            {!role.candidateName && (
-                              <p className="text-sm text-orange-600 font-medium mt-1">⚠️ Pending Candidate Assignment</p>
-                            )}
-                          </div>
-                          <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ml-2 whitespace-nowrap ${
-                            role.readyForSubmission
-                              ? "bg-green-100 text-green-700"
-                              : "bg-amber-100 text-amber-700"
-                          }`}>
-                            {role.readyForSubmission ? "Ready" : "Pending"}
-                          </span>
-                        </div>
-
-                        <div className="space-y-2 mb-3">
-                          <div>
-                            <p className="text-xs text-gray-600">Expected Start Date</p>
-                            <p className="text-sm font-medium text-gray-900">
-                              {formatDate(role.expectedStartDate)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between items-center mb-4">
-                          <span className="text-xs text-gray-600">Status</span>
-                          <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                            {role.status}
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => navigate(`/open-role/${role.id}`)}
-                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-navy text-white text-sm font-medium rounded-lg hover:bg-opacity-90 transition"
+                        {/* Header Background with Status */}
+                        <div
+                          className={`px-6 py-5 border-b-2 ${
+                            isPendingAssignment
+                              ? "bg-gradient-to-r from-orange-50 to-amber-50 border-orange-100"
+                              : "bg-gradient-to-r from-green-50 to-emerald-50 border-green-100"
+                          }`}
                         >
-                          <Edit2 className="w-4 h-4" />
-                          Edit Details
-                        </button>
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <h4 className="font-bold text-lg text-navy mb-1">{role.name}</h4>
+                              {role.candidateName && (
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-block w-2 h-2 bg-primary rounded-full"></span>
+                                  <p className="text-sm text-primary font-semibold">{role.candidateName}</p>
+                                </div>
+                              )}
+                              {!role.candidateName && (
+                                <p className="text-sm text-orange-600 font-medium">⚠️ Awaiting Assignment</p>
+                              )}
+                            </div>
+                            {role.readyForSubmission && (
+                              <div className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                <Flag className="w-3.5 h-3.5 fill-current" />
+                                Ready
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="px-6 py-6 space-y-5">
+                          {/* Expected Start Date and Status Grid */}
+                          <div className="grid grid-cols-2 gap-5">
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Expected Start</p>
+                              <p className="text-sm font-bold text-gray-900">
+                                {formatDate(role.expectedStartDate)}
+                              </p>
+                            </div>
+                            <div className="bg-blue-50 rounded-lg p-6 flex flex-col items-center justify-center text-center min-h-24">
+                              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3 w-full">Status</p>
+                              <span className="inline-block px-4 py-2 bg-blue-100 text-blue-800 text-xs font-bold rounded-lg max-w-full line-clamp-2 break-words">
+                                {role.status}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Edit Button - Only enabled if pending vendor submission */}
+                          <button
+                            onClick={() => navigate(`/open-role/${role.id}`)}
+                            disabled={!isPendingVendorSubmission}
+                            className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-lg transition-all duration-200 active:scale-95 ${
+                              isPendingVendorSubmission
+                                ? "bg-navy text-white hover:bg-opacity-80"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                            }`}
+                            title={isPendingVendorSubmission ? "Edit role details" : "Cannot edit roles unless engagement is pending vendor submission"}
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            Edit Details
+                          </button>
+                        </div>
                       </div>
                       );
                     })}
@@ -521,6 +542,13 @@ export default function EngagementDetails() {
                 <p className={`text-sm text-gray-600 mb-6 ${isArabic ? "text-right" : "text-left"}`}>
                   <span className="font-medium">Status:</span> {engagement.status}
                 </p>
+                {!isPendingVendorSubmission && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                    <p className="text-sm text-yellow-800">
+                      <span className="font-semibold">Read-Only Mode:</span> This engagement is no longer in "Pending Vendor Submission" status. No changes can be made.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <form className="space-y-6">
@@ -533,7 +561,12 @@ export default function EngagementDetails() {
                     type="text"
                     value={editData.name || ""}
                     onChange={(e) => handleEditChange("name", e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -546,7 +579,12 @@ export default function EngagementDetails() {
                     type="date"
                     value={editData.startDate || ""}
                     onChange={(e) => handleEditChange("startDate", e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -559,7 +597,12 @@ export default function EngagementDetails() {
                     type="date"
                     value={editData.endDate || ""}
                     onChange={(e) => handleEditChange("endDate", e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -571,8 +614,13 @@ export default function EngagementDetails() {
                   <textarea
                     value={editData.description || ""}
                     onChange={(e) => handleEditChange("description", e.target.value)}
+                    disabled={!isPendingVendorSubmission}
                     rows={5}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -585,7 +633,12 @@ export default function EngagementDetails() {
                     type="number"
                     value={editData.budget || ""}
                     onChange={(e) => handleEditChange("budget", parseInt(e.target.value) || 0)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={!isPendingVendorSubmission}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                      isPendingVendorSubmission
+                        ? "border-gray-300"
+                        : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                    }`}
                   />
                 </div>
 
@@ -627,8 +680,13 @@ export default function EngagementDetails() {
                     <textarea
                       value={editData.contractDescription || ""}
                       onChange={(e) => handleEditChange("contractDescription", e.target.value)}
+                      disabled={!isPendingVendorSubmission}
                       rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none ${
+                        isPendingVendorSubmission
+                          ? "border-gray-300"
+                          : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                      }`}
                     />
                   </div>
 
@@ -641,7 +699,12 @@ export default function EngagementDetails() {
                       type="text"
                       value={editData.typeOfEngagement || ""}
                       onChange={(e) => handleEditChange("typeOfEngagement", e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      disabled={!isPendingVendorSubmission}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        isPendingVendorSubmission
+                          ? "border-gray-300"
+                          : "border-gray-300 bg-gray-100 cursor-not-allowed opacity-70"
+                      }`}
                     />
                   </div>
                 </div>
@@ -651,7 +714,12 @@ export default function EngagementDetails() {
                   <button
                     type="button"
                     onClick={handleSave}
-                    className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
+                    disabled={!isPendingVendorSubmission}
+                    className={`flex items-center gap-2 px-6 py-2 rounded-lg transition font-medium ${
+                      isPendingVendorSubmission
+                        ? "bg-primary text-white hover:opacity-90"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                    }`}
                   >
                     <Save className="w-4 h-4" />
                     Save Changes
@@ -669,8 +737,8 @@ export default function EngagementDetails() {
             </div>
           )}
 
-          {/* Submit Engagement Button - Outside the engagement details box */}
-          {!isEditMode && openRoles.length > 0 && (
+          {/* Submit Engagement Button - Only visible if pending vendor submission */}
+          {!isEditMode && isPendingVendorSubmission && openRoles.length > 0 && (
             <div className="mt-8">
               <button
                 onClick={() => setShowSubmitConfirm(true)}

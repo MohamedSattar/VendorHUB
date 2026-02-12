@@ -261,9 +261,13 @@ const DocumentUploadSection = forwardRef<
         // Check if document has a value from API
         const isUploaded = documentData && documentData[doc.apiField];
         const fileName = isUploaded ? documentData?.[doc.apiField] : null;
-        const isRequired = doc.isRequired
+
+        // A document is required if it's in mandatory list OR has a conditional requirement
+        const isMandatory = mandatoryDocIds.includes(doc.id);
+        const isConditionallyRequired = doc.isRequired
           ? doc.isRequired(uaeResident || false)
           : false;
+        const isRequired = isMandatory || isConditionallyRequired;
 
         const bgColor =
           isRequired && !isUploaded

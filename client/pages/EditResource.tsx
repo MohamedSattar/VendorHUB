@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
@@ -13,10 +13,24 @@ export default function EditResource() {
   const navigate = useNavigate();
   const formRef = useRef<AddResourceFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
   const { toast } = useToast();
 
   // Fetch full contact details for editing
-  const { data: contactDetails, isLoading, error } = useContactDetails(id);
+  const { data: contactDetails, isLoading, error, refetch } = useContactDetails(id);
+
+  // Watch formRef for validity changes and update state
+  useEffect(() => {
+    if (formRef.current) {
+      // Check validity initially and whenever dependencies change
+      const checkValidity = setInterval(() => {
+        if (formRef.current?.isFormValid) {
+          setIsFormValid(formRef.current.isFormValid());
+        }
+      }, 500);
+      return () => clearInterval(checkValidity);
+    }
+  }, []);
 
   const handleSave = async () => {
     if (!id || !formRef.current) return;
@@ -24,7 +38,28 @@ export default function EditResource() {
     setIsSaving(true);
     try {
       const formData = formRef.current.getFormData();
+      const photoFile = formRef.current.getPhotoFile();
 
+      // First, upload the photo if a new one was selected
+      if (photoFile) {
+        console.log("[EditResource] Uploading new photo...");
+        const photoFormData = new FormData();
+        photoFormData.append("file", photoFile);
+
+        const photoResponse = await fetch(`/api/odata/candidate-contact-photo/${id}`, {
+          method: "POST",
+          body: photoFormData,
+        });
+
+        if (!photoResponse.ok) {
+          const errorData = await photoResponse.json().catch(() => ({}));
+          const errorMessage = errorData?.details || photoResponse.statusText;
+          throw new Error(`Failed to upload photo: ${errorMessage}`);
+        }
+        console.log("[EditResource] Photo uploaded successfully");
+      }
+
+      // Then, update the other fields
       const response = await fetch(`/api/odata/candidate-contact/${id}`, {
         method: "PATCH",
         headers: {
@@ -39,8 +74,19 @@ export default function EditResource() {
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save changes: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData?.details || response.statusText;
+        throw new Error(`Failed to save changes: ${errorMessage}`);
       }
+
+      console.log("[EditResource] Save successful, refreshing data from backend...");
+
+      // Add a small delay to ensure CRM has processed the update
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refetch the contact details to show updated data from backend
+      await refetch();
+      console.log("[EditResource] Data refreshed from backend");
 
       toast({
         title: "Success",
@@ -50,7 +96,7 @@ export default function EditResource() {
       // Redirect back to resources after successful save
       setTimeout(() => {
         navigate("/resources");
-      }, 1000);
+      }, 1500);
     } catch (err) {
       console.error("Error saving resource:", err);
       toast({
@@ -189,12 +235,28 @@ export default function EditResource() {
                       <div className="flex items-center gap-2">
                         <span
                           className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
-                            contactDetails.status === "Assigned"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-orange-100 text-orange-700"
+                            contactDetails.status === "Free"
+                              ? "bg-blue-100 text-blue-700"
+                              : contactDetails.status === "Assigned"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {contactDetails.status}
+                          {contactDetails.status || "Unknown"}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Candidate Validation</label>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                            isFormValid
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {isFormValid ? "Valid" : "Incomplete"}
                         </span>
                       </div>
                     </div>

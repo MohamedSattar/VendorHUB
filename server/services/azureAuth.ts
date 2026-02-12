@@ -4,6 +4,8 @@
  * Used to authenticate with Dataverse/Power Apps APIs
  */
 
+import { getDataverseResource } from "../config/crmEnvironments";
+
 interface TokenCache {
   accessToken: string;
   expiresAt: number;
@@ -30,14 +32,29 @@ export async function getAccessToken(): Promise<string> {
     const tokenUrl = process.env.TOKEN_URL;
     const clientId = process.env.AZURE_CLIENT_ID;
     const clientSecret = process.env.AZURE_CLIENT_SECRET;
-    const resource = process.env.DATAVERSE_RESOURCE;
+    // Use dynamic resource from current CRM environment configuration
+    const resource = getDataverseResource();
     const tenantId = process.env.AZURE_TENANT_ID;
+
+    // Log which variables are set (for debugging)
+    console.log("[Azure Auth] Environment variables check:");
+    console.log(`[Azure Auth]   TOKEN_URL: ${tokenUrl ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   AZURE_CLIENT_ID: ${clientId ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   AZURE_CLIENT_SECRET: ${clientSecret ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   DATAVERSE_RESOURCE: ${resource ? "✓ Set" : "✗ Missing"}`);
+    console.log(`[Azure Auth]   AZURE_TENANT_ID: ${tenantId ? "✓ Set" : "✗ Missing"}`);
 
     // Validate required environment variables
     if (!tokenUrl || !clientId || !clientSecret || !resource) {
+      const missing = [];
+      if (!tokenUrl) missing.push("TOKEN_URL");
+      if (!clientId) missing.push("AZURE_CLIENT_ID");
+      if (!clientSecret) missing.push("AZURE_CLIENT_SECRET");
+      if (!resource) missing.push("DATAVERSE_RESOURCE");
+
       throw new Error(
-        "Missing required Azure authentication environment variables: " +
-        "TOKEN_URL, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, DATAVERSE_RESOURCE"
+        `Missing required Azure authentication environment variables: ${missing.join(", ")}\n` +
+        "Please ensure your .env file is properly configured. See ENV_VARIABLES.md for setup instructions."
       );
     }
 
@@ -56,16 +73,16 @@ export async function getAccessToken(): Promise<string> {
       // For v1.0, resource should be the Dynamics endpoint without /.default
       const resourceUrl = resource.replace(/\/\.default$/, "");
       body.append("resource", resourceUrl);
-      console.log("[Azure Auth] Using v1.0 endpoint with resource parameter");
+      console.log("[Azure Auth] Using v1.0 endpoint with resource parameter:", resourceUrl);
     } else if (tokenUrl.includes("/oauth2/v2.0/token")) {
       // v2.0 endpoint - use scope parameter
       body.append("scope", resource);
-      console.log("[Azure Auth] Using v2.0 endpoint with scope parameter");
+      console.log("[Azure Auth] Using v2.0 endpoint with scope parameter:", resource);
     } else {
       // Fallback to v1.0 (resource) for unknown endpoints
       const resourceUrl = resource.replace(/\/\.default$/, "");
       body.append("resource", resourceUrl);
-      console.log("[Azure Auth] Using resource parameter (fallback)");
+      console.log("[Azure Auth] Using resource parameter (fallback):", resourceUrl);
     }
 
     // Request access token
