@@ -761,10 +761,9 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
     const authHeaders = await getAuthHeaders();
 
     // Build the OData URL with properly encoded parameters
-    // Note: prmtk_status field does not exist on prmtk_engagementcontacts entity
-    // Use _prmtk_engagement_value to determine if candidate is assigned
+    // Include prmkt_status choice column for candidate status (Free, Assigned, Archived)
     const select = encodeURIComponent(
-      "prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode"
+      "prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmkt_status,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode"
     );
     const orderby = encodeURIComponent("prmtk_id asc");
 

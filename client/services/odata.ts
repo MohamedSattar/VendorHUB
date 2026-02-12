@@ -148,7 +148,7 @@ export interface EngagementContact {
   email?: string;
   phoneNumber?: string;
   personalPhoto?: string;
-  status: "Assigned" | "Not Assigned";
+  status: "Free" | "Assigned" | "Archived";
   engagementId?: string;
   createdOn: string;
   modifiedOn: string;
@@ -983,6 +983,25 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
     const contacts: EngagementContact[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
+        // Map prmkt_status numeric value to choice text
+        // 0 = Free, 1 = Assigned, 2 = Archived
+        const statusValue = item.prmkt_status;
+        let status: "Free" | "Assigned" | "Archived" = "Free";
+
+        switch (statusValue) {
+          case 0:
+            status = "Free";
+            break;
+          case 1:
+            status = "Assigned";
+            break;
+          case 2:
+            status = "Archived";
+            break;
+          default:
+            status = "Free";
+        }
+
         const transformed = {
           id: item.prmtk_engagementcontactid,
           name: item.prmtk_id,
@@ -990,13 +1009,13 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
           phoneNumber: item.prmtk_phonenumber,
           // Use backend proxy to fetch the image (avoids CORS issues)
           personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
-          // If engagement ID is present, contact is assigned; otherwise not assigned
-          status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
+          // Use prmkt_status choice column for status (Free, Assigned, Archived)
+          status,
           engagementId: item._prmtk_engagement_value,
           createdOn: item.createdon,
           modifiedOn: item.modifiedon,
         };
-        console.log("[OData] Transformed contact:", transformed);
+        console.log("[OData] Transformed contact:", { ...transformed, statusDebug: { value: statusValue, final: status } });
         return transformed;
       });
 
