@@ -6,6 +6,7 @@ import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResource
 import DocumentUploadSection, { DocumentUploadHandle } from "@/components/DocumentUploadSection";
 import ImportCVModal from "@/components/ImportCVModal";
 import { Plus, ChevronDown, Flag } from "lucide-react";
+import { useUserContact } from "@/contexts/UserContactContext";
 
 export default function AddResource() {
   const navigate = useNavigate();
@@ -69,6 +70,8 @@ export default function AddResource() {
     return () => clearInterval(interval);
   }, [formRef, docsRef]);
 
+  const { getVendorId } = useUserContact();
+
   const handleSave = async () => {
     if (!formRef.current || !docsRef.current || !validateForm()) {
       return;
@@ -78,6 +81,11 @@ export default function AddResource() {
     try {
       // Step 1: Create the contact record
       const formData = formRef.current.getFormData();
+      const vendorId = getVendorId();
+
+      if (!vendorId) {
+        throw new Error("Vendor information not available. Please reload the page and try again.");
+      }
 
       const createResponse = await fetch("/api/odata/engagement-contact", {
         method: "POST",
@@ -89,6 +97,7 @@ export default function AddResource() {
           prmtk_email: formData.email,
           prmtk_phonenumber: formData.phoneNumber,
           prmtk_uaeresident: formData.uaeResident,
+          _prmtk_vendor_value: vendorId,
         }),
       });
 

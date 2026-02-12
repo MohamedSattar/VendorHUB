@@ -1312,21 +1312,26 @@ export const handleCreateEngagementContact: RequestHandler = async (
   res,
 ) => {
   try {
-    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident } =
+    const { prmtk_id, prmtk_email, prmtk_phonenumber, prmtk_uaeresident, _prmtk_vendor_value } =
       req.body;
 
     if (!prmtk_id) {
       return res.status(400).json({ error: "Name (prmtk_id) is required" });
     }
 
+    if (!_prmtk_vendor_value) {
+      return res.status(400).json({ error: "Vendor ID is required" });
+    }
+
     const authHeaders = await getAuthHeaders();
     const url = `${getODataBaseUrl()}/prmtk_engagementcontacts`;
 
-    console.log("[OData Proxy] Creating new Engagement Contact");
+    console.log("[OData Proxy] Creating new Engagement Contact for vendor:", _prmtk_vendor_value);
 
     // Build the create payload
     const createData: Record<string, any> = {
       prmtk_id: prmtk_id,
+      "_prmtk_vendor_value@odata.bind": `/accounts(${_prmtk_vendor_value})`,
     };
     if (prmtk_email !== undefined) createData.prmtk_email = prmtk_email;
     if (prmtk_phonenumber !== undefined)
