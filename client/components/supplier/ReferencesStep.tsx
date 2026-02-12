@@ -1,15 +1,29 @@
 import { ApplicationFormData } from "@/components/SupplierApplicationForm";
+import { Info } from "lucide-react";
 
 interface ReferencesStepProps {
   formData: ApplicationFormData;
   updateFormData: (updates: Partial<ApplicationFormData>) => void;
 }
 
+interface InfoTipProps {
+  text: string;
+}
+
+function InfoTip({ text }: InfoTipProps) {
+  return (
+    <div className="flex items-start gap-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <Info size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <p className="text-xs text-blue-700">{text}</p>
+    </div>
+  );
+}
+
 export default function ReferencesStep({
   formData,
 }: ReferencesStepProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="font-semibold text-navy mb-2">Client References Review</h3>
         <p className="text-sm text-gray-700">
@@ -70,17 +84,20 @@ export default function ReferencesStep({
         ))}
       </div>
 
+      <InfoTip text="Review the information above carefully. Your references are critical for verifying your experience and capabilities. Our team may contact them directly to validate the details you've provided." />
+
       {/* Information Box */}
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h4 className="font-semibold text-yellow-900 mb-2">Reference Verification</h4>
+        <h4 className="font-semibold text-yellow-900 mb-2">Reference Verification Tips</h4>
         <p className="text-sm text-yellow-800 mb-2">
           Please ensure that the contact information you provided is accurate and current. 
           Our team may reach out to these references to verify your company's experience and the quality of your work.
         </p>
         <ul className="text-sm text-yellow-800 list-disc list-inside space-y-1">
           <li>Ensure contacts are willing to serve as references</li>
-          <li>Double-check email addresses and phone numbers</li>
-          <li>Provide accurate project descriptions and timelines</li>
+          <li>Double-check email addresses and phone numbers for accuracy</li>
+          <li>Provide accurate project descriptions and delivery timelines</li>
+          <li>Include diverse references showing range of experience</li>
         </ul>
       </div>
     </div>

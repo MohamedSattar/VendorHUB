@@ -1,8 +1,22 @@
 import { ApplicationFormData } from "@/components/SupplierApplicationForm";
+import { Info } from "lucide-react";
 
 interface OperationalCapabilitiesStepProps {
   formData: ApplicationFormData;
   updateFormData: (updates: Partial<ApplicationFormData>) => void;
+}
+
+interface InfoTipProps {
+  text: string;
+}
+
+function InfoTip({ text }: InfoTipProps) {
+  return (
+    <div className="flex items-start gap-2 mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <Info size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <p className="text-xs text-blue-700">{text}</p>
+    </div>
+  );
 }
 
 const SUPPLY_CATEGORIES = [
@@ -50,10 +64,10 @@ export default function OperationalCapabilitiesStep({
 
   return (
     <div className="space-y-8">
-      {/* B1. Environmental Practices */}
+      {/* Environmental Practices */}
       <div>
         <label className="block text-sm font-semibold text-navy mb-3">
-          B1. Does your company implement environmentally responsible practices?
+          Does your company implement environmentally responsible practices? <span className="text-red-600">*</span>
         </label>
         <div className="space-y-2 mb-4">
           {[
@@ -84,12 +98,13 @@ export default function OperationalCapabilitiesStep({
             rows={4}
           />
         )}
+        <InfoTip text="Environmental responsibility is increasingly important in business operations. Share details about your sustainability initiatives, green certifications, waste management, or energy-efficient practices." />
       </div>
 
-      {/* B2. Category of Supply/Service */}
+      {/* Category of Supply/Service */}
       <div>
         <label className="block text-sm font-semibold text-navy mb-3">
-          B2. What is your company's primary Category of Supply / Service? *
+          What is your company's primary Category of Supply / Service? <span className="text-red-600">*</span>
         </label>
         <p className="text-sm text-gray-600 mb-4">(Select all that apply)</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -105,12 +120,13 @@ export default function OperationalCapabilitiesStep({
             </label>
           ))}
         </div>
+        <InfoTip text="Selecting your service categories helps us understand your core business capabilities and match you with relevant opportunities and procurement requirements." />
       </div>
 
-      {/* B3. Main Suppliers */}
+      {/* Main Suppliers */}
       <div>
         <label className="block text-sm font-semibold text-navy mb-4">
-          B3. Please list your three main suppliers *
+          Please list your three main suppliers <span className="text-red-600">*</span>
         </label>
         <div className="space-y-3">
           {formData.suppliers.map((supplier, index) => (
@@ -128,12 +144,13 @@ export default function OperationalCapabilitiesStep({
             </div>
           ))}
         </div>
+        <InfoTip text="List your key suppliers to demonstrate your supply chain network and reliability. This helps assess your operational stability and sourcing capabilities." />
       </div>
 
-      {/* B4. Client References */}
+      {/* Client References */}
       <div>
         <label className="block text-sm font-semibold text-navy mb-4">
-          B4. Please provide two client references for similar or relevant projects *
+          Please provide two client references for similar or relevant projects <span className="text-red-600">*</span>
         </label>
         <div className="space-y-6">
           {formData.clientReferences.map((reference, index) => (
@@ -185,6 +202,7 @@ export default function OperationalCapabilitiesStep({
             </div>
           ))}
         </div>
+        <InfoTip text="Client references validate your track record and experience. Provide details of previous clients you've worked with on similar projects so we can verify your capabilities." />
       </div>
     </div>
   );
