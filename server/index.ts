@@ -49,6 +49,7 @@ import {
   handleAssignCandidateToOpenRole,
   handleUpdateOpenRole,
   handleUpdateContactById,
+  handleGetCurrentUserContact,
   handleGetNotifications,
   handleMarkNotificationAsRead,
   handleMarkNotificationAsUnread,
@@ -163,6 +164,9 @@ export function createServer() {
 
   // Contact management routes
   app.patch("/api/odata/contact/:id", handleUpdateContactById);
+
+  // Current user routes
+  app.get("/api/odata/current-user-contact", handleGetCurrentUserContact);
 
   // Notifications routes
   app.get("/api/odata/notifications", handleGetNotifications);

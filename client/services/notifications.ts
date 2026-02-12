@@ -15,19 +15,93 @@ export interface Notification {
 }
 
 /**
- * Get contact ID from localStorage
+ * Get email from localStorage (set during login)
  */
-function getContactIdFromStorage(): string {
-  const loggedInContact = localStorage.getItem("loggedInContact");
+function getEmailFromStorage(): string | null {
+  try {
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      return parsedUser.email;
+    }
+  } catch (error) {
+    console.error("Error parsing user from storage:", error);
+  }
+
+  try {
+    const loggedInEmail = localStorage.getItem("loggedInEmail");
+    if (loggedInEmail) {
+      return loggedInEmail;
+    }
+  } catch (error) {
+    console.error("Error getting logged in email:", error);
+  }
+
+  return null;
+}
+
+/**
+ * Get contact ID from localStorage or fetch from backend
+ */
+async function getContactId(): Promise<string> {
+  // Try localStorage first
+  let loggedInContact = localStorage.getItem("loggedInContact");
+
   if (loggedInContact) {
     try {
       const contact = JSON.parse(loggedInContact);
-      return contact.contactId;
+      if (contact.contactId) {
+        console.log("[Notifications] Using cached contact ID:", contact.contactId);
+        return contact.contactId;
+      }
+      if (contact.prmtk_contactid) {
+        console.log("[Notifications] Using cached contact ID (prmtk_contactid):", contact.prmtk_contactid);
+        return contact.prmtk_contactid;
+      }
     } catch (error) {
       console.error("Error parsing logged in contact:", error);
     }
   }
-  throw new Error("Contact ID not found. User may not be logged in.");
+
+  // Fall back to fetching from backend using email
+  const email = getEmailFromStorage();
+  if (!email) {
+    console.error("[Notifications] No email found in storage");
+    throw new Error("Email not found. User may not be logged in.");
+  }
+
+  console.log("[Notifications] Fetching contact ID from backend for email:", email);
+
+  try {
+    const response = await fetch(
+      `/api/odata/current-user-contact?email=${encodeURIComponent(email)}`
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch contact: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const contact = await response.json();
+    console.log("[Notifications] Retrieved contact ID from backend:", contact.contactId);
+
+    // Cache it for future use
+    localStorage.setItem(
+      "loggedInContact",
+      JSON.stringify({
+        contactId: contact.contactId,
+        email: contact.email,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+      })
+    );
+
+    return contact.contactId;
+  } catch (error) {
+    console.error("[Notifications] Error fetching contact from backend:", error);
+    throw new Error("Failed to get contact information. Please reload the page.");
+  }
 }
 
 /**
@@ -36,7 +110,7 @@ function getContactIdFromStorage(): string {
  */
 export async function fetchNotifications(): Promise<Notification[]> {
   try {
-    const contactId = getContactIdFromStorage();
+    const contactId = await getContactId();
 
     console.log("[Notifications] Fetching notifications for contact:", contactId);
 

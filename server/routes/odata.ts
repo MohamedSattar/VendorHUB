@@ -1694,8 +1694,78 @@ export const handleUpdateContactById: RequestHandler = async (req, res) => {
 };
 
 /**
+ * Get current user's contact information
+ * Used to determine contact ID for notifications and other queries
+ */
+export const handleGetCurrentUserContact = async (
+  req: any,
+  res: any
+): Promise<void> => {
+  try {
+    // Try to get email from authorization header or request
+    const email = (req.query.email || req.body?.email || "").toLowerCase().trim();
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Missing email parameter",
+      });
+    }
+
+    console.log("[OData] Fetching current user contact for email:", email);
+
+    // Query contacts by email
+    const filter = encodeURIComponent(`prmtk_email eq '${email}'`);
+    const select = encodeURIComponent(
+      "prmtk_contactid,prmtk_email,prmtk_firstname,prmtk_lastname"
+    );
+
+    const url = `${getODataBaseUrl()}/contacts?$filter=${filter}&$select=${select}`;
+
+    const authHeaders = await getAuthHeaders();
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        ...authHeaders,
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch contact: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data: any = await response.json();
+
+    if (!data.value || data.value.length === 0) {
+      return res.status(404).json({
+        error: "Contact not found",
+      });
+    }
+
+    const contact = data.value[0];
+    console.log("[OData] Current user contact found:", contact.prmtk_contactid);
+
+    res.json({
+      contactId: contact.prmtk_contactid,
+      email: contact.prmtk_email,
+      firstName: contact.prmtk_firstname,
+      lastName: contact.prmtk_lastname,
+    });
+  } catch (error) {
+    console.error("[OData] Error fetching current user contact:", error);
+    res.status(500).json({
+      error: "Failed to fetch current user contact",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};
+
+/**
  * Fetch notifications for the logged-in user/contact
- * Retrieves from prmtk_notifications set
+ * Retrieves from prmkt_notifications set
  */
 export const handleGetNotifications = async (
   req: any,
@@ -1712,9 +1782,24 @@ export const handleGetNotifications = async (
 
     console.log("[OData] Fetching notifications for contact:", contactId);
 
-    const url = `${getODataBaseUrl()}/prmkt_notifications?$filter=_prmkt_contact_value eq '${contactId}' and statecode eq 0&$orderby=createdon desc&$select=prmkt_notificationid,prmkt_subject,prmkt_notificationbody,prmkt_read,prmkt_dismissed,createdon,prmkt_name`;
-
     const authHeaders = await getAuthHeaders();
+
+    // Build OData URL with proper encoding
+    // Filter by contact ID and exclude dismissed notifications
+    const filterParts = [
+      `_prmkt_contact_value eq '${contactId}'`,
+      "prmkt_dismissed eq false",
+    ];
+
+    const filter = encodeURIComponent(filterParts.join(" and "));
+    const select = encodeURIComponent(
+      "prmkt_notificationid,prmkt_subject,prmkt_notificationbody,prmkt_read,prmkt_dismissed,createdon,prmkt_name"
+    );
+    const orderby = encodeURIComponent("createdon desc");
+
+    const url = `${getODataBaseUrl()}/prmkt_notifications?$filter=${filter}&$select=${select}&$orderby=${orderby}`;
+
+    console.log("[OData] Notifications query URL:", url);
 
     const response = await fetch(url, {
       method: "GET",
@@ -1725,15 +1810,22 @@ export const handleGetNotifications = async (
     });
 
     if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("[OData] Notifications API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+      });
+
       throw new Error(
-        `Failed to fetch notifications: ${response.status} ${response.statusText}`
+        `Failed to fetch notifications: ${response.status} ${response.statusText}. ${errorBody}`
       );
     }
 
     const data: any = await response.json();
 
     // Transform CRM data to match our Notification interface
-    const notifications = data.value.map((notification: any) => ({
+    const notifications = (data.value || []).map((notification: any) => ({
       id: notification.prmkt_notificationid,
       subject: notification.prmkt_subject || "Notification",
       message: notification.prmkt_notificationbody || "",
