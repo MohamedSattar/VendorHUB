@@ -950,3 +950,32 @@ export const handleGetAllContacts: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Initialize CRM Access Token
+ * GET /api/auth/init-crm-token
+ * Ensures the CRM access token is obtained and cached on the server
+ * This should be called once per session to warm up the token cache
+ */
+export const handleInitCrmToken: RequestHandler = async (req, res) => {
+  try {
+    console.log("[Auth] Initializing CRM access token...");
+
+    // Get auth headers which will obtain and cache the token
+    const authHeaders = await getAuthHeaders();
+
+    console.log("[Auth] CRM access token initialized successfully");
+
+    res.json({
+      success: true,
+      message: "CRM access token initialized",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("[Auth] Failed to initialize CRM token:", error);
+    res.status(500).json({
+      error: "Failed to initialize CRM token",
+      details: error instanceof Error ? error.message : "Unknown error occurred",
+    });
+  }
+};

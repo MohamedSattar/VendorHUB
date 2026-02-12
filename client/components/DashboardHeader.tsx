@@ -6,6 +6,7 @@ import { useUserContact } from "@/contexts/UserContactContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useToast } from "@/hooks/use-toast";
+import { useCrmTokenInit } from "@/hooks/useCrmTokenInit";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
@@ -13,6 +14,10 @@ export default function DashboardHeader() {
   const { loggedInContact } = useUserContact();
   const { logout } = useAuth();
   const { toast } = useToast();
+
+  // Initialize CRM token on mount (ensures token is cached before API calls)
+  useCrmTokenInit();
+
   const { data: notifications = [] } = useNotifications(loggedInContact?.contactId);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 

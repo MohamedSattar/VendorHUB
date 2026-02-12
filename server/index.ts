@@ -16,6 +16,7 @@ import {
   handleGetContactByEmail,
   handleUpdateContact,
   handleGetAllContacts,
+  handleInitCrmToken,
 } from "./routes/auth";
 import { requireAuth } from "./middleware/auth";
 import {
@@ -96,6 +97,9 @@ export function createServer() {
 
   // Debug routes (development only)
   app.get("/api/auth/debug/contacts", handleGetAllContacts);
+
+  // CRM Token initialization (public - called on app startup)
+  app.get("/api/auth/init-crm-token", handleInitCrmToken);
 
   // Debug routes (development only)
   app.get("/api/debug/supplier-registration-fields", handleGetSupplierRegistrationFields);
