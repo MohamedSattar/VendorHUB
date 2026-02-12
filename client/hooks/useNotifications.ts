@@ -17,8 +17,8 @@ export function useNotifications(contactId?: string): UseQueryResult<Notificatio
       console.log("[useNotifications] Fetching notifications for contact:", contactId);
       return fetchNotifications(contactId);
     },
-    staleTime: 1 * 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // No caching - always fetch fresh data
+    gcTime: 0, // Remove from cache immediately
     retry: (failureCount, error) => {
       // Don't retry if there's no contact ID
       if (error.message.includes("Contact ID is required")) {

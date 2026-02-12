@@ -52,7 +52,7 @@ export function useContactDetails(contactId?: string) {
       return fetchContactDetails(contactId);
     },
     enabled: !!contactId,
-    staleTime: 0, // Always fetch fresh data from backend after updates
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // No caching - always fetch fresh data
+    gcTime: 0, // Remove from cache immediately
   });
 }

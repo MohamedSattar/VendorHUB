@@ -22,7 +22,7 @@ export function useEngagementContacts(vendorId?: string) {
 
       return contacts;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    staleTime: 0, // No caching - always fetch fresh data
+    gcTime: 0, // Remove from cache immediately
   });
 }
