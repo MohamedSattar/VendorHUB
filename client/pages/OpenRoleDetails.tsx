@@ -456,24 +456,24 @@ export default function OpenRoleDetails() {
       console.log("[OpenRoleDetails] Candidate assignment successful, refetching data...");
 
       // Refetch the open role data first to get the updated candidateId
-      const updatedOpenRole = await refetch();
-      console.log("[OpenRoleDetails] Refetched open role:", updatedOpenRole);
+      await refetch();
+      console.log("[OpenRoleDetails] Refetched open role");
 
-      // Add a small delay to ensure state updates properly
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Then refetch candidate details with the new candidateId
+      // Then immediately refetch candidate details with the new candidateId
       await refetchCandidateDetails();
-      console.log("[OpenRoleDetails] Refetched candidate details");
+      console.log("[OpenRoleDetails] Refetched candidate details successfully");
 
       // Reset modal state and close assignment mode to display the newly assigned candidate
       setIsChangeCandidateModalOpen(false);
       setChangeCandidatePreview(null);
-      setAssignResourceMode(null); // Reset to show the newly assigned candidate details
+      setAssignResourceMode(null);
+
+      // Exit edit mode to display the newly assigned candidate details in view mode
+      setIsEditMode(false);
 
       toast({
         title: "Success",
-        description: "Candidate assignment updated successfully!",
+        description: "Candidate assigned successfully! Details updated.",
       });
     } catch (error) {
       console.error("Error changing candidate:", error);
@@ -1307,31 +1307,6 @@ export default function OpenRoleDetails() {
                             </div>
                           </div>
                         )}
-                      </div>
-                    ) : candidateDetails ? (
-                      /* Show options when candidate is already assigned */
-                      <div className="space-y-3">
-                        {/* Option 1: Select Existing Candidate */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAssignResourceMode("existing");
-                            setSearchQuery("");
-                            setSelectedResource(null);
-                          }}
-                          className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition font-medium"
-                        >
-                          Select Existing Candidate
-                        </button>
-
-                        {/* Option 2: Add New Resource */}
-                        <button
-                          type="button"
-                          onClick={() => navigate("/add-resource")}
-                          className="w-full px-6 py-3 border-2 border-gray-300 text-navy rounded-lg hover:bg-gray-50 transition font-medium"
-                        >
-                          Add New Candidate
-                        </button>
                       </div>
                     ) : null}
                   </div>
