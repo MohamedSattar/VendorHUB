@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import DashboardHeader from "@/components/DashboardHeader";
 import Footer from "@/components/Footer";
 import AddResourceForm, { AddResourceFormHandle } from "@/components/AddResourceForm";
@@ -13,10 +13,24 @@ export default function EditResource() {
   const navigate = useNavigate();
   const formRef = useRef<AddResourceFormHandle>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
   const { toast } = useToast();
 
   // Fetch full contact details for editing
   const { data: contactDetails, isLoading, error, refetch } = useContactDetails(id);
+
+  // Watch formRef for validity changes and update state
+  useEffect(() => {
+    if (formRef.current) {
+      // Check validity initially and whenever dependencies change
+      const checkValidity = setInterval(() => {
+        if (formRef.current?.isFormValid) {
+          setIsFormValid(formRef.current.isFormValid());
+        }
+      }, 500);
+      return () => clearInterval(checkValidity);
+    }
+  }, []);
 
   const handleSave = async () => {
     if (!id || !formRef.current) return;
@@ -229,6 +243,20 @@ export default function EditResource() {
                           }`}
                         >
                           {contactDetails.status || "Unknown"}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Candidate Validation</label>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                            isFormValid
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {isFormValid ? "Valid" : "Incomplete"}
                         </span>
                       </div>
                     </div>

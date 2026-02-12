@@ -22,6 +22,7 @@ export interface AddResourceFormHandle {
   isFormValid: () => boolean;
   getPhotoUrl: () => string | null;
   getPhotoFile: () => File | null;
+  isValid: boolean;
 }
 
 const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
@@ -38,6 +39,7 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
     const [photoLoaded, setPhotoLoaded] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isCollapsedLocal, setIsCollapsedLocal] = useState(false);
+    const [isValid, setIsValid] = useState(false);
 
     // When isCollapsed prop is provided, it's controlled by parent
     // Otherwise, manage it locally
@@ -60,23 +62,26 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
       return phoneRegex.test(phone);
     };
 
+    // Check if form is valid and update state
+    const checkFormValidity = (): boolean => {
+      const isFormValid =
+        formData.fullName.trim() !== "" &&
+        formData.email.trim() !== "" &&
+        formData.phoneNumber.trim() !== "" &&
+        formData.uaeResident !== null &&
+        photoUrl !== null;
+      return isFormValid;
+    };
+
     // Expose form data through ref
     useImperativeHandle(ref, () => ({
       getFormData: () => formData,
       getUAEResident: () => formData.uaeResident || false,
-      isFormValid: () => {
-        // All required fields must be filled
-        return (
-          formData.fullName.trim() !== "" &&
-          formData.email.trim() !== "" &&
-          formData.phoneNumber.trim() !== "" &&
-          formData.uaeResident !== null && // Must explicitly select Yes or No
-          photoUrl !== null // Personal Photo is mandatory
-        );
-      },
+      isFormValid: () => checkFormValidity(),
       getPhotoUrl: () => photoUrl,
       getPhotoFile: () => photoFile,
-    }), [formData, photoUrl, photoFile]);
+      isValid,
+    }), [formData, photoUrl, photoFile, isValid]);
 
     // Bind form fields from API data when in edit mode
     useEffect(() => {
@@ -94,6 +99,12 @@ const AddResourceForm = forwardRef<AddResourceFormHandle, AddResourceFormProps>(
         }
       }
     }, [mode, resourceData]);
+
+    // Update validation state whenever form data changes
+    useEffect(() => {
+      const valid = checkFormValidity();
+      setIsValid(valid);
+    }, [formData, photoUrl]);
 
     const handleInputChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
