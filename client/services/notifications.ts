@@ -3,6 +3,20 @@
  * Handles fetching, updating, and managing notifications from the CRM backend
  */
 
+// Helper to get contact ID from storage
+function getContactIdFromStorage(): string | null {
+  try {
+    const contact = localStorage.getItem("loggedInContact");
+    if (contact) {
+      const parsed = JSON.parse(contact);
+      return parsed.contactId || null;
+    }
+  } catch (error) {
+    console.error("[Notifications] Error reading contact from storage:", error);
+  }
+  return null;
+}
+
 export interface Notification {
   id: string;
   subject: string;
@@ -28,23 +42,51 @@ export async function fetchNotifications(contactId: string): Promise<Notificatio
 
     console.log("[Notifications] Fetching notifications for contact:", contactId);
 
-    const response = await fetch(
-      `/api/odata/notifications?contactId=${encodeURIComponent(contactId)}`
-    );
+    const url = `/api/odata/notifications?contactId=${encodeURIComponent(contactId)}`;
+    console.log("[Notifications] Request URL:", url);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch notifications: ${response.status} ${response.statusText}`
-      );
+    // Create an abort controller with a 10-second timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      console.log("[Notifications] Response status:", response.status, response.statusText);
+
+      if (!response.ok) {
+        let errorBody = "";
+        try {
+          errorBody = await response.text();
+        } catch (e) {
+          errorBody = "Could not read response body";
+        }
+        throw new Error(
+          `Failed to fetch notifications: ${response.status} ${response.statusText}. ${errorBody}`
+        );
+      }
+
+      const notifications: Notification[] = await response.json();
+
+      console.log("[Notifications] Retrieved", notifications.length, "notifications");
+
+      return notifications;
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Notification request timed out (10 seconds)");
+      }
+      throw fetchError;
     }
-
-    const notifications: Notification[] = await response.json();
-
-    console.log("[Notifications] Retrieved", notifications.length, "notifications");
-
-    return notifications;
   } catch (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("[Notifications] Error fetching notifications:", error);
     throw error;
   }
 }
@@ -58,31 +100,45 @@ export async function markNotificationAsRead(
   try {
     console.log("[Notifications] Marking as read:", notificationId);
 
-    const response = await fetch(
-      `/api/odata/notifications/${notificationId}/read`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to mark as read: ${response.status} ${response.statusText}`
+    try {
+      const response = await fetch(
+        `/api/odata/notifications/${notificationId}/read`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        }
       );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to mark as read: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log("[Notifications] Marked as read:", notificationId);
+
+      return {
+        id: notificationId,
+        subject: "",
+        message: "",
+        isRead: true,
+        createdAt: new Date().toISOString(),
+      };
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Request timed out (10 seconds)");
+      }
+      throw fetchError;
     }
-
-    console.log("[Notifications] Marked as read:", notificationId);
-
-    return {
-      id: notificationId,
-      subject: "",
-      message: "",
-      isRead: true,
-      createdAt: new Date().toISOString(),
-    };
   } catch (error) {
-    console.error("Error marking notification as read:", error);
+    console.error("[Notifications] Error marking notification as read:", error);
     throw error;
   }
 }
@@ -96,31 +152,45 @@ export async function markNotificationAsUnread(
   try {
     console.log("[Notifications] Marking as unread:", notificationId);
 
-    const response = await fetch(
-      `/api/odata/notifications/${notificationId}/unread`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to mark as unread: ${response.status} ${response.statusText}`
+    try {
+      const response = await fetch(
+        `/api/odata/notifications/${notificationId}/unread`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        }
       );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to mark as unread: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log("[Notifications] Marked as unread:", notificationId);
+
+      return {
+        id: notificationId,
+        subject: "",
+        message: "",
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      };
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Request timed out (10 seconds)");
+      }
+      throw fetchError;
     }
-
-    console.log("[Notifications] Marked as unread:", notificationId);
-
-    return {
-      id: notificationId,
-      subject: "",
-      message: "",
-      isRead: false,
-      createdAt: new Date().toISOString(),
-    };
   } catch (error) {
-    console.error("Error marking notification as unread:", error);
+    console.error("[Notifications] Error marking notification as unread:", error);
     throw error;
   }
 }
@@ -136,28 +206,52 @@ export async function markAllNotificationsAsRead(): Promise<void> {
 
     const contactId = getContactIdFromStorage();
 
-    // Fetch all unread notifications
-    const response = await fetch(
-      `/api/odata/notifications?contactId=${encodeURIComponent(contactId)}`
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch notifications");
+    if (!contactId) {
+      throw new Error("Contact ID is required to mark all notifications as read");
     }
 
-    const notifications: Notification[] = await response.json();
-    const unreadNotifications = notifications.filter((n) => !n.isRead);
+    // Fetch all unread notifications
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    // Mark each as read
-    const updatePromises = unreadNotifications.map((n) =>
-      markNotificationAsRead(n.id)
-    );
+    try {
+      const response = await fetch(
+        `/api/odata/notifications?contactId=${encodeURIComponent(contactId)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: controller.signal,
+        }
+      );
 
-    await Promise.all(updatePromises);
+      clearTimeout(timeoutId);
 
-    console.log("[Notifications] All notifications marked as read");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch notifications: ${response.status}`);
+      }
+
+      const notifications: Notification[] = await response.json();
+      const unreadNotifications = notifications.filter((n) => !n.isRead);
+
+      // Mark each as read
+      const updatePromises = unreadNotifications.map((n) =>
+        markNotificationAsRead(n.id)
+      );
+
+      await Promise.all(updatePromises);
+
+      console.log("[Notifications] All notifications marked as read");
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Request timed out (10 seconds)");
+      }
+      throw fetchError;
+    }
   } catch (error) {
-    console.error("Error marking all notifications as read:", error);
+    console.error("[Notifications] Error marking all notifications as read:", error);
     throw error;
   }
 }
@@ -171,23 +265,37 @@ export async function dismissNotification(
   try {
     console.log("[Notifications] Dismissing notification:", notificationId);
 
-    const response = await fetch(
-      `/api/odata/notifications/${notificationId}/dismiss`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to dismiss notification: ${response.status} ${response.statusText}`
+    try {
+      const response = await fetch(
+        `/api/odata/notifications/${notificationId}/dismiss`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        }
       );
-    }
 
-    console.log("[Notifications] Notification dismissed:", notificationId);
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to dismiss notification: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log("[Notifications] Notification dismissed:", notificationId);
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Request timed out (10 seconds)");
+      }
+      throw fetchError;
+    }
   } catch (error) {
-    console.error("Error dismissing notification:", error);
+    console.error("[Notifications] Error dismissing notification:", error);
     throw error;
   }
 }
@@ -204,23 +312,37 @@ export async function dismissAllNotifications(contactId: string): Promise<void> 
 
     console.log("[Notifications] Dismissing all notifications for contact:", contactId);
 
-    const response = await fetch(
-      `/api/odata/notifications/dismiss-all?contactId=${encodeURIComponent(contactId)}`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to dismiss all notifications: ${response.status} ${response.statusText}`
+    try {
+      const response = await fetch(
+        `/api/odata/notifications/dismiss-all?contactId=${encodeURIComponent(contactId)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+        }
       );
-    }
 
-    console.log("[Notifications] All notifications dismissed");
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to dismiss all notifications: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log("[Notifications] All notifications dismissed");
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+        throw new Error("Request timed out (10 seconds)");
+      }
+      throw fetchError;
+    }
   } catch (error) {
-    console.error("Error dismissing all notifications:", error);
+    console.error("[Notifications] Error dismissing all notifications:", error);
     throw error;
   }
 }
