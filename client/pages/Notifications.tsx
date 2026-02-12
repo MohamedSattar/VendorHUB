@@ -34,9 +34,9 @@ export default function Notifications() {
         setError(null);
 
         if (!loggedInContact?.contactId) {
-          console.warn("[Notifications] No contact ID available yet");
-          setError("Please load your profile first to view notifications");
-          setIsLoading(false);
+          console.log("[Notifications] Waiting for contact profile to load...");
+          // Contact data is being loaded by useUserContactInit hook in DashboardHeader
+          // We'll wait and retry when contact becomes available
           return;
         }
 
@@ -198,7 +198,7 @@ export default function Notifications() {
           </div>
 
           {/* Error message */}
-          {error && (
+          {error && !isLoading && loggedInContact?.contactId && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-700 font-medium">Error: {error}</p>
             </div>
