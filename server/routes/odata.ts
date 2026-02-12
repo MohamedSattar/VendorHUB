@@ -1356,13 +1356,32 @@ export const handleCreateEngagementContact: RequestHandler = async (
       );
     }
 
-    const responseData = await response.json();
-    console.log("[OData Proxy] Successfully created Engagement Contact");
+    // Dataverse returns the ID in the Location header for successful POST requests
+    // Location header format: https://org8b20ca8a.crm15.dynamics.com/api/data/v9.2/prmtk_engagementcontacts(id-here)
+    const locationHeader = response.headers.get("location");
+    let contactId = "";
+
+    if (locationHeader) {
+      // Extract ID from URI like prmtk_engagementcontacts(6df55347-69ec-f011-8406-6045bd69c28c)
+      const match = locationHeader.match(/\(([^)]+)\)$/);
+      if (match && match[1]) {
+        contactId = match[1];
+      }
+    }
+
+    if (!contactId) {
+      throw new Error("Unable to extract contact ID from response Location header");
+    }
+
+    console.log(
+      "[OData Proxy] Successfully created Engagement Contact with ID:",
+      contactId,
+    );
 
     res.json({
       success: true,
       message: "Engagement Contact created successfully",
-      id: responseData.prmtk_engagementcontactid,
+      id: contactId,
     });
   } catch (error) {
     console.error("[OData Proxy] Create Engagement Contact Error:", error);
