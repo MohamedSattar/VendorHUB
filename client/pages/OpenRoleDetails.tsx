@@ -980,26 +980,6 @@ export default function OpenRoleDetails() {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
                       />
                     </div>
-
-                    {/* Ready for Submission - EDITABLE */}
-                    <div>
-                      <label className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={editData.readyForSubmission || false}
-                          onChange={(e) =>
-                            handleEditChange(
-                              "readyForSubmission",
-                              e.target.checked,
-                            )
-                          }
-                          className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
-                        />
-                        <span className="text-sm font-medium text-gray-700">
-                          Ready for Submission
-                        </span>
-                      </label>
-                    </div>
                   </div>
 
                   {/* Role Assignment Details Section */}
@@ -1425,6 +1405,26 @@ export default function OpenRoleDetails() {
                       </div>
                     </div>
                   )}
+
+                  {/* Ready for Submission - EDITABLE */}
+                  <div className="mt-8 pt-8 border-t border-gray-200">
+                    <label className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={editData.readyForSubmission || false}
+                        onChange={(e) =>
+                          handleEditChange(
+                            "readyForSubmission",
+                            e.target.checked,
+                          )
+                        }
+                        className="w-4 h-4 border border-gray-300 rounded cursor-pointer"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        Ready for Submission
+                      </span>
+                    </label>
+                  </div>
 
                   {/* Action buttons */}
                   <div className="flex gap-4 mt-8 pt-8 border-t border-gray-200">
