@@ -762,9 +762,9 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
 
     // Build the OData URL with properly encoded parameters
     // Note: Field names should match the actual CRM entity definition
-    // prmtk_status does not exist on prmtk_engagementcontacts entity - removed
+    // Include prmtk_status for candidate status (Free, Assigned, Archived)
     const select = encodeURIComponent(
-      "prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode"
+      "prmtk_engagementcontactid,prmtk_id,prmtk_email,prmtk_phonenumber,prmtk_status,_prmtk_engagement_value,_prmtk_vendor_value,createdon,modifiedon,statuscode"
     );
     const orderby = encodeURIComponent("prmtk_id asc");
 
@@ -787,6 +787,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
       headers: {
         ...authHeaders,
         Accept: "application/json",
+        "Prefer": "odata.include-annotations=\"*\"", // Include formatted values for choice columns
       },
     });
 
@@ -803,6 +804,7 @@ export const handleGetEngagementContacts: RequestHandler = async (req, res) => {
         headers: {
           ...authHeaders,
           Accept: "application/json",
+          "Prefer": "odata.include-annotations=\"*\"", // Include formatted values for choice columns
         },
       });
     }

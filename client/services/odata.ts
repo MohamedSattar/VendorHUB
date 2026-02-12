@@ -148,7 +148,7 @@ export interface EngagementContact {
   email?: string;
   phoneNumber?: string;
   personalPhoto?: string;
-  status: "Assigned" | "Not Assigned";
+  status: "Free" | "Assigned" | "Archived";
   engagementId?: string;
   createdOn: string;
   modifiedOn: string;
@@ -983,6 +983,19 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
     const contacts: EngagementContact[] = data.value
       .filter((item) => item.statuscode === 1) // Only active items
       .map((item: any) => {
+        // Get status from prmtk_status choice column (formatted value)
+        const statusFormatted = item["prmtk_status@OData.Community.Display.V1.FormattedValue"] || item.prmtk_status;
+        // Default to Free if no status is available
+        let status: "Free" | "Assigned" | "Archived" = "Free";
+
+        if (statusFormatted === "Assigned" || statusFormatted === 1) {
+          status = "Assigned";
+        } else if (statusFormatted === "Archived" || statusFormatted === 2) {
+          status = "Archived";
+        } else {
+          status = "Free";
+        }
+
         const transformed = {
           id: item.prmtk_engagementcontactid,
           name: item.prmtk_id,
@@ -990,13 +1003,13 @@ export async function fetchEngagementContacts(vendorId?: string): Promise<Engage
           phoneNumber: item.prmtk_phonenumber,
           // Use backend proxy to fetch the image (avoids CORS issues)
           personalPhoto: `/api/odata/engagement-contact-photo/${item.prmtk_engagementcontactid}`,
-          // If engagement ID is present, contact is assigned; otherwise not assigned
-          status: item._prmtk_engagement_value ? "Assigned" : "Not Assigned",
+          // Use prmtk_status choice column for status (Free, Assigned, Archived)
+          status,
           engagementId: item._prmtk_engagement_value,
           createdOn: item.createdon,
           modifiedOn: item.modifiedon,
         };
-        console.log("[OData] Transformed contact:", transformed);
+        console.log("[OData] Transformed contact:", { ...transformed, statusDebug: { formatted: statusFormatted, final: status } });
         return transformed;
       });
 
