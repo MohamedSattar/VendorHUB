@@ -655,10 +655,12 @@ export const handleGetEngagementById: RequestHandler = async (req, res) => {
     console.log("[OData Proxy] Fetching Engagement by ID:", id);
 
     // Use authenticated request to get CRM data with proper OAuth token
+    // Prefer header includes formatted values for choice fields like prmtk_status
     const response = await makeAuthenticatedRequest(url, {
       method: "GET",
       headers: {
         Accept: "application/json",
+        "Prefer": "odata.include-annotations=\"*\"",
       },
     });
 

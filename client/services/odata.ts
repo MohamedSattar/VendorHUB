@@ -669,15 +669,16 @@ export async function fetchEngagementById(
     const item: ODataEngagementItem = await response.json();
 
     // Transform OData response to our Engagement format
+    const statusFormatted = item["prmtk_status@OData.Community.Display.V1.FormattedValue"];
+    const statusRaw = item.prmtk_status;
+
     const engagement: EngagementItem = {
       id: item.prmtk_engagementid,
       name: item.prmtk_engagementname,
       description: item.prmtk_description,
       startDate: item.prmtk_startdate,
       endDate: item.prmtk_enddate,
-      status:
-        item["prmtk_status@OData.Community.Display.V1.FormattedValue"] ||
-        "Pending",
+      status: statusFormatted || "Pending",
       ecaEngagementManager:
         item[
           "_prmtk_ecaengagementmanager_value@OData.Community.Display.V1.FormattedValue"
@@ -692,7 +693,14 @@ export async function fetchEngagementById(
       modifiedOn: item.modifiedon,
     };
 
-    console.log("[OData] Fetched Engagement:", engagement);
+    console.log("[OData] Fetched Engagement:", {
+      ...engagement,
+      statusDebug: {
+        raw: statusRaw,
+        formatted: statusFormatted,
+        final: engagement.status,
+      },
+    });
 
     return engagement;
   } catch (error) {
